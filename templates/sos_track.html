@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Live Emergency Tracking - TravelFusion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            margin: 0; padding: 0; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #f8f9fa;
+            overflow: hidden; 
+        }
+        
+        #map { 
+            width: 100vw; 
+            height: 100vh; 
+            position: absolute; 
+            top: 0; left: 0; 
+            z-index: 1; 
+        }
+        
+        /* Premium Native App Bottom Sheet */
+        .bottom-sheet {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 32px 32px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.08);
+            z-index: 1000;
+            padding: 24px;
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .drag-handle {
+            width: 40px;
+            height: 5px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 0 auto 20px auto;
+        }
+
+        .header-badge {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #fecaca;
+        }
+        
+        .header-badge.resolved {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1e293b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .coordinate-pill {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #475569;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Top Notification Bar */
+        .top-bar {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            z-index: 1000;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1e293b;
+        }
+        
+        .live-dot {
+            width: 10px; height: 10px;
+            background: #dc2626;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        /* Custom Map Marker */
+        .victim-marker {
+            width: 48px;
+            height: 48px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23dc2626"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>') no-repeat center;
+            background-size: contain;
+            filter: drop-shadow(0 4px 6px rgba(220, 38, 38, 0.4));
+        }
+        .marker-pulse {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px; height: 100px;
+            background: rgba(220, 38, 38, 0.2);
+            border: 2px solid rgba(220, 38, 38, 0.4);
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite ease-out;
+            pointer-events: none;
+        }
+        @keyframes pulse-ring {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Live Indicator -->
+    <div class="top-bar">
+        {% if alert['status'] == 'active' %}
+            <div class="live-dot"></div> LIVE TRACKING
+        {% else %}
+            <i class="bi bi-check-circle-fill text-success"></i> TRACKING ENDED
+        {% endif %}
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+    
+    <!-- Uber-Style Bottom Sheet -->
+    <div class="bottom-sheet">
+        <div class="drag-handle"></div>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bolder mb-0 text-dark">Passenger Safety</h5>
+            {% if alert['status'] == 'active' %}
+                <div class="header-badge">
+                    <i class="bi bi-shield-exclamation me-1"></i> SOS ACTIVE
+                </div>
+            {% else %}
+                <div class="header-badge resolved">
+                    <i class="bi bi-shield-check me-1"></i> RESOLVED
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="d-flex align-items-center mb-4">
+            <div class="user-avatar shadow-sm">
+                {{ user['full_name'][0].upper() if user['full_name'] else 'U' }}
+            </div>
+            <div class="ms-3">
+                <h4 class="mb-0 fw-bold text-dark">{{ user['full_name'] }}</h4>
+                <p class="text-secondary mb-0 fw-medium"><i class="bi bi-telephone-fill me-1"></i> {{ user['phone'] }}</p>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="row align-items-center">
+                <div class="col-2 text-center">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-3"></i>
+                </div>
+                <div class="col-10">
+                    <p class="mb-0 text-secondary small fw-bold text-uppercase tracking-wide">Emergency Type</p>
+                    <h5 class="mb-0 fw-bold text-dark">{{ str(alert['emergency_type']).upper().replace('_', ' ') if alert['emergency_type'] else 'GENERAL EMERGENCY' }}</h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <p class="mb-2 text-secondary small fw-bold ms-1">GPS COORDINATES</p>
+            <div class="d-flex gap-2">
+                <div class="coordinate-pill flex-fill text-center">
+                    <span class="text-secondary small d-block mb-1">LATITUDE</span>
+                    <strong id="lat-display">{{ alert['latitude'] }}</strong>
+                </div>
+                <div class="coordinate-pill flex-fill text-center">
+                    <span class="text-secondary small d-block mb-1">LONGITUDE</span>
+                    <strong id="lng-display">{{ alert['longitude'] }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <small class="text-secondary fw-medium">
+                <i class="bi bi-clock-history me-1"></i> Signal Updated: {{ alert['created_at'] }}
+            </small>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        var map;
+        var victimMarker;
+        var alertId = parseInt("{{ alert['id'] }}");
+        var isAlertActive = "{{ alert['status'] }}" === "active";
+
+        function initSOSMap() {
+            var lat = parseFloat("{{ alert['latitude'] }}") || 13.0827;
+            var lng = parseFloat("{{ alert['longitude'] }}") || 80.2707;
+            
+            // Offset the map center slightly up so the marker isn't hidden behind the bottom sheet
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false
+            }).setView([lat - 0.002, lng], 16);
+
+            // OpenStreetMap Standard Tiles (high speed and reliable loading on mobile)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
+
+            // Custom Premium Marker with HTML
+            var customIcon = L.divIcon({
+                className: 'custom-icon',
+                html: `
+                    <div class="marker-pulse"></div>
+                    <div class="victim-marker"></div>
+                `,
+                iconSize: [48, 48],
+                iconAnchor: [24, 48]
+            });
+
+            // Add Marker to exact location
+            victimMarker = L.marker([lat, lng], {icon: customIcon}).addTo(map);
+
+            // Force Leaflet to recalculate container size on mobile render
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 400);
+
+            // Start Live tracking polling if the SOS alert is still active
+            if (isAlertActive) {
+                startLiveSOSPolling(alertId);
+            }
+        }
+
+        function startLiveSOSPolling(id) {
+            setInterval(function() {
+                fetch('/api/sos/status/' + id)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            var newLat = data.latitude;
+                            var newLng = data.longitude;
+                            
+                            // Update marker coordinates dynamically
+                            if (victimMarker) {
+                                victimMarker.setLatLng([newLat, newLng]);
+                            }
+                            
+                            // Pan map to follow marker smoothly
+                            if (map) {
+                                map.panTo([newLat - 0.002, newLng], { animate: true, duration: 1.5 });
+                            }
+                            
+                            // Update UI coordinate pills
+                            var latEl = document.getElementById('lat-display');
+                            var lngEl = document.getElementById('lng-display');
+                            if (latEl) latEl.innerText = newLat.toFixed(5);
+                            if (lngEl) lngEl.innerText = newLng.toFixed(5);
+                            
+                            // Real-time status update: reload page if resolved by admin
+                            if (data.status === 'resolved') {
+                                location.reload();
+                            }
+                        }
+                    })
+                    .catch(err => console.error("SOS Live Track error:", err));
+            }, 3000);
+        }
+
+        window.onload = initSOSMap;
+    </script>
+</body>
+</html>

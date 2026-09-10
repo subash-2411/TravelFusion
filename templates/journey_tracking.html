@@ -1,0 +1,1494 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-3 px-md-4 my-3 text-start fade-in-up">
+    <div class="row g-4">
+
+        <!-- LEFT: Map -->
+        <div class="col-lg-7 col-xl-8">
+            <!-- Header bar -->
+            <div class="glass-card p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="text-white mb-0"><i class="bi bi-broadcast-pin text-success me-2"></i>Live Journey Tracking</h5>
+                        <p class="text-muted mb-0" style="font-size:.8rem;">
+                            <i class="bi bi-geo-alt-fill text-success me-1"></i>{{ plan.source.split(',')[0] if plan else 'Current Location' }}
+                            <i class="bi bi-arrow-right text-muted mx-2"></i>
+                            <i class="bi bi-geo-fill text-danger me-1"></i>{{ plan.destination.split(',')[0] if plan else 'Selected Destination' }}
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="tracking-status" class="badge badge-glass badge-glass-primary">BOARDING</span>
+                        <span class="badge" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.2);">
+                            <i class="bi bi-circle-fill me-1" style="font-size:.45rem;animation:pulseSuccess 1.5s infinite;"></i>LIVE
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Context-Aware Driver Card Setup (computed in backend) -->
+            
+            <!-- MAP -->
+            <div class="glass-card p-0 mb-4 overflow-hidden" style="border-radius:16px;">
+                <div id="map" style="height:500px;width:100%;border-radius:16px;"></div>
+            </div>
+
+            {% if active_rides %}
+            <div class="row g-3">
+                {% for active_ride in active_rides %}
+                <div class="col-12 col-md-6 {% if len(active_rides) == 1 %}col-md-12{% endif %}">
+                    <div class="glass-card p-4" style="border-color:rgba(245,158,11,0.25);">
+                        <h6 class="text-white mb-3"><i class="bi bi-person-badge-fill text-warning me-2"></i>Assigned Driver ({{ 'Pick-up' if trip['current_leg'] in ('first_mile', 'local') else 'Drop-off' }})</h6>
+                        <div class="d-flex gap-4 align-items-center flex-wrap">
+                            <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#fbbf24);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;color:white;flex-shrink:0;">
+                                {{ active_ride.driver_name[0] if active_ride.driver_name else 'D' }}
+                            </div>
+                            <div class="flex-fill">
+                                <div class="text-white fw-700 fs-6">{{ active_ride.driver_name or 'Driver Assigned' }}</div>
+                                <div class="d-flex gap-2 flex-wrap mt-1">
+                                    <span class="text-muted small"><i class="bi bi-star-fill text-warning me-1"></i>4.8</span>
+                                    <span class="text-muted small"><i class="{% if active_ride.vehicle_type.lower() == 'auto' %}bi bi-auto-rickshaw{% elif active_ride.vehicle_type.lower() == 'bike' %}fa-solid fa-motorcycle{% else %}bi bi-taxi-front-fill{% endif %} text-success me-1"></i>{{ active_ride.vehicle_type.upper() }}</span>
+                                    <span class="text-muted small font-monospace"><i class="bi bi-card-text me-1"></i>{{ active_ride.vehicle_number }}</span>
+                                </div>
+                            </div>
+                            <div class="text-end mt-2 mt-sm-0 w-100 w-sm-auto">
+                                <div class="text-muted" style="font-size:0.75rem;">START OTP</div>
+                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    <div class="text-white fw-800 fs-4 font-monospace" id="otp-text-{{ active_ride.otp }}" style="letter-spacing:.15em;color:var(--success-green) !important;">{{ active_ride.otp }}</div>
+                                    <button class="btn btn-sm btn-glass px-2 py-1" onclick="copyOTP('{{ active_ride.otp }}')" title="Copy OTP">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% elif (trip and trip['current_leg'] in ('first_mile', 'local', 'last_mile')) and not active_rides %}
+            <div class="glass-card p-4 text-center" style="border: 1px solid rgba(16,185,129,0.3); background: rgba(16,185,129,0.05);">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(16,185,129,0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="bi bi-person-walking text-success fs-1"></i>
+                </div>
+                <h5 class="text-white fw-bold mb-1">Self-Navigated Transit</h5>
+                <p class="text-secondary small mb-3">Follow the live map to reach your destination. No driver is assigned for this leg.</p>
+                <button class="btn btn-glow w-100 py-2" onclick="completeSelfTransit()">
+                    <i class="bi bi-geo-fill me-2"></i>I Have Reached Destination
+                </button>
+            </div>
+            {% elif trip and trip['current_leg'] == 'long_distance' %}
+            <div class="glass-card p-4" style="border-color:rgba(59,130,246,0.3); background: rgba(59,130,246,0.05);">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-white mb-3"><i class="bi bi-person-badge-fill text-accent-blue me-2"></i>Operator Info (Main Transit)</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:50px;height:50px;background:#1e293b;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#f8fafc;">
+                                {% if bus %}<i class="bi bi-bus-front"></i>{% elif train %}<i class="bi bi-train-front"></i>{% elif flight %}<i class="bi bi-airplane"></i>{% else %}<i class="bi bi-truck"></i>{% endif %}
+                            </div>
+                            <div>
+                                <h5 class="text-white mb-0">{% if bus %}{{ bus.operator_name }}{% elif train %}{{ train.train_name }}{% elif flight %}{{ flight.airline_name }}{% else %}Transit Operator{% endif %}</h5>
+                                <div class="text-muted small">
+                                    {% if bus %}Bus: {{ bus.bus_number }} &bull; Seat: {{ bus.seat_number }}
+                                    {% elif train %}Train: {{ train.train_number }} &bull; C:{{ train.coach_number }} S:{{ train.seat_number }}
+                                    {% elif flight %}Flight: {{ flight.flight_number }} &bull; Gate: {{ flight.gate }} S:{{ flight.seat_number }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-glow-cyan w-100 py-2 mt-2" onclick="completeMainTransit()">
+                    <i class="bi bi-geo-alt-fill me-2"></i>Arrived at Destination Station
+                </button>
+            </div>
+            {% elif trip and (trip.current_leg == 'completed' or trip.status == 'completed') %}
+            <div class="glass-card p-5 text-center mb-4" style="border-color:rgba(16,185,129,0.4); background: linear-gradient(145deg, rgba(16,185,129,0.1), rgba(6,78,59,0.2)); border-radius: 16px;">
+                <div class="mb-4" style="position:relative; display:inline-block;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 0 30px rgba(16,185,129,0.5);">
+                        <i class="bi bi-check-lg text-white" style="font-size: 3rem;"></i>
+                    </div>
+                    <div class="pulse-ring" style="position:absolute; top:-10px; left:-10px; right:-10px; bottom:-10px; border:2px solid #10b981; border-radius:50%; animation: pulseSuccess 2s infinite;"></div>
+                </div>
+                <h3 class="text-white fw-bold mb-2" style="letter-spacing: 0.5px;">Journey Completed!</h3>
+                <p class="text-light mb-4" style="font-size: 1.1rem; opacity: 0.9;">You have successfully reached your final destination. Thank you for traveling with TravelFusion AI.</p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <button class="btn btn-glow-success px-3 py-2" onclick="showRatingModal()">
+                        <i class="bi bi-star-fill me-2"></i>Rate Experience
+                    </button>
+                    {% if not is_local %}
+                    <button class="btn btn-glow-cyan px-3 py-2" onclick="replayJourneySimulation()">
+                        <i class="bi bi-play-circle-fill me-2"></i>Replay Journey Simulation
+                    </button>
+                    {% endif %}
+                    <a href="/dashboard" class="btn btn-glass px-3 py-2">
+                        <i class="bi bi-house-door-fill me-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="glass-card p-4 text-center" style="border-color:rgba(245,158,11,0.2);">
+                <div class="spinner-border text-warning mb-3" style="width:2rem;height:2rem;"></div>
+                <h6 class="text-white mb-1">Connecting to TravelFusion AI...</h6>
+                <p class="text-muted small mb-0">Updating journey details...</p>
+                <div class="text-start mt-3" style="font-size:10px; color:#666;">
+                    DEBUG: trip.current_leg = {{ trip.current_leg if trip else 'None' }}<br>
+                    DEBUG: active_rides = {{ active_rides | length }}<br>
+                    DEBUG: ride = {{ ride.id if ride else 'None' }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- RIGHT: Journey Details & SOS -->
+        <div class="col-lg-5 col-xl-4">
+            <div class="sticky-lg-top" style="top:88px;">
+
+                <!-- ETA Box -->
+                <div class="glass-card p-4 mb-4" style="background:linear-gradient(135deg,rgba(37,99,235,0.12),rgba(18,30,54,0.6));">
+                    <div class="text-muted small mb-1"><i class="bi bi-clock-fill text-accent-blue me-1"></i>ESTIMATED ARRIVAL</div>
+                    <h1 class="text-white fw-bold mb-2" id="tracking-eta" style="font-family:'Outfit',sans-serif;">-- mins</h1>
+                    <div class="row g-2 border-top border-secondary border-opacity-25 pt-3">
+                        <div class="col-6">
+                            <div class="text-muted small">CURRENT PHASE</div>
+                            <div class="text-white fw-600" id="tracking-current-leg">First Mile</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">BOOKING ID</div>
+                            <div class="text-white fw-600">{{ format_booking_id(booking.id) }}</div>
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="text-muted small">DATE</div>
+                            <div class="text-white fw-600" style="font-size:.85rem;">{{ plan.travel_date if plan else 'Unknown' }}</div>
+                        </div>
+                        <div class="col-6 mt-2">
+                            <div class="text-muted small">FARE</div>
+                            <div class="text-success fw-700">₹{{ booking.total_fare }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Journey Phase Timeline -->
+                <div class="glass-card p-4 mb-4" id="timeline-card">
+                    <h6 class="text-white mb-4"><i class="bi bi-signpost-split-fill text-accent-blue me-2"></i>Journey Phases</h6>
+
+                    <!-- Standard Multimodal Timeline -->
+                    <div class="position-relative ms-2 py-2" id="standard-timeline">
+                        {% if not is_local %}
+                        <!-- Phase: Pickup Ride -->
+                        <div class="d-flex gap-4 mb-2" id="leg-first_mile" style="transition: all 0.4s ease;{% if trip and trip['current_leg'] in ('long_distance', 'last_mile', 'completed') %} opacity: 1;{% endif %}">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:2; transition: all 0.4s; {% if trip and trip['current_leg'] in ('long_distance', 'last_mile', 'completed') %}background: rgba(16,185,129,0.1); border: 2px solid #10b981;{% else %}background: rgba(37,99,235,0.1); border: 2px solid #3b82f6;{% endif %} position: relative;">
+                                    <i class="{% if first_mile_ride and first_mile_ride.vehicle_type.lower() == 'auto' %}bi bi-auto-rickshaw{% elif first_mile_ride and first_mile_ride.vehicle_type.lower() == 'bike' %}fa-solid fa-motorcycle{% elif not first_mile_ride %}bi bi-person-walking{% else %}bi bi-taxi-front-fill{% endif %}" style="font-size:1.2rem; transition: color 0.4s;"></i>
+                                    {% if trip and trip['current_leg'] in ('long_distance', 'last_mile', 'completed') %}
+                                        <i class="bi bi-check-circle-fill text-success tick-badge" style="position:absolute; bottom:-5px; right:-5px; font-size:14px; background:#101520; border-radius:50%;"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="phase-line my-2" style="width:6px;height:40px; border-radius:6px; transition: all 0.4s; {% if trip and trip['current_leg'] in ('long_distance', 'last_mile', 'completed') %}background: #10b981;{% else %}background: rgba(255,255,255,0.1); box-shadow: inset 0 0 5px rgba(0,0,0,0.5);{% endif %}"></div>
+                            </div>
+                            <div class="flex-fill pt-1 pb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="text-white fw-bold phase-title" style="font-size:1.1rem; letter-spacing: 0.5px;">First Mile Transit</div>
+                                    <span class="badge phase-badge {% if trip and trip['current_leg'] in ('long_distance', 'last_mile', 'completed') %}bg-success{% endif %}" style="{% if not (trip and trip['current_leg'] in ('long_distance', 'last_mile', 'completed')) %}display:none;{% endif %} font-size: 0.75rem; padding: 5px 10px; border-radius: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">{% if trip and trip['current_leg'] in ('long_distance', 'last_mile', 'completed') %}COMPLETED{% else %}STATUS{% endif %}</span>
+                                </div>
+                                <div class="text-info small" style="font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px;"><i class="bi bi-geo-alt-fill me-1"></i>{{ plan.source.split(',')[0] if plan else 'Source' }} <i class="bi bi-arrow-right mx-2 text-muted"></i> {{ plan.source.split(',')[0] if plan else 'Source' }} <span class="ms-2 badge bg-dark text-light border border-secondary" id="leg-first_mile-dist" style="display:none;"></span></div>
+                                <div class="text-light small mt-2 d-flex align-items-center phase-desc p-2 rounded" style="font-size: 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                                    {% if first_mile_ride %}
+                                        <div class="driver-avatar me-2" style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg, #3b82f6, #06b6d4);color:white;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:bold;">{{ first_mile_ride.driver_name[0] if first_mile_ride.driver_name else 'D' }}</div>
+                                        {{ first_mile_ride.vehicle_type.title() }} · {{ first_mile_ride.driver_name or 'Assigned' }}
+                                        {% if first_mile_ride.vehicle_number %} <span class="ms-auto px-2 py-1 bg-dark text-warning rounded border border-secondary font-monospace" style="font-size: 0.75rem;">{{ first_mile_ride.vehicle_number }}</span>{% endif %}
+                                    {% else %}
+                                        <i class="bi bi-person-walking me-2 text-success fs-5"></i> Self-Navigated (Walk / Own Vehicle)
+                                    {% endif %}
+                                </div>
+                                <div class="phase-action-btn mt-3" id="action-first_mile" style="display:none;">
+                                    <button class="btn btn-sm btn-glow w-100 py-2 fw-bold" onclick="completeFirstMile({% if first_mile_ride %}true{% else %}false{% endif %})">
+                                        <i class="bi bi-fast-forward-fill me-2"></i>{% if first_mile_ride %}Simulate Driver Arrival{% else %}I Have Reached Station{% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phase: Main Journey -->
+                        <div class="d-flex gap-4 mb-2" id="leg-long_distance" style="transition: all 0.4s ease; {% if trip and trip['current_leg'] in ('last_mile', 'completed') %}opacity: 1;{% elif trip and trip['current_leg'] == 'long_distance' %}opacity: 1;{% else %}opacity: 0.5;{% endif %}">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:40px;height:40px;border-radius:12px;{% if trip and trip['current_leg'] in ('last_mile', 'completed') %}background:rgba(16,185,129,0.1);border:2px solid #10b981;{% else %}background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);{% endif %}display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:2; transition: all 0.4s; position: relative;">
+                                    {% if bus %}<i class="bi bi-bus-front-fill text-muted" style="font-size:1.2rem; transition: color 0.4s;"></i>
+                                    {% elif train %}<i class="bi bi-train-front-fill text-muted" style="font-size:1.2rem; transition: color 0.4s;"></i>
+                                    {% elif flight %}<i class="bi bi-airplane-fill text-muted" style="font-size:1.2rem; transition: color 0.4s;"></i>
+                                    {% else %}<i class="bi bi-arrow-right text-muted" style="font-size:1.2rem; transition: color 0.4s;"></i>{% endif %}
+                                    {% if trip and trip['current_leg'] in ('last_mile', 'completed') %}
+                                        <i class="bi bi-check-circle-fill text-success tick-badge" style="position:absolute; bottom:-5px; right:-5px; font-size:14px; background:#101520; border-radius:50%;"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="phase-line my-2" style="width:6px;height:40px; border-radius:6px; transition: all 0.4s; background: rgba(255,255,255,0.1); box-shadow: inset 0 0 5px rgba(0,0,0,0.5);"></div>
+                            </div>
+                            <div class="flex-fill pt-1 pb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="text-white fw-bold phase-title" style="font-size:1.1rem; letter-spacing: 0.5px;">Main Journey</div>
+                                    <span class="badge phase-badge" style="display:none; font-size: 0.75rem; padding: 5px 10px; border-radius: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">STATUS</span>
+                                </div>
+                                <div class="text-info small" style="font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px;"><i class="bi bi-geo-alt-fill me-1"></i>{{ plan.source.split(',')[0] if plan else 'Source' }} <i class="bi bi-arrow-right mx-2 text-muted"></i> {{ plan.destination.split(',')[0] if plan else 'Destination' }} <span class="ms-2 badge bg-dark text-light border border-secondary" id="leg-long_distance-dist" style="display:none;"></span></div>
+                                <div class="text-light small mt-2 phase-desc p-2 rounded" style="font-size: 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                                    {% if bus %}<i class="bi bi-ticket-detailed-fill me-2 text-warning fs-6"></i> Bus · {{ bus.operator_name }} <span class="float-end text-muted">Seat {{ bus.seat_number }}</span>
+                                    {% elif train %}<i class="bi bi-ticket-detailed-fill me-2 text-danger fs-6"></i> Train · {{ train.train_name }} <span class="float-end text-muted">{{ train.coach_number }}/{{ train.seat_number }}</span>
+                                    {% elif flight %}<i class="bi bi-ticket-detailed-fill me-2 text-cyan fs-6"></i> Flight · {{ flight.airline_name }} <span class="float-end text-muted">Gate {{ flight.gate }}</span>
+                                    {% else %}Transit in progress{% endif %}
+                                </div>
+                                <div class="phase-action-btn mt-3" id="action-long_distance" style="display:none;">
+                                    <button class="btn btn-sm btn-glow-warning w-100 py-2 fw-bold" onclick="completeMainTransit()">
+                                        <i class="bi bi-geo-alt-fill me-2"></i>I Have Arrived at Destination
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phase: Drop-off Ride -->
+                        <div class="d-flex gap-4 mb-2" id="leg-last_mile" style="transition: all 0.4s ease; {% if trip and trip['current_leg'] in ('last_mile', 'completed') %}opacity: 1;{% else %}opacity: 0.5;{% endif %}">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:40px;height:40px;border-radius:12px;{% if trip and trip['current_leg'] == 'completed' %}background:rgba(16,185,129,0.1);border:2px solid #10b981;{% else %}background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);{% endif %}display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:2; transition: all 0.4s; position: relative;">
+                                    <i class="{% if last_mile_ride and last_mile_ride.vehicle_type.lower() == 'auto' %}bi bi-auto-rickshaw{% elif last_mile_ride and last_mile_ride.vehicle_type.lower() == 'bike' %}fa-solid fa-motorcycle{% elif not last_mile_ride %}bi bi-person-walking{% else %}bi bi-taxi-front-fill{% endif %} text-muted" style="font-size:1.2rem; transition: color 0.4s;"></i>
+                                    {% if trip and trip['current_leg'] == 'completed' %}
+                                        <i class="bi bi-check-circle-fill text-success tick-badge" style="position:absolute; bottom:-5px; right:-5px; font-size:14px; background:#101520; border-radius:50%;"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="phase-line my-2" style="width:6px;height:30px; border-radius:6px; transition: all 0.4s; background: rgba(255,255,255,0.1); box-shadow: inset 0 0 5px rgba(0,0,0,0.5);"></div>
+                            </div>
+                            <div class="flex-fill pt-1 pb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="text-white fw-bold phase-title" style="font-size:1.1rem; letter-spacing: 0.5px;">Last Mile Drop-off</div>
+                                    <span class="badge phase-badge" style="display:none; font-size: 0.75rem; padding: 5px 10px; border-radius: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">STATUS</span>
+                                </div>
+                                <div class="text-info small" style="font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px;"><i class="bi bi-geo-alt-fill me-1"></i>{{ plan.destination.split(',')[0] if plan else 'Destination' }} <i class="bi bi-arrow-right mx-2 text-muted"></i> {{ plan.destination.split(',')[0] if plan else 'Destination' }} <span class="ms-2 badge bg-dark text-light border border-secondary" id="leg-last_mile-dist" style="display:none;"></span></div>
+                                <div class="text-light small mt-2 d-flex align-items-center phase-desc p-2 rounded" style="font-size: 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                                    {% if last_mile_ride %}
+                                        <div class="driver-avatar me-2" style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg, #f59e0b, #fbbf24);color:#000;display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:bold;">{{ last_mile_ride.driver_name[0] if last_mile_ride.driver_name else 'D' }}</div>
+                                        {{ last_mile_ride.vehicle_type.title() }} · {{ last_mile_ride.driver_name or 'Assigning...' }}
+                                    {% else %}
+                                        <i class="bi bi-person-walking me-2 text-warning fs-5"></i> Self-Navigated (Walk / Own Vehicle)
+                                    {% endif %}
+                                </div>
+                                <div class="phase-action-btn mt-3" id="action-last_mile" style="display:none;">
+                                    <button class="btn btn-sm btn-glow-success w-100 py-2 fw-bold" onclick="completeLastMile({% if last_mile_ride %}true{% else %}false{% endif %})">
+                                        <i class="bi bi-check-circle-fill me-2"></i>{% if last_mile_ride %}Simulate Driver Arrival{% else %}Mark as Reached{% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phase: Final Destination -->
+                        <div class="d-flex gap-4" id="leg-completed" style="transition: all 0.4s ease; opacity: 0.5;">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:2; transition: all 0.4s;">
+                                    <i class="bi bi-geo-alt text-muted" style="font-size:1.2rem; transition: color 0.4s;"></i>
+                                </div>
+                            </div>
+                            <div class="flex-fill pt-2">
+                                <div class="text-white fw-bold" style="font-size:1.1rem; letter-spacing: 0.5px;">Final Destination</div>
+                                <div class="text-muted small mt-1">{{ plan.destination.split(',')[0] if plan else 'Destination' }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Local Ride Specific Timeline -->
+                    <div id="local-timeline" style="display:none;">
+                        <div class="d-flex gap-3 mb-3" id="local-step-searching">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot pulse-cyan" style="width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,0.2);border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <span class="spinner-border spinner-border-sm text-accent-blue" style="width:14px;height:14px;"></span>
+                                </div>
+                                <div style="width:2px;height:25px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+                            </div>
+                            <div class="flex-fill pt-1">
+                                <div class="text-white fw-600" style="font-size:.9rem;">Searching for Driver</div>
+                                <div class="text-muted small">Locating nearby captains...</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3" id="local-step-assigned" style="opacity:0.5;">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,0.2);border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-check-circle-fill text-accent-blue" style="font-size:.75rem;"></i>
+                                </div>
+                                <div style="width:2px;height:25px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+                            </div>
+                            <div class="flex-fill pt-1">
+                                <div class="text-white fw-600" style="font-size:.9rem;">Driver Assigned</div>
+                                <div class="text-muted small" id="local-txt-assigned">Your driver has accepted your request.</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3" id="local-step-onway">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-geo-alt-fill text-muted" style="font-size:.75rem;"></i>
+                                </div>
+                                <div style="width:2px;height:25px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+                            </div>
+                            <div class="flex-fill pt-1">
+                                <div class="text-white fw-600" style="font-size:.9rem;">Driver On the Way</div>
+                                <div class="text-muted small" id="local-txt-onway">Driver is navigating to your pickup location.</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3" id="local-step-arrived">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-bell-fill text-muted" style="font-size:.75rem;"></i>
+                                </div>
+                                <div style="width:2px;height:25px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+                            </div>
+                            <div class="flex-fill pt-1">
+                                <div class="text-white fw-600" style="font-size:.9rem;">Driver Arrived</div>
+                                <div class="text-muted small" id="local-txt-arrived">Give OTP <strong class="text-success font-monospace">{{ ride.otp if ride else '----' }}</strong> to start.</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3" id="local-step-transit">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="phase-dot" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="bi bi-compass-fill text-muted" style="font-size:.75rem;"></i>
+                                </div>
+                                <div style="width:2px;height:25px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+                            </div>
+                            <div class="flex-fill pt-1">
+                                <div class="text-white fw-600" style="font-size:.9rem;">Ride Started / In Transit</div>
+                                <div class="text-muted small" id="local-txt-transit">Heading to your destination.</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3" id="local-step-completed">
+                            <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="bi bi-flag-fill text-muted" style="font-size:.75rem;"></i>
+                            </div>
+                            <div class="flex-fill pt-1">
+                                <div class="text-white fw-600" style="font-size:.9rem;">Ride Completed</div>
+                                <div class="text-muted small" id="local-txt-completed">Arrived! Safe journey with TravelFusion AI.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 mb-3">
+                    {% if not is_local %}
+                    <a href="/ticket/{{ booking.id }}" class="btn btn-glow flex-fill py-2">
+                        <i class="bi bi-ticket-perforated-fill me-1"></i>View Ticket
+                    </a>
+                    {% endif %}
+                    <a href="/dashboard" class="btn btn-glass flex-fill py-2">
+                        <i class="bi bi-grid-fill me-1"></i>Dashboard
+                    </a>
+                </div>
+
+                <!-- SOS Button -->
+                <div class="glass-card p-3 text-center" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);" id="sos-trigger-container">
+                    <h6 class="text-danger mb-2"><i class="bi bi-shield-fill-exclamation me-1"></i>Emergency SOS</h6>
+                    <p class="text-muted mb-3" style="font-size:.78rem;">One tap alerts your emergency contacts with live GPS location via SMS & Push</p>
+                    <button class="btn btn-glow-danger w-100 py-2 fw-bold pulse-danger" id="sos-trigger-btn" onclick="openJourneySOSModal()">
+                        <i class="bi bi-exclamation-octagon-fill me-2"></i>ACTIVATE EMERGENCY SOS
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const legsData = {{ legs_json }};
+    const bookingId = {{ booking.id }};
+    const isLocal = legsData.length > 0 && legsData[0].leg_type === 'direct';
+    let simulationMarker = null;
+    let mapObj = null;
+    let localStatus = 'searching'; // searching, assigned, onway, arrived, transit, completed
+    let driverLatLng = null;
+
+    function replayJourneySimulation() {
+        if (!mapObj || !legsData || legsData.length === 0) return;
+        
+        // Helper to interpolate coordinates to a fixed number of steps for smooth uniform speed
+        function interpolateCoords(coords, numSteps) {
+            if (!coords || coords.length === 0) return [];
+            if (coords.length === 1) return Array(numSteps).fill(coords[0]);
+            
+            const interpolated = [];
+            let totalDistance = 0;
+            const segments = [];
+            
+            for (let i = 1; i < coords.length; i++) {
+                const prev = coords[i-1];
+                const curr = coords[i];
+                const dist = Math.sqrt(Math.pow(curr[0] - prev[0], 2) + Math.pow(curr[1] - prev[1], 2));
+                totalDistance += dist;
+                segments.push({ prev, curr, dist, cumDist: totalDistance });
+            }
+            
+            if (totalDistance === 0) {
+                return Array(numSteps).fill(coords[0]);
+            }
+            
+            for (let i = 0; i < numSteps; i++) {
+                const targetDist = (i / (numSteps - 1)) * totalDistance;
+                if (targetDist === 0) {
+                    interpolated.push(coords[0]);
+                    continue;
+                }
+                
+                let found = false;
+                for (let j = 0; j < segments.length; j++) {
+                    const seg = segments[j];
+                    const startDist = seg.cumDist - seg.dist;
+                    if (targetDist <= seg.cumDist) {
+                        const ratio = seg.dist === 0 ? 0 : (targetDist - startDist) / seg.dist;
+                        const lat = seg.prev[0] + (seg.curr[0] - seg.prev[0]) * ratio;
+                        const lng = seg.prev[1] + (seg.curr[1] - seg.prev[1]) * ratio;
+                        interpolated.push([lat, lng]);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    interpolated.push(coords[coords.length - 1]);
+                }
+            }
+            return interpolated;
+        }
+        
+        // 1. Stop active polling
+        if (typeof trackingInterval !== 'undefined' && trackingInterval) {
+            clearInterval(trackingInterval);
+        }
+        
+        const replayBtn = event.currentTarget;
+        const originalBtnHtml = replayBtn.innerHTML;
+        replayBtn.disabled = true;
+        replayBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Replaying...';
+        
+        // 3. Reset timeline UI to starting state (all pending)
+        legsData.forEach(leg => {
+            const item = document.getElementById(`leg-${leg.leg_type}`);
+            if (item) {
+                item.style.opacity = '0.5';
+                const dot = item.querySelector('.phase-dot');
+                if (dot) {
+                    dot.style.background = 'rgba(255,255,255,0.05)';
+                    dot.style.border = '2px dashed rgba(255,255,255,0.2)';
+                    dot.classList.remove('pulse-cyan');
+                    const tick = dot.querySelector('.tick-badge');
+                    if (tick) tick.remove();
+                }
+                const line = item.querySelector('.phase-line');
+                if (line) line.style.background = 'rgba(255,255,255,0.1)';
+                const badge = item.querySelector('.phase-badge');
+                if (badge) badge.style.display = 'none';
+                const icon = item.querySelector('i');
+                if (icon) {
+                    icon.className = icon.className.replace('text-success', 'text-muted').replace('text-accent-blue', 'text-muted');
+                }
+            }
+        });
+        const completedLeg = document.getElementById('leg-completed');
+        if (completedLeg) {
+            completedLeg.style.opacity = '0.5';
+            const dot = completedLeg.querySelector('.phase-dot');
+            if (dot) {
+                dot.style.background = 'rgba(255,255,255,0.05)';
+                dot.style.border = '2px dashed rgba(255,255,255,0.2)';
+            }
+            const icon = completedLeg.querySelector('i');
+            if (icon) icon.className = 'bi bi-geo-alt text-muted';
+        }
+        
+        // 4. Sequence animation
+        let legIdx = 0;
+        
+        function animateNextLeg() {
+            if (legIdx >= legsData.length) {
+                // Done!
+                if (completedLeg) {
+                    completedLeg.style.opacity = '1';
+                    const dot = completedLeg.querySelector('.phase-dot');
+                    if (dot) { dot.style.background = 'rgba(16,185,129,0.1)'; dot.style.border = '2px solid #10b981'; }
+                    const icon = completedLeg.querySelector('i');
+                    if (icon) icon.className = 'bi bi-geo-fill text-success';
+                }
+                
+                replayBtn.disabled = false;
+                replayBtn.innerHTML = originalBtnHtml;
+                
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Simulation Complete!',
+                        text: 'Journey replay finished successfully.',
+                        icon: 'success',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    alert('Simulation Complete!');
+                }
+                
+                // Restore complete UI
+                legsData.forEach(leg => {
+                    const item = document.getElementById(`leg-${leg.leg_type}`);
+                    if (item) {
+                        item.style.opacity = '1';
+                        const dot = item.querySelector('.phase-dot');
+                        if (dot) { dot.style.background = 'rgba(16,185,129,0.1)'; dot.style.border = '2px solid #10b981'; }
+                        const line = item.querySelector('.phase-line');
+                        if (line) line.style.background = '#10b981';
+                        const badge = item.querySelector('.phase-badge');
+                        if (badge) { badge.style.display = 'inline-block'; badge.className = 'badge phase-badge bg-success'; badge.innerText = 'COMPLETED'; }
+                        const icon = item.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('text-muted', 'text-accent-blue');
+                            icon.classList.add('text-success');
+                            if (!dot.querySelector('.tick-badge')) {
+                                dot.style.position = 'relative';
+                                dot.insertAdjacentHTML('beforeend', '<i class="bi bi-check-circle-fill text-success tick-badge" style="position:absolute; bottom:-5px; right:-5px; font-size:14px; background:#101520; border-radius:50%;"></i>');
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            const leg = legsData[legIdx];
+            const rawCoords = mapObj.geoPaths[leg.leg_type] || [leg.start_coords, leg.end_coords];
+            // Normalize path to exactly 300 points for perfectly smooth, uniform 15-second legs
+            const coords = interpolateCoords(rawCoords, 300);
+            
+            const item = document.getElementById(`leg-${leg.leg_type}`);
+            if (item) {
+                item.style.opacity = '1';
+                const dot = item.querySelector('.phase-dot');
+                if (dot) { dot.style.background = 'rgba(59,130,246,0.2)'; dot.style.border = '2px solid #3b82f6'; dot.classList.add('pulse-cyan'); }
+                const line = item.querySelector('.phase-line');
+                if (line) line.style.background = 'repeating-linear-gradient(to bottom, #3b82f6 0, #3b82f6 5px, transparent 5px, transparent 10px)';
+                const badge = item.querySelector('.phase-badge');
+                if (badge) { badge.style.display = 'inline-block'; badge.className = 'badge phase-badge bg-primary'; badge.innerText = 'REPLAYING...'; }
+                const icon = item.querySelector('i');
+                if (icon) { icon.classList.remove('text-muted'); icon.classList.add('text-accent-blue'); }
+            }
+            
+            let iconHtml = '';
+            let bgColor = 'var(--royal-blue)';
+            if (leg.mode === 'bike') { iconHtml = '<span style="font-size:18px;line-height:1;">🏍️</span>'; bgColor = '#06b6d4'; }
+            else if (leg.mode === 'auto') { iconHtml = '<span style="font-size:18px;line-height:1;">🛺</span>'; bgColor = '#10b981'; }
+            else if (leg.mode === 'cab') { iconHtml = '<span style="font-size:18px;line-height:1;">🚗</span>'; bgColor = '#f59e0b'; }
+            else if (leg.mode === 'bus') { iconHtml = '<i class="bi bi-bus-front-fill text-white" style="font-size:16px;"></i>'; bgColor = '#3b82f6'; }
+            else if (leg.mode === 'train') { iconHtml = '<i class="bi bi-train-front-fill text-white" style="font-size:16px;"></i>'; bgColor = '#ef4444'; }
+            else if (leg.mode === 'flight') { iconHtml = '<i class="bi bi-airplane-fill text-white" style="font-size:16px;"></i>'; bgColor = '#a855f7'; }
+            else { iconHtml = '<i class="bi bi-geo-alt-fill text-white" style="font-size:16px;"></i>'; }
+            
+            const reNewIcon = L.divIcon({
+                className: 'custom-traveler-pin',
+                html: `<div class="pulse-danger" style="background-color: ${bgColor}; width: 32px; height: 32px; border-radius:50%; border: 2px solid #fff; box-shadow: 0 0 15px ${bgColor}; display:flex; align-items:center; justify-content:center;">
+                           ${iconHtml}
+                       </div>`,
+                iconSize: [32, 32]
+            });
+
+            mapObj.marker.setIcon(reNewIcon);
+            
+            if (mapObj.map) {
+                mapObj.map.setView(coords[0], 12);
+            }
+            
+            let coordIdx = 0;
+            const animateStep = () => {
+                if (coordIdx >= coords.length) {
+                    if (item) {
+                        const dot = item.querySelector('.phase-dot');
+                        if (dot) {
+                            dot.style.background = 'rgba(16,185,129,0.1)';
+                            dot.style.border = '2px solid #10b981';
+                            dot.classList.remove('pulse-cyan');
+                            if (!dot.querySelector('.tick-badge')) {
+                                dot.style.position = 'relative';
+                                dot.insertAdjacentHTML('beforeend', '<i class="bi bi-check-circle-fill text-success tick-badge" style="position:absolute; bottom:-5px; right:-5px; font-size:14px; background:#101520; border-radius:50%;"></i>');
+                            }
+                        }
+                        const line = item.querySelector('.phase-line');
+                        if (line) line.style.background = '#10b981';
+                        const badge = item.querySelector('.phase-badge');
+                        if (badge) { badge.className = 'badge phase-badge bg-success'; badge.innerText = 'COMPLETED'; }
+                        const icon = item.querySelector('i');
+                        if (icon) { icon.classList.remove('text-accent-blue'); icon.classList.add('text-success'); }
+                    }
+                    
+                    legIdx++;
+                    setTimeout(animateNextLeg, 1000);
+                    return;
+                }
+                
+                const pt = coords[coordIdx];
+                mapObj.marker.setLatLng(pt);
+                
+                if (mapObj.map && !mapObj.map.getBounds().contains(pt)) {
+                    mapObj.map.panTo(pt, { animate: true, duration: 0.2 });
+                }
+                
+                coordIdx++;
+                setTimeout(animateStep, 50);
+            };
+            
+            // Give 1.5 seconds delay for map tiles and view to focus before starting the animation
+            setTimeout(animateStep, 1500);
+        }
+        
+        animateNextLeg();
+    }
+
+    function copyOTP(otpText) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(otpText).then(function() {
+                showNotification('Copied', 'OTP copied to clipboard', 'success');
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                showNotification('Error', 'Failed to copy OTP.', 'danger');
+            });
+        } else {
+            // Fallback for non-secure contexts (e.g., HTTP over LAN)
+            let textArea = document.createElement("textarea");
+            textArea.value = otpText;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showNotification('Copied', 'OTP copied to clipboard', 'success');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                showNotification('Error', 'Failed to copy OTP.', 'danger');
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        mapObj = initTrackingMap('map', legsData);
+        
+        // Populate Distance Badges
+        if (legsData && legsData.length > 0) {
+            legsData.forEach(leg => {
+                let distEl = null;
+                if (leg.leg_type === 'first_mile' || leg.leg_type === 'direct' || leg.leg_type === 'local') {
+                    distEl = document.getElementById('leg-first_mile-dist');
+                } else if (leg.leg_type === 'long_distance') {
+                    distEl = document.getElementById('leg-long_distance-dist');
+                } else if (leg.leg_type === 'last_mile') {
+                    distEl = document.getElementById('leg-last_mile-dist');
+                }
+                
+                if (distEl && leg.distance) {
+                    distEl.innerText = leg.distance + ' KM';
+                    distEl.style.display = 'inline-block';
+                }
+            });
+        }
+        
+        if (isLocal) {
+            document.getElementById('tracking-current-leg').innerText = (legsData[0].distance > 50) ? "Intercity Ride" : "Local Ride";
+            document.getElementById('standard-timeline').style.display = 'none';
+            document.getElementById('local-timeline').style.display = 'block';
+            
+            const ticketBtn = document.querySelector('a[href^="/ticket/"]');
+            if (ticketBtn) ticketBtn.style.display = 'none';
+        }
+        
+        window.renderedLeg = "{{ trip.current_leg if trip else 'first_mile' }}";
+        window.renderedStatus = "{{ trip.status if trip else 'pending' }}";
+        if (mapObj) {
+            startLiveJourneyTracking(bookingId, mapObj);
+        }
+    });
+
+
+
+    // Timeline updates for local ride
+    function updateLocalTimelineUI(status) {
+        localStatus = status;
+        const steps = ['searching', 'assigned', 'onway', 'arrived', 'transit', 'completed'];
+        const activeIdx = steps.indexOf(status);
+        
+        steps.forEach((step, idx) => {
+            const el = document.getElementById(`local-step-${step}`);
+            if (!el) return;
+            const dot = el.querySelector('.phase-dot') || el.querySelector('div');
+            const icon = el.querySelector('i');
+            const spinner = el.querySelector('.spinner-border');
+            
+            if (idx < activeIdx) {
+                // Completed step
+                el.style.opacity = '0.7';
+                if (dot) {
+                    dot.style.background = 'rgba(16,185,129,0.2)';
+                    dot.style.borderColor = '#10b981';
+                    dot.classList.remove('pulse-cyan');
+                }
+                if (icon) {
+                    icon.className = icon.className.replace('text-muted', 'text-success').replace('text-accent-blue', 'text-success');
+                    if (!dot.querySelector('.tick-badge')) {
+                        dot.style.position = 'relative';
+                        dot.insertAdjacentHTML('beforeend', '<i class="bi bi-check-circle-fill text-success tick-badge" style="position:absolute; bottom:-5px; right:-5px; font-size:12px; background:#101520; border-radius:50%;"></i>');
+                    }
+                }
+                if (spinner) {
+                    spinner.replaceWith(Object.assign(document.createElement('i'), { className: 'bi bi-check-circle-fill text-success', style: 'font-size:.75rem;' }));
+                }
+            } else if (idx === activeIdx) {
+                // Active step
+                el.style.opacity = '1';
+                if (dot) {
+                    dot.style.background = 'rgba(59,130,246,0.3)';
+                    dot.style.borderColor = '#3b82f6';
+                    dot.classList.add('pulse-cyan');
+                }
+                if (icon) icon.className = icon.className.replace('text-muted', 'text-accent-blue');
+            } else {
+                // Future step
+                el.style.opacity = '0.4';
+                if (dot) {
+                    dot.style.background = 'rgba(255,255,255,0.04)';
+                    dot.style.borderColor = 'rgba(255,255,255,0.12)';
+                    dot.classList.remove('pulse-cyan');
+                }
+            }
+        });
+        
+        // Show OTP card when driver has arrived
+        if (status === 'arrived') {
+            const otpCard = document.getElementById('otp-entry-card');
+            if (otpCard) otpCard.style.display = 'block';
+            const simOtp = document.getElementById('btn-sim-otp');
+            if (simOtp) simOtp.disabled = false;
+        }
+        
+        // Update upper status badge
+        const badge = document.getElementById('tracking-status');
+        if (badge) {
+            if (status === 'searching') {
+                badge.innerHTML = '<span class="spinner-border spinner-border-sm me-1" style="width:10px;height:10px;"></span> SEARCHING';
+            } else {
+                badge.innerText = status.toUpperCase().replace('ONWAY', 'ON THE WAY');
+            }
+            if (status === 'completed') {
+                badge.className = "badge badge-glass badge-glass-success";
+            } else if (status === 'transit') {
+                badge.className = "badge badge-glass badge-glass-warning";
+            } else {
+                badge.className = "badge badge-glass badge-glass-primary";
+            }
+        }
+    }
+
+    // Simulation: Driver moving to pickup
+    function completeSelfTransit() {
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Confirming...';
+        btn.disabled = true;
+        
+        fetch(`/api/tracking/${bookingId}/complete_self_transit`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showNotification('Error', 'Failed to update transit status', 'danger');
+            }
+        })
+        .catch(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showNotification('Error', 'Network error', 'danger');
+        });
+    }
+
+    function simulateDriverPickup() {
+        if (!mapObj || !mapObj.map) return;
+        
+        document.getElementById('btn-sim-pickup').disabled = true;
+        document.getElementById('btn-sim-pickup').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Driver moving...';
+        
+        updateLocalTimelineUI('onway');
+        
+        const start = legsData[0].start_coords; // User pickup
+        // Generate a start position for driver roughly 1.5 KM away
+        const driverStart = [start[0] - 0.008, start[1] - 0.008];
+        
+        // Calculate bearing
+        let bearing = 0;
+        if (typeof getBearing === 'function') {
+            bearing = getBearing(driverStart[0], driverStart[1], start[0], start[1]);
+        }
+        
+        // Setup Leaflet marker for vehicle if not exists
+        const mode = legsData[0].mode || 'auto';
+        let iconClass = 'bi-car-front-fill';
+        let bgColor = '#10b981';
+        if (mode === 'bike') { iconClass = 'fa-solid fa-motorcycle'; bgColor = '#06b6d4'; }
+        else if (mode === 'cab') { iconClass = 'bi-car-front-fill'; bgColor = '#f59e0b'; }
+        else if (mode === 'auto') { iconClass = 'bi-car-front'; bgColor = '#10b981'; }
+        
+        const fontIconClass = iconClass.startsWith('bi-') ? `bi ${iconClass}` : iconClass;
+        
+        const createVehicleIcon = (currentBearing) => L.divIcon({
+            className: 'custom-traveler-pin',
+            html: `<div class="pulse-danger" style="background-color: ${bgColor}; width: 32px; height: 32px; border-radius:50%; border: 2px solid #fff; box-shadow: 0 0 15px ${bgColor}; display:flex; align-items:center; justify-content:center; transform: rotate(${currentBearing}deg); transition: transform 0.5s ease;">
+                       <i class="${fontIconClass} text-white" style="font-size:16px;"></i>
+                   </div>`,
+            iconSize: [32, 32]
+        });
+        
+        simulationMarker = L.marker(driverStart, { icon: createVehicleIcon(bearing) }).addTo(mapObj.map);
+        mapObj.map.setView(driverStart, 14);
+        
+        // Animate movement over ~30 seconds (60 steps * 500ms)
+        let step = 0;
+        const totalSteps = 60;
+        const interval = setInterval(() => {
+            step++;
+            const progress = step / totalSteps;
+            const lat = driverStart[0] + (start[0] - driverStart[0]) * progress;
+            const lng = driverStart[1] + (start[1] - driverStart[1]) * progress;
+            
+            // Re-calculate bearing just in case (though it's a straight line here)
+            if (typeof getBearing === 'function' && step < totalSteps) {
+                bearing = getBearing(driverStart[0], driverStart[1], start[0], start[1]);
+            }
+            
+            simulationMarker.setLatLng([lat, lng]);
+            simulationMarker.setIcon(createVehicleIcon(bearing));
+            
+            // Smoothly pan if outside view bounds (do not force zoom)
+            if (mapObj.map && !mapObj.map.getBounds().contains([lat, lng])) {
+                mapObj.map.panTo([lat, lng], { animate: true, duration: 0.5 });
+            }
+            
+            // Dynamic ETA countdown (30s = 0.5 min -> display in seconds/mins)
+            const estArrivalSeconds = Math.max(1, Math.round(30 * (1 - progress)));
+            if (estArrivalSeconds > 60) {
+                document.getElementById('tracking-eta').innerText = `Arriving in ${Math.ceil(estArrivalSeconds/60)} min`;
+            } else {
+                document.getElementById('tracking-eta').innerText = `Arriving in ${estArrivalSeconds} sec`;
+            }
+            
+            if (step >= totalSteps) {
+                clearInterval(interval);
+                // Arrived!
+                updateLocalTimelineUI('arrived');
+                document.getElementById('tracking-eta').innerText = "Driver Arrived";
+                document.getElementById('otp-entry-card').style.display = 'block';
+                document.getElementById('btn-sim-otp').disabled = false;
+                
+                // Sound Alert
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = audioCtx.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc.connect(audioCtx.destination);
+                    osc.start();
+                    setTimeout(() => { osc.stop(); audioCtx.close(); }, 500);
+                } catch(e) {}
+                
+                // Trigger dynamic arrival alert toast/popup
+                showNotification('Driver Arrived!', 'Your driver has arrived at the pickup location. Share OTP with driver to start the ride!', 'success');
+                
+                document.getElementById('btn-sim-pickup').innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>Driver Arrived';
+            }
+        }, 300);
+    }
+
+    // Manual completion overrides
+    function triggerConfetti() {
+        // Dynamically load confetti if not present
+        if (typeof confetti === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+            script.onload = () => {
+                fireConfetti();
+            };
+            document.head.appendChild(script);
+        } else {
+            fireConfetti();
+        }
+    }
+    
+    function fireConfetti() {
+        var duration = 3000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+            confetti({
+                particleCount: 5,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#06b6d4', '#10b981', '#f59e0b']
+            });
+            confetti({
+                particleCount: 5,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#06b6d4', '#10b981', '#f59e0b']
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+    }
+    function showDriverSearchAnimation(type) {
+        let msg = type === 'last_mile' ? 'Finding a driver for your drop-off...' : 'Locating nearby drivers...';
+        const overlayHTML = `
+            <div id="driver-search-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(10px);">
+                <div class="radar" style="position:relative;width:150px;height:150px;border-radius:50%;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(59,130,246,0.2);">
+                    <div style="position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid #3b82f6;animation:ripple 1.5s linear infinite;"></div>
+                    <div style="position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid #3b82f6;animation:ripple 1.5s linear infinite;animation-delay:0.5s;"></div>
+                    <div style="position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid #3b82f6;animation:ripple 1.5s linear infinite;animation-delay:1s;"></div>
+                    <i class="bi bi-car-front-fill text-accent-blue" style="font-size:2.5rem;z-index:10;"></i>
+                </div>
+                <h4 class="text-white mt-5 fw-bold">${msg}</h4>
+                <p class="text-muted small">Please wait while we connect you to the nearest partner.</p>
+                <style>
+                    @keyframes ripple {
+                        0% { transform: scale(0.5); opacity: 1; }
+                        100% { transform: scale(2.5); opacity: 0; }
+                    }
+                </style>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', overlayHTML);
+    }
+
+    function completeMainTransit() {
+        const btn = event.currentTarget;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
+        btn.disabled = true;
+        
+        showDriverSearchAnimation('last_mile');
+        
+        setTimeout(() => {
+            fetch('/api/tracking/' + bookingId + '/complete_main_transit', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        const overlay = document.getElementById('driver-search-overlay');
+                        if(overlay) overlay.innerHTML = `
+                            <div class="text-center">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size:5rem; text-shadow: 0 0 20px rgba(16,185,129,0.5);"></i>
+                                <h3 class="text-white mt-4 fw-bold">Driver Assigned!</h3>
+                                <p class="text-muted">Redirecting to map...</p>
+                            </div>
+                        `;
+                        setTimeout(() => window.location.reload(), 1500);
+                    }
+                });
+        }, 3000); // 3 seconds fake radar pulse
+    }
+
+    function completeFirstMile(hasDriver = false) {
+        if (hasDriver) {
+            showNotification('Driver Action Required', 'Please share the OTP with your driver. The driver must start and complete the trip from their app.', 'warning');
+            return;
+        }
+        
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Simulating...';
+        btn.disabled = true;
+        fetch('/api/tracking/' + bookingId + '/complete_first_mile', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    window.location.reload();
+                } else {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    alert("Error: " + (data.error || "Failed to complete first mile."));
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                alert("Network error: " + err);
+            });
+    }
+    
+    function completeLastMile(hasDriver = false) {
+        if (hasDriver) {
+            showNotification('Driver Action Required', 'Please share the OTP with your driver. The driver must start and complete the trip from their app.', 'warning');
+            return;
+        }
+
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
+        btn.disabled = true;
+        fetch('/api/tracking/' + bookingId + '/complete_last_mile', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    triggerConfetti();
+                    setTimeout(() => window.location.reload(), 3000);
+                } else {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    alert("Error: " + (data.error || "Failed to complete last mile."));
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                alert("Network error: " + err);
+            });
+    }
+
+    function completeSelfTransit() {
+        const btn = event.currentTarget;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
+        btn.disabled = true;
+        fetch('/api/tracking/' + bookingId + '/complete_self_transit', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    // Start confetti!
+                    triggerConfetti();
+                    setTimeout(() => window.location.reload(), 3000);
+                }
+            });
+    }
+
+    // OTP verification
+    function verifyOTPLocal() {
+        const otpVal = document.getElementById('sim-otp-input').value.trim();
+        if (!otpVal) {
+            showNotification('OTP Required', 'Please enter the 4-digit OTP code.', 'warning');
+            return;
+        }
+        
+        fetch('/api/ride/verify-otp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ booking_id: bookingId, otp: otpVal })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                showNotification('Ride Started!', 'OTP Verified successfully. Your ride is now in transit.', 'success');
+                document.getElementById('otp-entry-card').style.display = 'none';
+                document.getElementById('btn-sim-otp').disabled = true;
+                document.getElementById('btn-sim-otp').innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>OTP Verified';
+                document.getElementById('btn-sim-destination').disabled = false;
+                
+                updateLocalTimelineUI('transit');
+            } else {
+                showNotification('Invalid OTP', res.message, 'danger');
+            }
+        });
+    }
+
+    // Simulation: Ride moving to Destination
+    function simulateRideToDestination() {
+        if (!mapObj || !simulationMarker) return;
+        
+        document.getElementById('btn-sim-destination').disabled = true;
+        document.getElementById('btn-sim-destination').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>In transit...';
+        
+        const pickup = legsData[0].start_coords;
+        const drop = legsData[0].end_coords;
+        const duration = legsData[0].duration;
+        
+        // Fetch road coordinates if OSRM successfully populated geoPaths
+        let coords = mapObj.geoPaths['direct'] || [pickup, drop];
+        if (coords.length < 5) {
+            coords = [];
+            for (let i = 0; i <= 30; i++) {
+                coords.push([
+                    pickup[0] + (drop[0] - pickup[0]) * (i / 30),
+                    pickup[1] + (drop[1] - pickup[1]) * (i / 30)
+                ]);
+            }
+        }
+        
+        let step = 0;
+        const totalSteps = coords.length;
+        const interval = setInterval(() => {
+            step++;
+            const pos = coords[step - 1];
+            simulationMarker.setLatLng(pos);
+            if (mapObj.map && !mapObj.map.getBounds().contains(pos)) {
+                mapObj.map.panTo(pos, { animate: true, duration: 0.2 });
+            }
+            
+            // ETA countdown
+            const timeRemaining = Math.max(1, Math.round(duration * (1 - step / totalSteps)));
+            document.getElementById('tracking-eta').innerText = `${timeRemaining} mins`;
+            
+            if (step >= totalSteps) {
+                clearInterval(interval);
+                
+                // Complete Ride call
+                fetch('/api/ride/complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ booking_id: bookingId })
+                })
+                .then(r => r.json())
+                .then(res => {
+                    updateLocalTimelineUI('completed');
+                    document.getElementById('tracking-eta').innerText = "Arrived";
+                    document.getElementById('btn-sim-destination').innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>Completed';
+                    
+                    showRatingModal();
+                });
+            }
+        }, 200);
+    }
+
+    // Submit driver rating
+    let selectedRatingStars = 5;
+    
+    function showRatingModal() {
+        const modalEl = document.getElementById('driverRatingModal');
+        if (modalEl && modalEl.parentNode !== document.body) {
+            document.body.appendChild(modalEl);
+        }
+        const rateModal = new bootstrap.Modal(modalEl);
+        rateModal.show();
+    }
+
+    function selectRatingStar(stars) {
+        selectedRatingStars = stars;
+        for (let i = 1; i <= 5; i++) {
+            const starEl = document.getElementById(`star-${i}`);
+            if (i <= stars) {
+                starEl.className = "bi bi-star-fill text-warning fs-3 cursor-pointer mx-1";
+            } else {
+                starEl.className = "bi bi-star text-muted fs-3 cursor-pointer mx-1";
+            }
+        }
+    }
+
+    function submitDriverRating() {
+        const feedback = document.getElementById('driver-feedback-text').value.trim();
+        const btn = document.querySelector('#driverRatingModal .btn-glow');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+        btn.disabled = true;
+        
+        fetch('/api/ride/rate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ booking_id: bookingId, rating: selectedRatingStars, feedback: feedback })
+        })
+        .then(r => r.json())
+        .then(res => {
+            bootstrap.Modal.getInstance(document.getElementById('driverRatingModal')).hide();
+            showNotification('Thank You!', 'Your rating has been submitted successfully!', 'success');
+            setTimeout(() => { window.location.href = "/dashboard"; }, 1500);
+        });
+    }
+</script>
+
+<!-- Dynamic Drop-off Modal -->
+<div class="modal fade" id="dropoffModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="border: 2px solid rgba(59,130,246,0.5);">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title text-white"><i class="bi bi-broadcast text-accent-blue me-2"></i>Destination Approaching!</h5>
+                <!-- No close button, must book or dismiss explicitly -->
+            </div>
+            <div class="modal-body text-start p-4">
+                <p class="text-secondary mb-4">You are just <strong class="text-white" id="dropoff-eta-text">15 mins</strong> away from your destination station. It's time to book your Last Mile drop-off ride to your final destination!</p>
+                
+                <div class="d-flex flex-column gap-3">
+                    <!-- Bike Option -->
+                    <div class="glass-card p-3 d-flex justify-content-between align-items-center cursor-pointer" onclick="selectDropoff('bike')" id="drop-opt-bike" style="border:1px solid rgba(255,255,255,0.1);">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:40px;height:40px;border-radius:50%;background:rgba(6,182,212,0.2);display:flex;align-items:center;justify-content:center;color:#06b6d4;"><i class="fa-solid fa-motorcycle fs-5"></i></div>
+                            <div><h6 class="text-white mb-0">Bike Ride</h6><small class="text-muted">Fastest for 1 person</small></div>
+                        </div>
+                        <div class="text-success fw-bold fs-5">₹80</div>
+                    </div>
+                    <!-- Auto Option -->
+                    <div class="glass-card p-3 d-flex justify-content-between align-items-center cursor-pointer" onclick="selectDropoff('auto')" id="drop-opt-auto" style="border:1px solid rgba(255,255,255,0.1);">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:40px;height:40px;border-radius:50%;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;color:#10b981;"><i class="bi bi-auto-rickshaw fs-5"></i></div>
+                            <div><h6 class="text-white mb-0">Auto Rickshaw</h6><small class="text-muted">Standard Drop</small></div>
+                        </div>
+                        <div class="text-success fw-bold fs-5">₹150</div>
+                    </div>
+                    <!-- Cab Option -->
+                    <div class="glass-card p-3 d-flex justify-content-between align-items-center cursor-pointer" onclick="selectDropoff('cab')" id="drop-opt-cab" style="border:1px solid rgba(255,255,255,0.1);">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:40px;height:40px;border-radius:50%;background:rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;color:#f59e0b;"><i class="bi bi-taxi-front-fill fs-5"></i></div>
+                            <div><h6 class="text-white mb-0">AC Cab</h6><small class="text-muted">Comfort Drop</small></div>
+                        </div>
+                        <div class="text-success fw-bold fs-5">₹250</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-25">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I'll manage myself</button>
+                <button type="button" class="btn btn-glow px-4" id="btn-confirm-dropoff" onclick="confirmDropoffBooking()">Book Ride Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dropoffModalShown = false;
+    let selectedDropMode = null;
+    let dropoffModalInstance = null;
+
+    function checkDynamicDropoff(etaMinutes, currentLeg) {
+        if (!dropoffModalShown && currentLeg === 'long_distance' && etaMinutes <= 15) {
+            dropoffModalShown = true;
+            document.getElementById('dropoff-eta-text').innerText = etaMinutes + ' mins';
+            document.body.appendChild(document.getElementById('dropoffModal'));
+            dropoffModalInstance = new bootstrap.Modal(document.getElementById('dropoffModal'));
+            dropoffModalInstance.show();
+        }
+    }
+
+    function selectDropoff(mode) {
+        selectedDropMode = mode;
+        ['bike', 'auto', 'cab'].forEach(m => {
+            const el = document.getElementById(`drop-opt-${m}`);
+            if (el) {
+                el.style.borderColor = (m === mode) ? '#10b981' : 'rgba(255,255,255,0.1)';
+                el.style.backgroundColor = (m === mode) ? 'rgba(16,185,129,0.05)' : 'transparent';
+            }
+        });
+    }
+
+    function confirmDropoffBooking() {
+        if (!selectedDropMode) {
+            alert('Please select a ride mode first!');
+            return;
+        }
+        document.getElementById('btn-confirm-dropoff').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Booking...';
+        
+        // Simulate API call to book the drop-off ride
+        setTimeout(() => {
+            dropoffModalInstance.hide();
+            // Update UI to show driver finding
+            let finalIcon = 'bi-car-front-fill';
+            if (selectedDropMode === 'bike') finalIcon = 'fa-solid fa-motorcycle';
+            else if (selectedDropMode === 'auto') finalIcon = 'bi-auto-rickshaw';
+            else if (selectedDropMode === 'cab') finalIcon = 'bi-taxi-front-fill';
+
+            document.getElementById('leg-last_mile').innerHTML = `
+                <div class="d-flex flex-column align-items-center">
+                    <div class="phase-dot" style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.2);border:2px solid #10b981;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="bi ${finalIcon} text-success" style="font-size:.75rem;"></i>
+                    </div>
+                    <div style="width:2px;height:30px;background:rgba(255,255,255,0.08);margin-top:4px;"></div>
+                </div>
+                <div class="flex-fill pt-1">
+                    <div class="text-white fw-600" style="font-size:.9rem;">Drop-off Booked!</div>
+                    <div class="text-success small">Driver is waiting at the station</div>
+                </div>
+            `;
+        }, 1500);
+    }
+
+    // Context-Aware SOS Logic
+    function openJourneySOSModal() {
+        document.body.appendChild(document.getElementById('sosModal'));
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('sosModal'));
+        modal.show();
+    }
+
+    function confirmSOS() {
+        const type = document.getElementById('sosType').value;
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending SOS...';
+        btn.disabled = true;
+
+        const bookingId = {{ booking.id }};
+        const source = "{{ plan.source.split(',')[0] if plan else 'Origin' }}";
+        const destination = "{{ plan.destination.split(',')[0] if plan else 'Destination' }}";
+
+        const sendSOSRequest = (realLat, realLng) => {
+            fetch('/api/sos/trigger', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    type: type, 
+                    booking_id: bookingId,
+                    source: source,
+                    destination: destination,
+                    lat: realLat, 
+                    lng: realLng 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                bootstrap.Modal.getInstance(document.getElementById('sosModal')).hide();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                if(data.success) {
+                    showNotification('🚨 SOS Alert Status', data.message, 'success');
+                    
+                    // Save active SOS Alert ID
+                    window.activeSOSId = data.alert_id;
+                    
+                    // Start periodic update of SOS location from simulator marker
+                    if (!window.sosUpdateInterval) {
+                        window.sosUpdateInterval = setInterval(() => {
+                            if (!window.activeSOSId) return;
+                            
+                            let currentLat = null;
+                            let currentLng = null;
+                            
+                            // Try to get live coordinates of moving marker from mapObj
+                            if (window.mapObj && window.mapObj.marker) {
+                                const latlng = window.mapObj.marker.getLatLng();
+                                currentLat = latlng.lat;
+                                currentLng = latlng.lng;
+                            } else if (typeof currentLatVal !== 'undefined') {
+                                currentLat = currentLatVal;
+                                currentLng = currentLngVal;
+                            }
+                            
+                            if (currentLat && currentLng) {
+                                fetch(`/api/sos/update/${window.activeSOSId}`, {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({ lat: currentLat, lng: currentLng })
+                                }).catch(err => console.log("Failed to sync SOS coords:", err));
+                            }
+                        }, 3000);
+                    }
+
+                    // Sound has already played immediately upon user click below
+                } else {
+                    showNotification('SOS Failed', 'Alert error: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                bootstrap.Modal.getInstance(document.getElementById('sosModal')).hide();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showNotification('Error', 'Failed to connect to SOS service.', 'danger');
+            });
+        };
+
+        // ACTUALLY GET THE REAL GPS LOCATION OF THE USER!
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Success: got exact real-world GPS
+                    sendSOSRequest(position.coords.latitude, position.coords.longitude);
+                },
+                (error) => {
+                    // Fallback to Chennai or default JS vars if location permission denied
+                    let fallbackLat = (typeof currentLat !== 'undefined' ? currentLat : 13.0827);
+                    let fallbackLng = (typeof currentLng !== 'undefined' ? currentLng : 80.2707);
+                    sendSOSRequest(fallbackLat, fallbackLng);
+                    console.log("GPS Permission Denied, using fallback map coordinates.");
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        } else {
+            // Browser doesn't support GPS
+            let fallbackLat = (typeof currentLat !== 'undefined' ? currentLat : 13.0827);
+            let fallbackLng = (typeof currentLng !== 'undefined' ? currentLng : 80.2707);
+            sendSOSRequest(fallbackLat, fallbackLng);
+        }
+    }
+</script>
+
+<!-- Context-Aware SOS Modal -->
+<div class="modal fade" id="sosModal" tabindex="-1" aria-hidden="true" style="z-index: 9999;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="border: 2px solid rgba(239,68,68,0.5);">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title text-danger fw-bold"><i class="bi bi-shield-fill-exclamation me-2"></i>Emergency SOS</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-danger" style="background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); color: #fca5a5;">
+                    <strong>Alerting Contacts & Authorities!</strong><br>
+                    Your Live Journey tracking link and emergency details will be dispatched immediately.
+                </div>
+                
+                <div class="glass-card p-3 mb-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="text-muted small mb-1">Journey Context Included:</div>
+                    <div class="text-white fw-bold mb-1">{{ format_booking_id(booking.id) }}</div>
+                    <div class="text-white small">{{ plan.source.split(',')[0] if plan else 'Origin' }} <i class="bi bi-arrow-right mx-1 text-muted"></i> {{ plan.destination.split(',')[0] if plan else 'Destination' }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Emergency Type (Required)</label>
+                    <select class="form-select form-glass" id="sosType" style="border-color: rgba(239,68,68,0.5); color: #fff;">
+                        <option value="accident">Major Accident</option>
+                        <option value="medical">Medical Emergency</option>
+                        <option value="security">Security / Police</option>
+                        <option value="vehicle">Vehicle Breakdown</option>
+                        <option value="missing">Missing / Lost Contact</option>
+                        <option value="general">General Emergency</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-25">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-glow-danger px-4 pulse-danger fw-bold" onclick="confirmSOS()">
+                    <i class="bi bi-broadcast me-2"></i>Trigger SOS NOW
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Driver Rating Modal -->
+<div class="modal fade" id="driverRatingModal" aria-hidden="true" style="z-index: 10000;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="border: 2px solid rgba(16,185,129,0.4); background: rgba(10, 15, 30, 0.95);">
+            <div class="modal-header border-0 pb-0 text-center d-block position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;margin:1rem auto 0;">
+                    <i class="bi bi-star-fill fs-3 text-success"></i>
+                </div>
+                <h4 class="modal-title text-white mt-3 fw-bold">{% if is_local %}Rate Your Ride{% else %}Rate Your Journey{% endif %}</h4>
+                <p class="text-secondary small mb-0">
+                    {% if is_local %}
+                        How was your trip with {{ ride.driver_name if (ride and ride.driver_name) else 'your driver' }}?
+                    {% else %}
+                        How was your multimodal travel experience? Tell us about your overall journey.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="modal-body text-center p-4">
+                <!-- Star Rating selector -->
+                <div class="d-flex justify-content-center my-3">
+                    <i class="bi bi-star-fill text-warning fs-3 mx-1" id="star-1" style="cursor: pointer;" onclick="selectRatingStar(1)"></i>
+                    <i class="bi bi-star-fill text-warning fs-3 mx-1" id="star-2" style="cursor: pointer;" onclick="selectRatingStar(2)"></i>
+                    <i class="bi bi-star-fill text-warning fs-3 mx-1" id="star-3" style="cursor: pointer;" onclick="selectRatingStar(3)"></i>
+                    <i class="bi bi-star-fill text-warning fs-3 mx-1" id="star-4" style="cursor: pointer;" onclick="selectRatingStar(4)"></i>
+                    <i class="bi bi-star-fill text-warning fs-3 mx-1" id="star-5" style="cursor: pointer;" onclick="selectRatingStar(5)"></i>
+                </div>
+                
+                <!-- Feedback text area -->
+                <div class="mb-3 mt-4 text-start">
+                    <label class="form-label text-muted small text-uppercase fw-bold">Optional Feedback</label>
+                    <textarea class="form-control form-glass" id="driver-feedback-text" rows="3" placeholder="Write about your experience (driver behavior, vehicle cleanliness, driving style)..." style="background: rgba(255,255,255,0.03); color: white; border-color: rgba(255,255,255,0.1); z-index: 10001; position: relative;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-glow w-100 py-3 fw-bold" onclick="submitDriverRating()">
+                    <i class="bi bi-check-circle-fill me-2"></i>Submit Feedback & Finish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

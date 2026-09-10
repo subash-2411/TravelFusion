@@ -1,0 +1,697 @@
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: RideBookings.otp | Query: INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status) VALUES (?, ?, ?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: RideBookings.otp | Query: INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status) VALUES (?, ?, ?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: RideBookings.otp | Query: INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status) VALUES (?, ?, ?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: RideBookings.otp | Query: INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status) VALUES (?, ?, ?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: RideBookings.otp | Query: INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status) VALUES (?, ?, ?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: RideBookings.otp | Query: INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status, leg_type) VALUES (?, ?, ?, ?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: Incorrect number of bindings supplied. The current statement uses 2, and there are 3 supplied. | Query: INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (?, 'Refund Status Update', ?, 'booking')
+Execute Error: Incorrect number of bindings supplied. The current statement uses 2, and there are 3 supplied. | Query: INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (?, 'Refund Status Update', ?, 'booking')
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: Incorrect number of bindings supplied. The current statement uses 2, and there are 3 supplied. | Query: INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (?, 'Refund Status Update', ?, 'booking')
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: Incorrect number of bindings supplied. The current statement uses 2, and there are 3 supplied. | Query: INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (?, 'Refund Status Update', ?, 'booking')
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Insert Error: table Payments has no column named method | Query: INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (?, ?, ?, ?, ?)
+Execute Error: NOT NULL constraint failed: Transactions.payment_id | Query: INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (?, ?, ?, ?)
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT

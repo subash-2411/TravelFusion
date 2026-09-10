@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TravelFusion AI – One platform for every journey. Plan, book, track and manage multi-modal travel with AI-powered automation.">
+    <title>
+        {% set is_driver_page = request.path.startswith('/driver') %}
+        {% set is_admin_page = request.path.startswith('/admin') %}
+        {% set is_traveler_page = request.path.startswith('/dashboard') or request.path.startswith('/tracking') or request.path.startswith('/book') or request.path.startswith('/verify') %}
+        {% set active_role = 'admin' if is_admin_page else ('driver' if is_driver_page else ('user' if is_traveler_page else session.role)) %}
+
+        {% if context.get('is_public_page') %}TravelFusion AI – One Platform. Every Journey.
+        {% elif active_role == 'admin' %}Admin Control Tower | TravelFusion AI
+        {% elif active_role == 'driver' %}Driver Dashboard | TravelFusion AI
+        {% elif active_role == 'user' %}Traveler Portal | TravelFusion AI
+        {% else %}TravelFusion AI{% endif %}
+    </title>
+    <!-- Dynamic Role-Based Favicons (Emoji SVGs) -->
+    {% if is_admin_page %}
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+    {% elif is_driver_page %}
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M15 80 A 35 35 0 0 1 85 80' fill='none' stroke='%232c3e50' stroke-width='10' stroke-linecap='round'/><line x1='50' y1='80' x2='75' y2='50' stroke='%23e74c3c' stroke-width='8' stroke-linecap='round'/><circle cx='50' cy='80' r='6' fill='%232c3e50'/></svg>">
+    {% elif is_traveler_page %}
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧳</text></svg>">
+    {% else %}
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
+    {% endif %}
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TravelFusion">
+    <script>
+        // Force browser to update favicon and ignore aggressive caching per domain
+        (function() {
+            document.addEventListener("DOMContentLoaded", function() {
+                const link = document.querySelector("link[rel*='icon']");
+                if (link) {
+                    const parent = link.parentNode;
+                    parent.removeChild(link);
+                    setTimeout(function() {
+                        parent.appendChild(link);
+                    }, 50);
+                }
+            });
+        })();
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
+    <style>
+        .bi-auto-rickshaw::before {
+            content: "🛺" !important;
+            font-family: Arial, sans-serif !important;
+            font-style: normal !important;
+            display: inline-block;
+            transform: translateY(-1px);
+        }
+    </style>
+    <!-- Session persistence script -->
+    <script>
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let sid = urlParams.get('sid');
+            
+            if (sid) {
+                localStorage.setItem('tf_sid', sid);
+            } else {
+                sid = localStorage.getItem('tf_sid');
+                const path = window.location.pathname;
+                const isAuthPage = path === '/' || path === '/login' || path === '/register' || path === '/forgot-password' || path === '/driver-login' || path === '/driver-register' || path === '/admin-login';
+                if (sid && !isAuthPage) {
+                    const separator = window.location.href.indexOf('?') !== -1 ? '&' : '?';
+                    window.location.href = window.location.href + separator + 'sid=' + sid;
+                }
+            }
+            
+            if (sid) {
+                document.addEventListener('DOMContentLoaded', function() {
+                    // For links
+                    document.querySelectorAll('a').forEach(a => {
+                        const href = a.getAttribute('href');
+                        if (href && href.startsWith('/') && !href.startsWith('//') && href.indexOf('sid=') === -1) {
+                            const separator = href.indexOf('?') !== -1 ? '&' : '?';
+                            a.setAttribute('href', href + separator + 'sid=' + sid);
+                        }
+                    });
+                    
+                    // For forms
+                    document.querySelectorAll('form').forEach(form => {
+                        if (form.method.toLowerCase() === 'get') {
+                            if (!form.querySelector('input[name="sid"]')) {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'sid';
+                                input.value = sid;
+                                form.appendChild(input);
+                            }
+                        } else {
+                            // For POST forms, append sid to the action URL so custom_flask can read req.args
+                            let action = form.getAttribute('action') || window.location.pathname;
+                            if (action && action.indexOf('sid=') === -1 && action.startsWith('/')) {
+                                const separator = action.indexOf('?') !== -1 ? '&' : '?';
+                                form.setAttribute('action', action + separator + 'sid=' + sid);
+                            }
+                        }
+                    });
+                });
+            }
+        })();
+    </script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<script>
+    (function() {
+        const savedTheme = localStorage.getItem('global-theme') || 'dark';
+        if (savedTheme && savedTheme !== 'dark') {
+            document.body.classList.add('theme-' + savedTheme);
+        }
+    })();
+</script>
+
+{% set is_driver_page = request.path.startswith('/driver') %}
+{% set is_admin_page = request.path.startswith('/admin') %}
+{% set is_traveler_page = not is_driver_page and not is_admin_page %}
+{% set active_role = 'admin' if is_admin_page else ('driver' if is_driver_page else 'user') %}
+
+{% if active_role and not context.get('is_public_page') and not request.args.get('login') %}
+<!-- Global Page Loader -->
+<div id="pageLoader" class="page-loader">
+    <div class="loader-content" style="color: {% if active_role == 'admin' %}#ef4444{% elif active_role == 'driver' %}#10b981{% else %}var(--accent-blue){% endif %};">
+        <div class="loader-logo">
+            <i class="bi {% if active_role == 'admin' %}bi-shield-lock-fill{% elif active_role == 'driver' %}bi-speedometer2{% else %}bi-compass-fill{% endif %}"></i>
+        </div>
+        <h2 class="loader-title text-white">{% if active_role == 'admin' %}Admin Console{% elif active_role == 'driver' %}Driver Portal{% else %}Traveler Portal{% endif %}</h2>
+        <div class="loader-spinner"></div>
+    </div>
+</div>
+{% endif %}
+
+{% if active_role == 'user' and not context.get('is_public_page') %}
+<!-- ====================== USER DASHBOARD LAYOUT ====================== -->
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+        <a href="/dashboard" class="sidebar-brand text-decoration-none" style="padding: 1.5rem 1.5rem 1rem;">
+            <div class="logo-icon" style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #2563eb, #06b6d4); box-shadow: 0 4px 15px rgba(37,99,235,0.4);"><i class="bi bi-compass-fill" style="font-size: 1.2rem;"></i></div>
+            <div class="brand-name" style="font-size: 1.2rem; margin-left: 5px;">Travel<span style="color: #06b6d4;">Fusion</span></div>
+        </a>
+        <nav class="sidebar-nav" id="userSideNav">
+            <span class="sidebar-section-label">Navigation</span>
+            <a href="/dashboard" class="sidebar-link active" id="nav-dashboard" onclick="sideSwitch('dashboard'); return false;">
+                <i class="bi bi-grid-fill"></i> Dashboard
+            </a>
+            <a href="#rewards" class="sidebar-link" id="nav-rewards" onclick="sideSwitch('rewards'); return false;">
+                <i class="bi bi-gift-fill"></i> Rewards &amp; Offers
+            </a>
+            <a href="#bookings" class="sidebar-link" id="nav-bookings" onclick="sideSwitch('bookings'); return false;">
+                <i class="bi bi-ticket-perforated-fill"></i> My Bookings
+            </a>
+            <a href="#history" class="sidebar-link" id="nav-history" onclick="sideSwitch('history'); return false;">
+                <i class="bi bi-clock-history"></i> Travel History
+            </a>
+            <span class="sidebar-section-label">Safety</span>
+            <a href="#sos" class="sidebar-link danger" id="nav-sos" onclick="sideSwitch('sos'); return false;">
+                <i class="bi bi-shield-fill-exclamation"></i> SOS &amp; Emergency
+            </a>
+            <span class="sidebar-section-label">Account</span>
+            <a href="#profile" class="sidebar-link" id="nav-profile" onclick="sideSwitch('profile'); return false;">
+                <i class="bi bi-person-fill"></i> Profile
+            </a>
+            <a href="/logout" class="sidebar-link danger">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </a>
+        </nav>
+        <div class="sidebar-footer" style="padding: 1.5rem 1rem;">
+            <div class="sidebar-user-card" onclick="sideSwitch('profile')" style="background: rgba(14, 22, 48, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 0.8rem; border-radius: 16px; transition: all 0.3s; cursor: pointer; display: flex; align-items: center;" title="Click to edit profile">
+                <div class="avatar" style="height: 38px; width: 38px; border-radius: 12px; background: linear-gradient(135deg, #2563eb, #06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.3); flex-shrink: 0; overflow: hidden;">
+                    {% if session.avatar_url and session.avatar_url != '/static/images/default-avatar.png' %}
+                        <img src="{{ session.avatar_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" onerror="this.parentElement.innerHTML='{{ session.user_name[0] if session.user_name else 'U' }}'">
+                    {% else %}
+                        {{ session.user_name[0] if session.user_name else 'U' }}
+                    {% endif %}
+                </div>
+                <div class="user-info" style="margin-left: 12px; overflow: hidden;">
+                    <div class="name notranslate" translate="no" style="font-size: 0.95rem; font-weight: 700; color: white; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"><span style="margin-right:4px;">{{ session.status_emoji or '✈️' }}</span>{{ session.user_name }}</div>
+                    <div class="role" style="font-size: 0.72rem; color: #06b6d4; font-weight: 600; letter-spacing: 0.5px;">{{ session.member_tier or 'SILVER TIER' }}</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main -->
+    <main class="app-main">
+        <header class="app-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn-icon d-lg-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+                <div>
+                    <div class="topbar-title">Welcome back, <span class="notranslate" translate="no">{{ session.user_name }}</span>! <span style="font-size: 1.3rem; margin-left: 4px;">{{ session.status_emoji or '👋' }}</span></div>
+                    <div class="topbar-subtitle">TravelFusion AI – {{ session.member_tier or 'Silver' }} Traveler ({{ session.preferred_mode or 'Train' }} Mode)</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <style>
+                    /* Hide Google Translate top banner & reset body top padding */
+                    .goog-te-banner-frame.skiptranslate { display: none !important; }
+                    body { top: 0px !important; }
+                    /* Make the widget fill the container and become invisible */
+                    #google_translate_element select { cursor: pointer; }
+                </style>
+                <div class="dropdown d-none d-md-flex align-items-center">
+                    <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: rgba(255,255,255,0.05); width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; padding: 0;">
+                        <i class="bi bi-translate text-accent-blue" style="font-size: 1.1rem;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-glass" style="max-height: 350px; overflow-y: auto; min-width: 160px; scrollbar-width: thin;">
+                        <li><h6 class="dropdown-header text-white-50" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Select Language</h6></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('en'); event.preventDefault();"><i class="bi bi-check2-circle me-2 text-accent-blue"></i>English (Original)</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('ta'); event.preventDefault();">Tamil</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('hi'); event.preventDefault();">Hindi</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('te'); event.preventDefault();">Telugu</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('ml'); event.preventDefault();">Malayalam</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('kn'); event.preventDefault();">Kannada</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('bn'); event.preventDefault();">Bengali</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('gu'); event.preventDefault();">Gujarati</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('mr'); event.preventDefault();">Marathi</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('pa'); event.preventDefault();">Punjabi</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('ur'); event.preventDefault();">Urdu</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('or'); event.preventDefault();">Odia</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="doTranslate('as'); event.preventDefault();">Assamese</a></li>
+                    </ul>
+                </div>
+                <div id="google_translate_element" style="display: none;"></div>
+                <div class="dropdown" style="margin-left: 1.25rem;">
+                    <div class="dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer; display: flex; align-items: center; gap: 6px; color: white; background: transparent !important; border: none !important; padding: 0; outline: none; border-radius: 30px;">
+                        {% if session.avatar_url and session.avatar_url != '/static/images/default-avatar.png' %}
+                            <img class="user-avatar-top" src="{{ session.avatar_url }}" style="height: 36px; width: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #06b6d4; box-shadow: 0 4px 12px rgba(37,99,235,0.3);" onerror="this.outerHTML='<div class=\'avatar notranslate\' style=\'height:36px; width:36px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #06b6d4); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem; color:white;\'>{{ session.user_name[0] if session.user_name else 'U' }}</div>'">
+                        {% else %}
+                            <div class="avatar notranslate" translate="no" style="height: 36px; width: 36px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #06b6d4); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; color: white; transition: all 0.3s;">{{ session.user_name[0] if session.user_name else 'U' }}</div>
+                        {% endif %}
+                    </div>
+                    <style>.dropdown-toggle::after { display: none !important; }</style>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-glass">
+                        <li><h6 class="dropdown-header text-white-50" style="font-size:0.72rem; letter-spacing:0.5px;">{{ session.user_name }}</h6></li>
+                        <li><a class="dropdown-item" href="#" onclick="sideSwitch('profile'); return false;"><i class="bi bi-person-lines-fill me-2 text-accent-blue"></i>Profile Settings</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sideSwitch('rewards'); return false;"><i class="bi bi-gift-fill me-2 text-warning"></i>Rewards &amp; Points</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sideSwitch('bookings'); return false;"><i class="bi bi-ticket-perforated-fill me-2 text-info"></i>My Bookings</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sideSwitch('sos'); return false;"><i class="bi bi-shield-fill-exclamation me-2 text-danger"></i>SOS &amp; Emergency</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <div class="app-content fade-in-up">
+            {% include content_template %}
+        </div>
+    </main>
+</div>
+
+{% elif active_role == 'driver' and not context.get('is_public_page') %}
+<!-- ====================== DRIVER DASHBOARD LAYOUT ====================== -->
+<div class="app-wrapper driver-theme">
+    <aside class="app-sidebar" id="appSidebar">
+        <a href="/driver" class="sidebar-brand text-decoration-none" style="padding: 1.5rem 1.5rem 1rem;">
+            {% set v_type = vehicle.vehicle_type.lower() if vehicle and vehicle.vehicle_type else '' %}
+            <div class="logo-icon" style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 4px 15px rgba(16,185,129,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                {% if 'bike' in v_type %}🏍️{% elif 'auto' in v_type %}🛺{% else %}🚗{% endif %}
+            </div>
+            <div class="brand-name" style="font-size: 1.2rem; margin-left: 5px;">TF <span style="color: #10b981;">Driver</span></div>
+        </a>
+        <nav class="sidebar-nav" id="driverSideNav">
+            <span class="sidebar-section-label">Driver Panel</span>
+            <a href="#dashboard" class="sidebar-link active" id="nav-dashboard" onclick="driverSideSwitch('dashboard'); return false;">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="#trip-requests" class="sidebar-link" id="nav-trip-requests" onclick="driverSideSwitch('trip-requests'); return false;">
+                <i class="bi bi-bell-fill"></i> Trip Requests
+            </a>
+            <a href="#history" class="sidebar-link" id="nav-history" onclick="driverSideSwitch('history'); return false;">
+                <i class="bi bi-clock-history"></i> Trip History
+            </a>
+            <span class="sidebar-section-label">Profile</span>
+            <a href="#vehicle" class="sidebar-link" id="nav-vehicle" onclick="driverSideSwitch('profile'); return false;">
+                {% set v_type = vehicle.vehicle_type.lower() if vehicle and vehicle.vehicle_type else '' %}
+                {% if 'bike' in v_type %}
+                    <span style="font-size: 1.15rem; margin-right: 0.5rem; line-height: 1;">🏍️</span>
+                {% elif 'auto' in v_type %}
+                    <span style="font-size: 1.15rem; margin-right: 0.5rem; line-height: 1;">🛺</span>
+                {% else %}
+                    <span style="font-size: 1.15rem; margin-right: 0.5rem; line-height: 1;">🚗</span>
+                {% endif %}
+                My Vehicle & Profile
+            </a>
+            <a href="/logout" class="sidebar-link danger">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-user-card" onclick="driverSideSwitch('profile')" style="cursor: pointer;" title="Click to view profile">
+                <div class="avatar" style="background:linear-gradient(135deg,#059669,#10b981);">{{ session.driver_name[0] if session.driver_name else 'D' }}</div>
+                <div class="user-info">
+                    <div class="name">{{ session.driver_name }}</div>
+                    <div class="role">Driver Partner</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="app-main">
+        <header class="app-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn-icon d-lg-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+                <div>
+                    <div class="topbar-title">Driver Dashboard</div>
+                    <div class="topbar-subtitle">TravelFusion AI – Driver Partner Portal</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="badge badge-glass badge-glass-success border-0 py-2 px-3 align-items-center d-inline-flex gap-1" onclick="driverSideSwitch('profile')" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <i class="bi bi-person-badge-fill me-1"></i>{{ session.driver_name }}
+                </button>
+                <a href="/logout" class="btn-icon" title="Sign Out"><i class="bi bi-box-arrow-right"></i></a>
+            </div>
+        </header>
+        <div class="app-content fade-in-up">
+            {% include content_template %}
+        </div>
+    </main>
+</div>
+
+{% elif active_role == 'admin' and not context.get('is_public_page') %}
+<!-- ====================== ADMIN DASHBOARD LAYOUT ====================== -->
+<div class="app-wrapper">
+    <!-- Sidebar removed per user request -->
+    <main class="app-main" style="margin-left: 0; width: 100%;">
+        <header class="app-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <div>
+                    <div class="topbar-title">Admin Control Tower</div>
+                    <div class="topbar-subtitle">TravelFusion AI – System Administration</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="badge badge-glass badge-glass-danger border-0 py-2 px-3 align-items-center d-inline-flex gap-1" data-bs-toggle="modal" data-bs-target="#adminSettingsModal" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <i class="bi bi-shield-fill me-1"></i>ADMIN: {{ session.admin_user }}
+                </button>
+                <a href="/logout" class="btn btn-glass btn-sm"><i class="bi bi-box-arrow-right me-1"></i> Sign Out</a>
+            </div>
+        </header>
+        <div class="app-content fade-in-up">
+            {% include content_template %}
+        </div>
+    </main>
+</div>
+
+{% else %}
+<!-- ====================== PUBLIC / LANDING LAYOUT ====================== -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-glass sticky-top">
+    <div class="container-fluid px-3">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <div class="logo-icon me-2"><i class="bi bi-compass-fill"></i></div>
+            TravelFusion <span style="color:var(--cyan-accent);margin-left:5px;">AI</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="publicNav">
+            <ul class="navbar-nav align-items-center gap-4">
+                <li class="nav-item"><a class="nav-link nav-hover-fx fw-semibold" style="font-size:0.95rem; letter-spacing:0.5px;" href="#" onclick="navigateToSection('features'); event.preventDefault();"><i class="bi bi-stars text-warning me-1"></i>Features</a></li>
+                <li class="nav-item"><a class="nav-link nav-hover-fx fw-semibold" style="font-size:0.95rem; letter-spacing:0.5px;" href="#" onclick="navigateToSection('how-it-works'); event.preventDefault();"><i class="bi bi-diagram-3-fill text-info me-1"></i>How it Works</a></li>
+                <li class="nav-item ms-3">
+                    {% if session.user_id %}
+                        <a href="/dashboard" class="btn btn-glow btn-sm" style="padding: 0.6rem 1.5rem; font-size: 0.95rem;">
+                            <i class="bi bi-grid-fill me-2"></i>Go to Dashboard
+                        </a>
+                    {% elif session.driver_id %}
+                        <a href="/driver" class="btn btn-glow btn-sm" style="padding: 0.6rem 1.5rem; font-size: 0.95rem;">
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                        </a>
+                    {% elif session.admin_user %}
+                        <a href="/admin/sos" class="btn btn-glow btn-sm" style="padding: 0.6rem 1.5rem; font-size: 0.95rem;">
+                            <i class="bi bi-shield-lock-fill me-2"></i>Admin Console
+                        </a>
+                    {% else %}
+                        <div class="dropdown">
+                            <button class="btn btn-glow btn-sm dropdown-toggle" data-bs-toggle="dropdown" style="padding: 0.6rem 1.5rem; font-size: 0.95rem;">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Access Portals
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-glass mt-2">
+                                <li><a class="dropdown-item py-2" href="/login" target="_blank"><i class="bi bi-luggage-fill me-2 text-accent-blue"></i>Traveler Portal</a></li>
+                                <li><a class="dropdown-item" href="/driver-login" target="_blank"><i class="bi bi-speedometer2 me-2 text-success"></i>Driver Portal</a></li>
+                                <li><hr class="dropdown-divider" style="border-color:var(--border-color);"></li>
+                                <li><a class="dropdown-item" href="/admin-login" target="_blank"><i class="bi bi-shield-lock-fill me-2 text-danger"></i>Admin Console</a></li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main>
+    {% include content_template %}
+</main>
+
+<!-- Landing Footer -->
+<footer class="landing-footer">
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="logo-icon"><i class="bi bi-compass-fill" style="font-size:1rem;color:white;"></i></div>
+                    <span class="brand-font fw-800 text-white fs-5">TravelFusion <span style="color:var(--cyan-accent);">AI</span></span>
+                </div>
+                <p class="text-muted small" style="line-height:1.7;">One platform for every journey. AI-powered multi-modal travel coordination for corporate travelers and local commuters alike.</p>
+            </div>
+            <div class="col-md-2">
+                <div class="text-muted fw-bold small mb-3 text-uppercase" style="letter-spacing:.08em;">Product</div>
+                <ul class="list-unstyled" style="line-height:2.2;">
+                    <li><a href="#" class="text-muted text-decoration-none small" style="transition:.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color=''" onclick="navigateToSection('features'); event.preventDefault();">Features</a></li>
+                    <li><a href="#" class="text-muted text-decoration-none small" onclick="navigateToSection('how-it-works'); event.preventDefault();">How it Works</a></li>
+                    <li><a href="/login" class="text-muted text-decoration-none small">Traveler Portal</a></li>
+                </ul>
+            </div>
+            <div class="col-md-2">
+                <div class="text-muted fw-bold small mb-3 text-uppercase" style="letter-spacing:.08em;">Partners</div>
+                <ul class="list-unstyled" style="line-height:2.2;">
+                    <li><a href="/login/driver" class="text-muted text-decoration-none small">Driver Program</a></li>
+                    <li><a href="/login/admin" class="text-muted text-decoration-none small">Admin Console</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted fw-bold small mb-3 text-uppercase" style="letter-spacing:.08em;">Status</div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div style="width:8px;height:8px;background:var(--success-green);border-radius:50%;animation:pulseSuccess 2s infinite;"></div>
+                    <span class="text-muted small">All Systems Operational</span>
+                </div>
+                <div class="text-muted small">Local transit drivers dispatched automatically. AI route engine active 24/7.</div>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 pt-2">
+            <span class="text-muted small">&copy; 2026 TravelFusion AI Inc. All rights reserved.</span>
+            <div class="d-flex gap-3">
+                <a href="#" class="text-muted small text-decoration-none">Terms of Service</a>
+                <a href="#" class="text-muted small text-decoration-none">Privacy Policy</a>
+                <a href="#" class="text-muted small text-decoration-none">SOS Protocols</a>
+            </div>
+        </div>
+    </div>
+</footer>
+{% endif %}
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Leaflet.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Core App JS -->
+<script src="/static/js/main.js?v=3"></script>
+<script src="/static/js/map_simulation.js?v=3"></script>
+
+<!-- Sidebar Toggle Script + Section Switcher -->
+<script>
+    const sidebar = document.getElementById('appSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+    }
+
+    // ========== GLOBAL SECTION SWITCHER (works for sidebar + header dropdown) ==========
+    function sideSwitch(name) {
+        // Close mobile sidebar if open
+        if (sidebar) sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('show');
+
+        // If we're not on the dashboard page, navigate there first
+        if (!document.getElementById('section-' + name)) {
+            window.location.href = '/dashboard#' + name;
+            return;
+        }
+
+        // Hide all sections
+        document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+
+        // Show target section
+        const target = document.getElementById('section-' + name);
+        if (target) {
+            target.classList.add('active');
+            // Scroll the app-main container to top
+            const mainEl = document.querySelector('.app-main');
+            if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Update sidebar active highlight
+        document.querySelectorAll('#userSideNav .sidebar-link').forEach(l => l.classList.remove('active'));
+        const navLink = document.getElementById('nav-' + name);
+        if (navLink) navLink.classList.add('active');
+
+        // Update URL hash without reload
+        history.pushState(null, null, name === 'dashboard' ? '/dashboard' : '/dashboard#' + name);
+    }
+</script>
+
+<!-- Notification Alerts from server context -->
+<script>
+    {% if context.get('error') %}
+        showNotification('Alert', '{{ context.get("error") }}', 'danger');
+    {% endif %}
+    {% if context.get('info') %}
+        showNotification('Update', '{{ context.get("info") }}', 'info');
+    {% endif %}
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+            }, 800);
+        }
+    });
+
+    // Global Navigation & Smooth Scroll helper for sections
+    window.navigateToSection = function(sectionId) {
+        if (window.location.pathname === '/') {
+            const el = document.getElementById(sectionId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.pushState(null, null, '#' + sectionId);
+            }
+        } else {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sid = urlParams.get('sid') || localStorage.getItem('tf_sid');
+            const query = sid ? '?sid=' + encodeURIComponent(sid) : '';
+            window.location.href = '/' + query + '#' + sectionId;
+        }
+    };
+
+    // Smooth scroll on page load if hash is present
+    window.addEventListener('load', () => {
+        const hash = window.location.hash;
+        if (hash) {
+            const targetId = hash.replace('#', '');
+            setTimeout(() => {
+                const el = document.getElementById(targetId);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 950); // Wait for pageLoader to fade out (800ms)
+        }
+    });
+</script>
+
+{% block modals %}{% endblock %}
+
+{% if session.role == 'driver' %}
+<!-- Profile & Password Modal (Root Level) -->
+<div class="modal fade" id="driverProfileModal" tabindex="-1" aria-hidden="true" style="z-index: 99999;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content form-glass" style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(16, 185, 129, 0.3);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white"><i class="bi bi-person-badge-fill text-success me-2"></i>Driver Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                <div class="text-center mb-4">
+                    <div class="avatar mx-auto mb-2" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#059669,#10b981);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;color:white;">
+                        {{ session.driver_name[0] if session.driver_name else 'D' }}
+                    </div>
+                    <h5 class="text-white mb-0">{{ session.driver_name }}</h5>
+                    <div class="text-muted" style="font-size:0.85rem;">Driver Partner</div>
+                </div>
+                
+                <hr style="border-color: rgba(255,255,255,0.1);">
+                
+                <h6 class="text-white mb-3">Change Password</h6>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">New Password</label>
+                    <input type="password" id="new-driver-pass" class="form-control form-glass text-white" placeholder="Enter new password">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted small">Confirm Password</label>
+                    <input type="password" id="confirm-driver-pass" class="form-control form-glass text-white" placeholder="Confirm new password">
+                </div>
+                
+                <button type="button" class="btn btn-glow w-100" onclick="changeDriverPassword()">Update Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script type="text/javascript">
+// Override window.alert with SweetAlert2 for a premium in-page experience
+(function() {
+    const originalAlert = window.alert;
+    window.alert = function(message) {
+        if (typeof Swal !== 'undefined') {
+            const isError = message.toLowerCase().includes('error') || 
+                            message.toLowerCase().includes('failed') || 
+                            message.toLowerCase().includes('not') || 
+                            message.toLowerCase().includes('invalid');
+            const cleanMessage = message.replace(/^error:\s*/i, '');
+            Swal.fire({
+                title: isError ? 'Error' : 'Notification',
+                text: cleanMessage,
+                icon: isError ? 'error' : 'info',
+                background: '#0e1630',
+                color: '#ffffff',
+                confirmButtonColor: isError ? '#ef4444' : '#3b82f6',
+                confirmButtonText: 'OK',
+                customClass: {
+                    popup: 'glass-card'
+                }
+            });
+        } else {
+            originalAlert(message);
+        }
+    };
+})();
+
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+      pageLanguage: 'en', 
+      includedLanguages: 'en,hi,ta,te,ml,kn,bn,gu,mr,pa,ur,or,as',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+  }, 'google_translate_element');
+}
+
+function doTranslate(langCode) {
+    if (langCode === 'en') {
+        // Reset translation for English
+        document.cookie = 'googtrans=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        document.cookie = 'googtrans=; Path=/; Domain=' + location.hostname + '; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    } else {
+        // Set cookie for translation
+        document.cookie = 'googtrans=/en/' + langCode + '; Path=/;';
+        document.cookie = 'googtrans=/en/' + langCode + '; Path=/; Domain=' + location.hostname + ';';
+    }
+    window.location.reload();
+}
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html>

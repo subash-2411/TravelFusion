@@ -1,0 +1,403 @@
+<!-- DRIVER DASHBOARD -->
+<div class="text-start">
+
+    <div id="dashboard-wrapper">
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-sm-6 col-xl-3 fade-in-up">
+            <div class="stat-card green">
+                <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="stat-value">{{ driver.completed_trips }}</div>
+                <div class="stat-label">Trips Completed</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3 fade-in-up delay-1">
+            <div class="stat-card yellow">
+                <div class="stat-icon yellow"><i class="bi bi-wallet2-fill"></i></div>
+                <div class="stat-value">₹{{ driver.balance }}</div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3 fade-in-up delay-2">
+            <div class="stat-card blue">
+                <div class="stat-icon blue"><i class="bi bi-star-fill"></i></div>
+                <div class="stat-value">{{ driver.rating }}</div>
+                <div class="stat-label">Driver Rating</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3 fade-in-up delay-3">
+            <div class="stat-card {% if driver.is_online == 1 %}green{% else %}red{% endif %}">
+                <div class="stat-icon {% if driver.is_online == 1 %}green{% else %}red{% endif %}">
+                    <i class="bi bi-circle-fill"></i>
+                </div>
+                <div class="stat-value" style="font-size:1.4rem;">{% if driver.is_online == 1 %}ONLINE{% else %}OFFLINE{% endif %}</div>
+                <div class="stat-label">Driver Status</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Map + Active Job -->
+        <div class="col-lg-8">
+            <!-- Heroic Online Toggle Card -->
+            <div class="glass-card p-4 p-md-5 mb-4 position-relative overflow-hidden fade-in-up" style="border-color: {% if driver.is_online == 1 %}rgba(16,185,129,0.4){% else %}rgba(239,68,68,0.4){% endif %};">
+                <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, {% if driver.is_online == 1 %}rgba(16,185,129,0.15){% else %}rgba(239,68,68,0.15){% endif %}, rgba(14,22,48,0.2));z-index:0;"></div>
+                
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between position-relative" style="z-index: 1;">
+                    <div class="mb-4 mb-md-0 text-center text-md-start">
+                        <h3 class="text-white mb-2 brand-font">{% if driver.is_online == 1 %}You are Online & Ready{% else %}You are Currently Offline{% endif %}</h3>
+                        <p class="text-muted mb-0" style="font-size:1.05rem;">{% if driver.is_online == 1 %}Receiving AI-dispatched ride requests.{% else %}Toggle online to start receiving fare requests.{% endif %}</p>
+                    </div>
+                    <div class="d-flex flex-column align-items-center">
+                        <span id="driver-status-badge" class="badge badge-glass {% if driver.is_online == 1 %}badge-glass-success{% else %}badge-glass-danger{% endif %} fs-5 mb-3 px-4 py-2">
+                            <i class="bi bi-circle-fill me-2 pulse-{% if driver.is_online == 1 %}success{% else %}danger{% endif %}"></i>
+                            {% if driver.is_online == 1 %}ONLINE{% else %}OFFLINE{% endif %}
+                        </span>
+                        <div class="form-check form-switch m-0" style="font-size:2rem; margin-left: 20px !important;">
+                            <input class="form-check-input shadow" type="checkbox" role="switch" id="driver-online-switch"
+                                   {% if driver.is_online == 1 %}checked{% endif %}
+                                   style="width:3em;height:1.5em;cursor:pointer; border-color: rgba(255,255,255,0.2);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Job -->
+            <div id="trip-requests">
+                {% if active_trip %}
+                <div class="glass-card p-4 mb-4 fade-in-up" style="border-color:rgba(245,158,11,0.25);">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h4 class="text-white mb-1"><i class="bi bi-map-fill text-warning me-2"></i>Active Job Route</h4>
+                            <p class="text-muted mb-0" style="font-size:.85rem;">Navigate your current assigned trip</p>
+                        </div>
+                        <span class="badge badge-glass badge-glass-warning fs-6">{{ active_trip.status.upper() }}</span>
+                    </div>
+
+                    {% if active_trip.status == 'active' or active_trip.status == 'accepted' %}
+                    <div id="map" class="mb-4" style="height:350px; border-radius:12px; width:100%; position:relative; z-index:1;"></div>
+                    {% if active_trip.status == 'accepted' %}
+                    <div id="map-locked-banner" class="alert mb-2 text-center py-2" style="background:rgba(245,158,11,0.12);border:1px dashed rgba(245,158,11,0.4);border-radius:10px;color:#f59e0b;font-size:.85rem;">
+                        <i class="bi bi-shield-lock me-1"></i> Enter 4-digit OTP &amp; click <strong>Start</strong> to unlock live navigation
+                    </div>
+                    {% endif %}
+
+                    <!-- Trip info -->
+                    <div class="glass-card p-3" style="border-radius:12px;background:rgba(255,255,255,0.03);">
+                        <div class="row align-items-center">
+                            <div class="col-md-7 mb-3 mb-md-0">
+                                <div class="text-muted" style="font-size:.8rem;">TRAVELER DETAILS</div>
+                                <div class="text-white fw-700 fs-5 mb-1">
+                                    {{ active_trip['rider_name'] }} 
+                                    {% set phone_val = active_trip['rider_phone'] %}
+                                    {% if not phone_val or phone_val == 'None' or phone_val == 'N/A' or phone_val.startswith('+910000') %}
+                                        {% set phone_val = '+919012345678' %}
+                                    {% endif %}
+                                    <a href="tel:{{ phone_val }}" class="badge bg-dark ms-2 text-decoration-none" style="font-size:0.75rem;">
+                                        <i class="bi bi-telephone-fill text-success me-1"></i>Call {{ phone_val }}
+                                    </a>
+                                </div>
+                                <div class="d-flex flex-column gap-1 mb-2 mt-2" style="font-size:0.85rem;">
+                                    <div><i class="bi bi-geo-alt-fill text-success me-2"></i><span class="text-white">{{ active_trip['source'] }}</span></div>
+                                    <div><i class="bi bi-geo-fill text-danger me-2"></i><span class="text-white">{{ active_trip['destination'] }}</span></div>
+                                </div>
+                                <div class="text-muted mt-1" style="font-size:.82rem;">
+                                    <i class="bi bi-currency-rupee"></i> Fare: <strong class="text-success">₹{{ active_trip['fare'] }}</strong> | Booking ID: #{{ active_trip['booking_id'] }}
+                                </div>
+                            </div>
+                            <div class="col-md-5 text-md-end">
+                                {% if active_trip['status'] == 'accepted' %}
+                                <div class="input-group mb-2">
+                                    <input type="text" id="trip-otp-input" class="form-control form-glass text-center fw-bold" placeholder="Enter OTP" maxlength="4" style="letter-spacing:.2em;font-size:1.1rem;">
+                                    <button class="btn btn-glow" type="button" onclick="verifyOTPAndStart({{ active_trip['booking_id'] }})">
+                                        <i class="bi bi-unlock-fill me-1"></i>Start
+                                    </button>
+                                </div>
+                                <small class="text-muted">Ask traveler for the 4-digit OTP pin</small>
+                                {% else %}
+                                <button class="btn btn-glow-danger w-100 py-2 fw-700" onclick="updateTripLifecycle({{ active_trip['booking_id'] }}, 'complete')">
+                                    <i class="bi bi-check-circle-fill me-2"></i>Complete Ride
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="glass-card p-5 text-center mb-4 fade-in-up">
+                    <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                        <i class="bi bi-clock-history fs-3 text-muted"></i>
+                    </div>
+                    <h5 class="text-white mb-2">Waiting for ride dispatch...</h5>
+                    <p class="text-muted" style="font-size:.9rem;">Set status to <strong class="text-success">ONLINE</strong> to receive auto-dispatched ride notifications.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Trip History -->
+            <div id="history-section" class="glass-card p-4 fade-in-up">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--success-green);">
+                        <i class="bi bi-file-earmark-bar-graph"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-white mb-0">Completed Transit Jobs</h5>
+                        <p class="text-muted mb-0" style="font-size:.82rem;">Your recent fare history</p>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table-premium w-100">
+                        <thead><tr><th>Booking ID</th><th>Route</th><th>Earnings</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% if history %}
+                                {% for h in history %}
+                                <tr>
+                                    <td>#{{ h.booking_id }}</td>
+                                    <td class="td-white">{{ h.source.split(',')[0] }} <i class="bi bi-arrow-right mx-1 text-muted" style="font-size:.8rem;"></i> {{ h.destination.split(',')[0] }}</td>
+                                    <td class="td-money">₹{{ h.fare }}</td>
+                                    <td><span class="badge badge-glass badge-glass-success">COMPLETED</span></td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="4" class="text-center py-4 text-muted">No completed trips yet.</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Vehicle Card -->
+            <div id="vehicle-section" class="glass-card p-4 mb-4 fade-in-up">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
+                        {% set v_type = vehicle.vehicle_type.lower() if vehicle and vehicle.vehicle_type else '' %}
+                        {% if 'bike' in v_type %}🏍️{% elif 'auto' in v_type %}🛺{% else %}🚗{% endif %}
+                    </div>
+                    <h5 class="text-white mb-0">My Vehicle</h5>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background:rgba(255,255,255,0.04);border:1px solid var(--border-color);">
+                        <span class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;">Type</span>
+                        <span class="text-white fw-700">{{ vehicle.vehicle_type.upper() }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background:rgba(255,255,255,0.04);border:1px solid var(--border-color);">
+                        <span class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;">Number</span>
+                        <span class="text-white fw-700 font-monospace">{{ vehicle.vehicle_number }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background:rgba(255,255,255,0.04);border:1px solid var(--border-color);">
+                        <span class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;">Model</span>
+                        <span class="text-white fw-700">{{ vehicle.vehicle_model }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Driver Info -->
+            <div class="glass-card p-4 mb-4 fade-in-up delay-1">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="avatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#059669,#10b981);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;color:white;flex-shrink:0;">{{ driver.name[0] }}</div>
+                    <div>
+                        <div class="text-white fw-700">{{ driver.name }}</div>
+                        <div class="text-muted" style="font-size:.82rem;font-family:monospace;">{{ driver.license_number }}</div>
+                        <div class="mt-1"><i class="bi bi-star-fill text-warning me-1" style="font-size:.85rem;"></i><strong class="text-white">{{ driver.rating }}</strong><span class="text-muted"> /5.0</span></div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <span class="badge badge-glass {% if driver.status == 'approved' %}badge-glass-success{% elif driver.status == 'blocked' %}badge-glass-danger{% else %}badge-glass-warning{% endif %} w-100 text-center py-2">
+                    {{ driver.status.upper() }} PARTNER
+                </span>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="glass-card p-4 fade-in-up delay-2">
+                <h6 class="text-white fw-700 mb-3"><i class="bi bi-info-circle-fill text-success me-2"></i>Driver Guidelines</h6>
+                <ul class="text-muted ps-3 mb-0" style="font-size:.85rem;line-height:2;">
+                    <li>Set status ONLINE to receive dispatched rides</li>
+                    <li>Ask traveler for 4-digit OTP to start navigation</li>
+                    <li>Press COMPLETE after drop-off to credit fare</li>
+                    <li>Report deviations to admin dispatch panel</li>
+                </ul>
+            </div>
+        </div>
+<script src="/static/js/map_simulation.js?v=5"></script>
+<script src="/static/js/driver_simulation.js?v=5"></script>
+<script>
+    function driverSideSwitch(section) {
+        if(section === 'profile') {
+            var modalEl = document.getElementById('driverProfileModal');
+            if(modalEl) {
+                var pModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                pModal.show();
+            }
+            return;
+        }
+        
+        // Scroll to target section
+        let targetId = '';
+        if (section === 'dashboard') targetId = 'dashboard-wrapper';
+        else if (section === 'trip-requests') targetId = 'trip-requests';
+        else if (section === 'history') targetId = 'history-section';
+        else if (section === 'vehicle') targetId = 'vehicle-section';
+        
+        const el = document.getElementById(targetId);
+        if(el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // Update active nav links
+        document.querySelectorAll('#driverSideNav .sidebar-link').forEach(link => link.classList.remove('active'));
+        const navEl = document.getElementById('nav-' + section);
+        if(navEl) navEl.classList.add('active');
+        
+        // On mobile, close sidebar
+        const overlay = document.getElementById('sidebarOverlay');
+        const sidebar = document.getElementById('appSidebar');
+        if(overlay && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            sidebar.classList.remove('active');
+        }
+    }
+    
+    function changeDriverPassword() {
+        const newPass = document.getElementById('new-driver-pass').value;
+        const confirmPass = document.getElementById('confirm-driver-pass').value;
+        
+        if(!newPass || newPass !== confirmPass) {
+            showNotification('Error', 'Passwords do not match or are empty.', 'danger');
+            return;
+        }
+        
+        fetchAPI('/api/driver/change_password', 'POST', { password: newPass })
+            .then(res => {
+                if(res.success) {
+                    showNotification('Success', 'Password updated successfully.', 'success');
+                    var myModalEl = document.getElementById('driverProfileModal');
+                    var modal = bootstrap.Modal.getInstance(myModalEl);
+                    modal.hide();
+                    document.getElementById('new-driver-pass').value = '';
+                    document.getElementById('confirm-driver-pass').value = '';
+                } else {
+                    showNotification('Error', res.error || 'Failed to update password.', 'danger');
+                }
+            });
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initDriverDashboard();
+
+        {% if active_trip %}
+        try {
+            const legsData = {{ legs_json }};
+            const vType = "{{ vehicle.vehicle_type.lower() if vehicle and vehicle.vehicle_type else 'cab' }}".trim();
+            const tripStatus = "{{ active_trip.status }}";
+            const bookingId = {{ active_trip['booking_id'] }};
+
+            if (legsData && legsData.length > 0) {
+                const mapObj = initTrackingMap('map', legsData, legsData[0].start_coords[0], legsData[0].start_coords[1]);
+                window.globalTrackingMapObj = mapObj; // Expose for external JS
+                window.globalTrackingLegsData = legsData; // Expose for external JS
+
+                if (mapObj && mapObj.type === 'leaflet') {
+                    // Set correct vehicle icon
+                    let markerHtml = '';
+                    let bgColor = '#3b82f6';
+                    if (vType.includes('bike') || vType.includes('bicycle')) {
+                        markerHtml = `<span style="font-size: 20px; line-height: 1;">🏍️</span>`;
+                        bgColor = '#06b6d4';
+                    } else if (vType.includes('auto')) {
+                        markerHtml = `<span style="font-size: 20px; line-height: 1;">🛺</span>`;
+                        bgColor = '#10b981';
+                    } else {
+                        markerHtml = `<span style="font-size: 20px; line-height: 1;">🚗</span>`;
+                        bgColor = '#f59e0b';
+                    }
+
+                    const vehicleIcon = L.divIcon({
+                        className: 'custom-driver-pin',
+                        html: `<div class="pulse-danger" style="background-color:${bgColor};width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 18px ${bgColor};display:flex;align-items:center;justify-content:center;">
+                                   ${markerHtml}
+                               </div>`,
+                        iconSize: [38, 38]
+                    });
+                    mapObj.marker.setIcon(vehicleIcon);
+
+                    const leg = legsData[0];
+                    const startLat = leg.start_coords[0], startLng = leg.start_coords[1];
+                    const endLat   = leg.end_coords[0],   endLng   = leg.end_coords[1];
+
+                    const R = 6371;
+                    const dLat = (endLat - startLat) * Math.PI / 180;
+                    const dLon = (endLng - startLng) * Math.PI / 180;
+                    const aC = Math.sin(dLat/2)**2 + Math.cos(startLat*Math.PI/180)*Math.cos(endLat*Math.PI/180)*Math.sin(dLon/2)**2;
+                    const distanceKm = leg.distance ? parseFloat(leg.distance).toFixed(1) : (R*2*Math.atan2(Math.sqrt(aC),Math.sqrt(1-aC))).toFixed(1);
+                    let etaMins = leg.duration ? parseInt(leg.duration) : Math.max(2, Math.round((distanceKm/40)*60));
+
+                    // Info overlay on the map
+                    const infoOverlay = document.createElement('div');
+                    infoOverlay.id = 'driver-map-overlay';
+                    infoOverlay.style.cssText = 'position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(14,22,48,0.88);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:10px 16px;min-width:260px;';
+                    const srcCity  = (leg.source      || '').split(',')[0] || 'Origin';
+                    const dstCity  = (leg.destination || '').split(',')[0] || 'Destination';
+
+                    infoOverlay.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="color:#10b981;font-size:.82rem;font-weight:600;"><i class="bi bi-geo-alt-fill me-1"></i>${srcCity}</span>
+                            <i class="bi bi-arrow-right text-muted mx-2"></i>
+                            <span style="color:#ef4444;font-size:.82rem;font-weight:600;"><i class="bi bi-flag-fill me-1"></i>${dstCity}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white fw-bold">${distanceKm} <small class="text-muted">km</small></span>
+                            <span class="text-warning fw-bold"><i class="bi bi-clock-history me-1"></i><span id="driver-eta">${etaMins}</span> mins</span>
+                        </div>
+                        ${tripStatus === 'active'
+                            ? `<button onclick="updateTripLifecycle(${bookingId},'complete')" class="btn btn-sm btn-success w-100 mt-2 fw-bold" id="btn-complete-ride"><i class="bi bi-check-circle-fill me-1"></i>Complete Ride</button>`
+                            : `<div class="text-center mt-2" style="color:#f59e0b;font-size:.78rem;"><i class="bi bi-lock-fill me-1"></i>Enter OTP to unlock navigation</div>`
+                        }
+                    `;
+                    document.getElementById('map').appendChild(infoOverlay);
+
+                    // Animate vehicle movement only when trip is active
+                    if (tripStatus === 'active') {
+                        let progress = 0;
+                        const totalSteps = 120;
+                        const animInterval = setInterval(() => {
+                            progress += 1;
+                            if (progress > totalSteps) { clearInterval(animInterval); return; }
+                            const path = (mapObj.geoPaths && mapObj.geoPaths[leg.leg_type])
+                                ? mapObj.geoPaths[leg.leg_type]
+                                : [[startLat, startLng], [endLat, endLng]];
+                            const pct = progress / totalSteps;
+                            const totalSeg = path.length - 1;
+                            const ei = pct * totalSeg;
+                            const lo = Math.floor(ei), hi = Math.min(Math.ceil(ei), totalSeg);
+                            const sp = ei - lo;
+                            const p1 = path[lo], p2 = path[hi];
+                            mapObj.marker.setLatLng([p1[0]+(p2[0]-p1[0])*sp, p1[1]+(p2[1]-p1[1])*sp]);
+                            const etaEl = document.getElementById('driver-eta');
+                            if (etaEl) etaEl.innerText = Math.max(0, Math.round(etaMins*(1-pct)));
+                        }, 1000);
+                    }
+                }
+            }
+        } catch(e) {
+            console.error("Driver map init failed:", e);
+        }
+        {% endif %}
+    });
+
+    function verifyOTPAndStart(bookingId) {
+        const inputEl = document.getElementById('trip-otp-input');
+        if (!inputEl) { showNotification('Error', 'OTP field not found!', 'danger'); return; }
+        const input = inputEl.value.trim();
+        if (!input || input.length < 4) {
+            showNotification('Invalid OTP', 'Please enter the 4-digit OTP from the traveler', 'warning');
+            return;
+        }
+        updateTripLifecycle(bookingId, 'start', input);
+    }
+</script>

@@ -1,0 +1,886 @@
+<!-- =============================================
+     LANDING PAGE — TravelFusion AI
+     ============================================= -->
+
+<!-- HERO SECTION -->
+<section class="hero-section">
+    <div class="hero-bg-grid"></div>
+    <div class="container position-relative" style="z-index:2;">
+        <div class="row align-items-center g-5">
+            <!-- Left: Copy -->
+            <div class="col-lg-6">
+                <div class="hero-badge fade-in-up">
+                    <span class="dot"></span>
+                    Next-Gen Multi-Modal AI Travel Platform
+                </div>
+                <h1 class="hero-headline fade-in-up delay-1">
+                    One Platform.<br>
+                    <span class="gradient-text">Every Journey.</span>
+                </h1>
+                <p class="hero-subtext fade-in-up delay-2">
+                    Plan, Book, Track and manage your entire door-to-door journey with one click.
+                    TravelFusion AI automates cabs, trains, flights, and buses into a seamless itinerary.
+                </p>
+                <div class="hero-cta-group fade-in-up delay-3">
+                    <a href="#planner-section" class="btn btn-glow" style="padding:.85rem 2.2rem; font-size:.95rem;">
+                        <i class="bi bi-cpu-fill me-2"></i>Plan My Journey
+                    </a>
+                    <a href="#portals-section" class="btn btn-glass" style="padding:.85rem 2rem; font-size:.95rem;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Access Portals
+                    </a>
+                </div>
+                <!-- Trust chips -->
+                <div class="d-flex align-items-center gap-3 mt-4 fade-in-up delay-4" style="flex-wrap:wrap;">
+                    <div class="d-flex align-items-center gap-2 text-muted" style="font-size:.82rem;">
+                        <i class="bi bi-shield-fill-check text-success"></i> SOS Emergency Ready
+                    </div>
+                    <div class="d-flex align-items-center gap-2 text-muted" style="font-size:.82rem;">
+                        <i class="bi bi-cpu-fill text-accent-blue"></i> AI Route Engine
+                    </div>
+                    <div class="d-flex align-items-center gap-2 text-muted" style="font-size:.82rem;">
+                        <i class="bi bi-lightning-fill" style="color:var(--warning-yellow);"></i> Real-Time Tracking
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Live Metrics Visual -->
+            <div class="col-lg-6 fade-in-up delay-2">
+                <div class="hero-visual">
+                    <!-- Floating pills -->
+                    <div class="hero-stat-pill top-left">
+                        <i class="bi bi-circle-fill text-success" style="font-size:.55rem;animation:pulseSuccess 1.5s infinite;"></i>
+                        <span class="text-white fw-700">System Live</span>
+                    </div>
+                    <div class="hero-stat-pill bot-right">
+                        <i class="bi bi-lightning-charge-fill text-warning"></i>
+                        <span class="text-white fw-700">AI Active</span>
+                    </div>
+
+                    <div class="hero-visual-card">
+                        <!-- Header -->
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <div class="text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;">Live System Monitor</div>
+                                <div class="text-white fw-700" style="font-size:.95rem;">TravelFusion AI Network</div>
+                            </div>
+                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;">
+                                <i class="bi bi-activity text-accent-blue"></i>
+                            </div>
+                        </div>
+
+                        <!-- Metric Grid -->
+                        <div class="metric-grid">
+                            <div class="metric-cell">
+                                <div class="val text-white">{{ stats.users }}</div>
+                                <div class="lbl">Active Users</div>
+                            </div>
+                            <div class="metric-cell">
+                                <div class="val text-success">{{ stats.drivers }}</div>
+                                <div class="lbl">Drivers Online</div>
+                            </div>
+                            <div class="metric-cell">
+                                <div class="val text-warning">{{ stats.bookings }}</div>
+                                <div class="lbl">Trips Booked</div>
+                            </div>
+                            <div class="metric-cell">
+                                <div class="val text-cyan">{{ stats.active_trips }}</div>
+                                <div class="lbl">Active Trips</div>
+                            </div>
+                        </div>
+
+                        <!-- Mini progress bars -->
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted" style="font-size:.78rem;">Route Engine Capacity</span>
+                                <span class="text-white" style="font-size:.78rem;font-weight:700;">94%</span>
+                            </div>
+                            <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;">
+                                <div style="width:94%;height:100%;background:linear-gradient(90deg,var(--royal-blue),var(--cyan-accent));border-radius:2px;"></div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted" style="font-size:.78rem;">Driver Fleet Availability</span>
+                                <span class="text-success" style="font-size:.78rem;font-weight:700;">78%</span>
+                            </div>
+                            <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;">
+                                <div style="width:78%;height:100%;background:linear-gradient(90deg,#059669,var(--success-green));border-radius:2px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI PLANNER SEARCH SECTION -->
+<section id="planner-section" class="py-5" style="background:rgba(5,9,26,0.6);">
+    <div class="container">
+        <div class="search-banner">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--royal-blue),var(--cyan-accent));display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:white;">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div>
+                    <h3 class="text-white mb-0" style="font-size:1.3rem;">AI Journey Planner</h3>
+                    <p class="text-muted mb-0" style="font-size:.85rem;">Generate optimised multi-modal routes in seconds</p>
+                </div>
+            </div>
+            <form id="public-planner-form" onsubmit="generateMockPlannerPreview(event)">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 position-relative">
+                        <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Source</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                            <input type="text" id="sourceInput" name="source" class="form-control form-glass autocomplete-input" placeholder="e.g. Marina Beach" required autocomplete="off">
+                        </div>
+                        <div id="sourceSuggestions" class="autocomplete-dropdown shadow glass-card"></div>
+                    </div>
+                    <div class="col-md-3 position-relative">
+                        <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Destination</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-geo-fill"></i></span>
+                            <input type="text" id="destinationInput" name="destination" class="form-control form-glass autocomplete-input" placeholder="e.g. MG Road" required autocomplete="off">
+                        </div>
+                        <div id="destinationSuggestions" class="autocomplete-dropdown shadow glass-card"></div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Travel Date</label>
+                        <input type="date" name="date" id="travelDate" class="form-control form-glass">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Passengers</label>
+                        <input type="number" id="passengersInput" name="passengers" class="form-control form-glass" value="1" min="1" max="10">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-glow w-100" style="padding:.78rem 1rem;">
+                            <i class="bi bi-cpu-fill me-1"></i>Generate
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Dynamic Interactive Preview Container (Visible only when not logged in) -->
+            <div id="planner-preview-container" class="mt-5 text-start" style="display:none; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 16px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);">
+                <!-- Loading State -->
+                <div id="planner-preview-loading" class="text-center py-5">
+                    <div class="spinner-grow text-info mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+                    <h5 class="text-white mb-2">TravelFusion AI Engine Dispatching...</h5>
+                    <p class="text-muted small mb-4">Analyzing multi-modal transits, calculating dynamic fares, and optimizing route options...</p>
+                    <div class="progress mx-auto" style="max-width: 350px; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background: linear-gradient(90deg, var(--royal-blue), var(--cyan-accent));" id="planner-progress"></div>
+                    </div>
+                </div>
+
+                <!-- Results State -->
+                <div id="planner-preview-results" style="display:none;">
+                    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                        <div>
+                            <h4 class="text-white mb-1"><i class="bi bi-cpu text-cyan me-2"></i>Optimized Route Options</h4>
+                            <p class="text-muted small mb-0">Generated 4 routes for <strong id="preview-route-title" class="text-white"></strong></p>
+                        </div>
+                        <span class="badge bg-success-glow text-success px-3 py-2" style="border: 1px solid rgba(16,185,129,0.2); background: rgba(16,185,129,0.1);"><i class="bi bi-lightning-fill me-1"></i> AI Active</span>
+                    </div>
+
+                    <!-- Route Tabs -->
+                    <div class="row g-2 mb-4" id="route-option-tabs">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Selected Route Detail / Timeline -->
+                    <div class="glass-card p-4 mb-4" style="background: rgba(10, 15, 30, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;" id="route-detail-card">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Explore Portals Action -->
+                    <div class="text-center mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <a href="#portals-section" class="btn btn-glow px-4 py-2" style="font-weight: 600; font-size: 1rem;"><i class="bi bi-door-open-fill me-2"></i>Explore System Portals</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="py-6" style="padding:80px 0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-label">Process</span>
+            <h2 class="section-title">How TravelFusion Works</h2>
+            <p class="section-subtitle mx-auto mt-3">Three steps to a fully automated, seamless journey — from your doorstep to your destination.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 fade-in-up">
+                <div class="text-center">
+                    <div class="step-number">1</div>
+                    <h5 class="text-white fw-700 mt-2 mb-2">Enter Your Journey</h5>
+                    <p class="text-light" style="font-size:.95rem;line-height:1.7;opacity:0.85;">Input your source, destination, travel date and budget. Our AI engine activates instantly.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-up delay-1">
+                <div class="text-center">
+                    <div class="step-number">2</div>
+                    <h5 class="text-white fw-700 mt-2 mb-2">AI Generates Routes</h5>
+                    <p class="text-light" style="font-size:.95rem;line-height:1.7;opacity:0.85;">Get 4 optimised plans — Cheapest, Fastest, Recommended, and Premium — with full leg breakdowns.</p>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-up delay-2">
+                <div class="text-center">
+                    <div class="step-number">3</div>
+                    <h5 class="text-white fw-700 mt-2 mb-2">Book & Track Live</h5>
+                    <p class="text-light" style="font-size:.95rem;line-height:1.7;opacity:0.85;">Confirm your plan. Drivers are dispatched automatically. Track every leg in real time on the map.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES GRID -->
+<section id="features" style="padding:80px 0;background:rgba(5,9,26,0.5);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-label">Capabilities</span>
+            <h2 class="section-title">Engineered for Autonomous Travel</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4 fade-in-up">
+                <div class="feature-card fc-blue">
+                    <div class="feature-icon fi-blue"><i class="bi bi-bezier2"></i></div>
+                    <h5 class="text-white fw-700 mb-2">Multi-Modal Routing</h5>
+                    <p class="text-light mb-0" style="font-size:.95rem;line-height:1.7;opacity:0.85;">Combines first-mile cabs, long-distance trains/flights, and last-mile autos into one seamless itinerary with a single booking.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 fade-in-up delay-1">
+                <div class="feature-card fc-cyan">
+                    <div class="feature-icon fi-cyan"><i class="bi bi-geo-alt-fill"></i></div>
+                    <h5 class="text-white fw-700 mb-2">Live GPS Tracking</h5>
+                    <p class="text-light mb-0" style="font-size:.95rem;line-height:1.7;opacity:0.85;">Real-time Leaflet.js map tracking with animated route markers, ETA updates, and active trip status per leg.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 fade-in-up delay-2">
+                <div class="feature-card fc-green">
+                    <div class="feature-icon fi-green"><i class="bi bi-shield-fill-check"></i></div>
+                    <h5 class="text-white fw-700 mb-2">SOS Emergency System</h5>
+                    <p class="text-light mb-0" style="font-size:.95rem;line-height:1.7;opacity:0.85;">One-tap SOS with GPS-pinned coordinates dispatched to emergency contacts and admin monitors with audio alerts.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 fade-in-up delay-1">
+                <div class="feature-card fc-purple">
+                    <div class="feature-icon fi-purple"><i class="bi bi-cpu-fill"></i></div>
+                    <h5 class="text-white fw-700 mb-2">Gemini AI Plans</h5>
+                    <p class="text-light mb-0" style="font-size:.95rem;line-height:1.7;opacity:0.85;">When configured, Google Gemini generates hyper-personalised route plans with real operators and live fare estimates.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 fade-in-up delay-2">
+                <div class="feature-card fc-yellow">
+                    <div class="feature-icon fi-yellow"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h5 class="text-white fw-700 mb-2">Dynamic Fare Engine</h5>
+                    <p class="text-light mb-0" style="font-size:.95rem;line-height:1.7;opacity:0.85;">Cheapest, Fastest, Recommended and Premium pricing models adapt to real-time demand, distance and transit modes.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 fade-in-up delay-3">
+                <div class="feature-card fc-red">
+                    <div class="feature-icon fi-red"><i class="bi bi-person-badge-fill"></i></div>
+                    <h5 class="text-white fw-700 mb-2">Driver Dispatch Network</h5>
+                    <p class="text-light mb-0" style="font-size:.95rem;line-height:1.7;opacity:0.85;">Auto-assigns vetted driver partners for first/last mile legs. OTP-verified trip start, earnings credited on completion.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ACCESS PORTALS -->
+<section id="portals-section" style="padding:80px 0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-label">Get Started</span>
+            <h2 class="section-title">Access System Portals</h2>
+            <p class="section-subtitle mx-auto mt-3">Choose your role to enter the platform. New users are automatically registered on first sign-in.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <!-- Rider -->
+            <div class="col-md-4 fade-in-up">
+                <div class="portal-card rider" onclick="window.open('/login','_blank')">
+                    <div class="portal-icon-wrap rider">
+                        <i class="bi bi-luggage-fill"></i>
+                    </div>
+                    <h3 class="text-white fw-800 mb-2" style="font-size:1.4rem;">Traveler Portal</h3>
+                    <p class="text-muted mb-4" style="font-size:.9rem;line-height:1.7;">Plan multi-modal journeys, book AI-generated routes, track trips live, and manage SOS emergency contacts.</p>
+                    <div class="d-flex flex-column gap-2 mb-4 text-start">
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>AI Journey Planner</div>
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>Real-Time GPS Tracking</div>
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>SOS Emergency Alert</div>
+                    </div>
+                    <a href="/login" target="_blank" class="btn btn-glow w-100">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Open Traveler Portal
+                    </a>
+                </div>
+            </div>
+            <!-- Driver -->
+            <div class="col-md-4 fade-in-up delay-1">
+                <div class="portal-card driver" onclick="window.open('/driver-login','_blank')">
+                    <div class="portal-icon-wrap driver">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h3 class="text-white fw-800 mb-2" style="font-size:1.4rem;">Driver Portal</h3>
+                    <p class="text-muted mb-4" style="font-size:.9rem;line-height:1.7;">Receive auto-dispatched ride assignments, toggle online status, verify OTP trip starts, and track real-time earnings.</p>
+                    <div class="d-flex flex-column gap-2 mb-4 text-start">
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>Auto Ride Dispatch</div>
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>Live Navigation Map</div>
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>Instant Fare Credits</div>
+                    </div>
+                    <a href="/driver-login" target="_blank" class="btn btn-glow-success w-100">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Open Driver Portal
+                    </a>
+                </div>
+            </div>
+            <!-- Admin -->
+            <div class="col-md-4 fade-in-up delay-2">
+                <div class="portal-card admin" onclick="window.open('/admin-login','_blank')">
+                    <div class="portal-icon-wrap admin">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h3 class="text-white fw-800 mb-2" style="font-size:1.4rem;">Admin Console</h3>
+                    <p class="text-muted mb-4" style="font-size:.9rem;line-height:1.7;">Monitor system analytics, approve driver partners, manage user accounts, and respond to live SOS emergency alerts.</p>
+                    <div class="d-flex flex-column gap-2 mb-4 text-start">
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>System Analytics</div>
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>Driver Approvals</div>
+                        <div class="text-muted" style="font-size:.83rem;"><i class="bi bi-check-circle-fill text-success me-2"></i>SOS Alert Monitor</div>
+                    </div>
+                    <a href="/admin-login" target="_blank" class="btn btn-glow-danger w-100">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Open Admin Console
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS BANNER -->
+<section style="padding:60px 0;background:linear-gradient(135deg,rgba(29,78,216,0.12),rgba(6,182,212,0.08));">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3 fade-in-up">
+                <div class="text-white" style="font-family:'Outfit',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;">{{ stats.users }}+</div>
+                <div class="text-muted mt-1" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;">Active Travelers</div>
+            </div>
+            <div class="col-6 col-md-3 fade-in-up delay-1">
+                <div class="text-success" style="font-family:'Outfit',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;">{{ stats.drivers }}+</div>
+                <div class="text-muted mt-1" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;">Approved Drivers</div>
+            </div>
+            <div class="col-6 col-md-3 fade-in-up delay-2">
+                <div class="text-warning" style="font-family:'Outfit',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;">{{ stats.bookings }}+</div>
+                <div class="text-muted mt-1" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;">Trips Fulfilled</div>
+            </div>
+            <div class="col-6 col-md-3 fade-in-up delay-3">
+                <div class="text-cyan" style="font-family:'Outfit',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;">8+</div>
+                <div class="text-muted mt-1" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;">Cities Covered</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Auto-fill today's date
+    document.addEventListener('DOMContentLoaded', () => {
+        const d = document.getElementById('travelDate');
+        if (d) d.value = new Date().toISOString().split('T')[0];
+
+        // Autocomplete using OSM Nominatim
+        function setupAutocomplete(inputId, suggestionsId) {
+            const input = document.getElementById(inputId);
+            const suggestionsBox = document.getElementById(suggestionsId);
+            let timeout = null;
+
+            input.addEventListener('input', function() {
+                input.removeAttribute('data-lat');
+                input.removeAttribute('data-lng');
+                clearTimeout(timeout);
+                const query = this.value;
+                if(query.length < 3) {
+                    suggestionsBox.style.display = 'none';
+                    return;
+                }
+
+                timeout = setTimeout(() => {
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=5`)
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestionsBox.innerHTML = '';
+                        if(data.length > 0) {
+                            suggestionsBox.style.display = 'block';
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'autocomplete-item text-white p-2 border-bottom border-secondary border-opacity-25 cursor-pointer';
+                                div.style.fontSize = '0.85rem';
+                                div.innerText = item.display_name;
+                                div.onclick = function() {
+                                    input.value = item.display_name.split(',')[0];
+                                    input.setAttribute('data-lat', item.lat);
+                                    input.setAttribute('data-lng', item.lon);
+                                    suggestionsBox.style.display = 'none';
+                                };
+                                suggestionsBox.appendChild(div);
+                            });
+                        } else {
+                            suggestionsBox.style.display = 'none';
+                        }
+                    });
+                }, 400);
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if(e.target !== input && e.target !== suggestionsBox) {
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+        }
+
+        setupAutocomplete('sourceInput', 'sourceSuggestions');
+        setupAutocomplete('destinationInput', 'destinationSuggestions');
+
+        // Smooth scroll for hashtag links
+        document.querySelectorAll('a[href^="#"], a[href^="/#"], .hero-cta-group a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                const targetId = href.startsWith('/#') ? href.substring(2) : (href.startsWith('#') ? href.substring(1) : null);
+                if (targetId) {
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        e.preventDefault();
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        // Update URL hash without jumping
+                        history.pushState(null, null, (href.startsWith('/#') ? href.substring(1) : href));
+                    }
+                }
+            });
+        });
+
+        // Scroll-reveal animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            // Only set for non-hero elements (hero already animated)
+            if (!el.closest('.hero-section')) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(28px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            }
+        });
+    });
+
+    // Haversine formula to calculate real distance (Global Scope)
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Earth radius in km
+        const dLat = deg2rad(lat2 - lat1);
+        const dLon = deg2rad(lon2 - lon1);
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    // Mock AI Journey Planner Generator (for landing page / unauthenticated users)
+    let mockRoutes = {};
+    let activeDistance = 150; // default in km
+
+    window.generateMockPlannerPreview = function(e) {
+        e.preventDefault();
+        const src = document.getElementById('sourceInput').value;
+        const dst = document.getElementById('destinationInput').value;
+        const budget = 3000;
+        const passengers = parseInt(document.getElementById('passengersInput').value) || 1;
+
+        if (!src || !dst) return;
+
+        const container = document.getElementById('planner-preview-container');
+        const loading = document.getElementById('planner-preview-loading');
+        const results = document.getElementById('planner-preview-results');
+        const progressBar = document.getElementById('planner-progress');
+        const title = document.getElementById('preview-route-title');
+
+        container.style.display = 'block';
+        loading.style.display = 'block';
+        results.style.display = 'none';
+        progressBar.style.width = '0%';
+
+        title.innerText = `${src} to ${dst}`;
+
+        // Scroll to container smoothly
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Animate progress bar
+        let width = 0;
+        const interval = setInterval(() => {
+            width += 4;
+            progressBar.style.width = width + '%';
+            if (width >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    results.style.display = 'block';
+                    renderMockRoutes(src, dst, budget, passengers);
+                }, 150);
+            }
+        }, 35);
+    };
+
+    function renderMockRoutes(src, dst, budget, passengers) {
+        const srcClean = src.split(',')[0].trim();
+        const dstClean = dst.split(',')[0].trim();
+        
+        // Retrieve stored coordinates from input attributes
+        const srcInput = document.getElementById('sourceInput');
+        const dstInput = document.getElementById('destinationInput');
+        const lat1 = parseFloat(srcInput.getAttribute('data-lat'));
+        const lon1 = parseFloat(srcInput.getAttribute('data-lng'));
+        const lat2 = parseFloat(dstInput.getAttribute('data-lat'));
+        const lon2 = parseFloat(dstInput.getAttribute('data-lng'));
+
+        if (!isNaN(lat1) && !isNaN(lon1) && !isNaN(lat2) && !isNaN(lon2)) {
+            // Apply road curvature factor (usually ~1.22) to represent actual travel distance
+            activeDistance = Math.floor(calculateHaversineDistance(lat1, lon1, lat2, lon2) * 1.22);
+        } else {
+            // Smart fallback if coordinates aren't set
+            activeDistance = Math.max(90, Math.floor(Math.abs(srcClean.charCodeAt(0) - dstClean.charCodeAt(0)) * 9) + 110); 
+        }
+
+        mockRoutes = {
+            bike: {
+                name: "Bike Ride",
+                icon: "fa-solid fa-motorcycle text-info",
+                badge: "2-Wheeler Route",
+                price: Math.max(40, Math.floor(activeDistance * 6.5 * passengers)),
+                duration: `${Math.floor(activeDistance / 35)}h ${Math.floor((activeDistance % 35) * 60 / 35)}m`,
+                legs: [
+                    { type: "bike", icon: "fa-solid fa-motorcycle text-info", title: "Direct Bike Taxi Pick & Drop", desc: `Fast transit from ${srcClean} directly to ${dstClean}`, dist: `${activeDistance} km`, time: `${Math.floor(activeDistance / 35)}h ${Math.floor((activeDistance % 35) * 60 / 35)}m` }
+                ]
+            },
+            auto: {
+                name: "Auto Ride",
+                icon: "bi-auto-rickshaw text-warning",
+                badge: "3-Wheeler Route",
+                price: Math.max(60, Math.floor(activeDistance * 11 * passengers)),
+                duration: `${Math.floor(activeDistance / 30)}h ${Math.floor((activeDistance % 30) * 60 / 30)}m`,
+                legs: [
+                    { type: "auto", icon: "bi-auto-rickshaw text-warning", title: "Direct Auto Rickshaw Pick & Drop", desc: `Convenient transit from ${srcClean} directly to ${dstClean}`, dist: `${activeDistance} km`, time: `${Math.floor(activeDistance / 30)}h ${Math.floor((activeDistance % 30) * 60 / 30)}m` }
+                ]
+            },
+            cab: {
+                name: "Cab Ride",
+                icon: "bi-car-front-fill text-danger",
+                badge: "4-Wheeler Route",
+                price: Math.max(120, Math.floor(activeDistance * 16.5 * passengers)),
+                duration: `${Math.floor(activeDistance / 50)}h ${Math.floor((activeDistance % 50) * 60 / 50)}m`,
+                legs: [
+                    { type: "cab", icon: "bi-car-front-fill text-danger", title: "Direct AC Cab Pick & Drop", desc: `Premium door-to-door AC Sedan from ${srcClean} straight to ${dstClean}`, dist: `${activeDistance} km`, time: `${Math.floor(activeDistance / 50)}h ${Math.floor((activeDistance % 50) * 60 / 50)}m` }
+                ]
+            },
+            public: {
+                name: "Public Transit",
+                icon: "bi-train-front-fill text-success",
+                badge: "Train & Bus Route",
+                price: Math.floor(activeDistance * 2.2 * passengers) + (80 * passengers),
+                duration: `${Math.floor(activeDistance / 60) + 1}h ${Math.floor((activeDistance % 60) * 60 / 60)}m`,
+                legs: [
+                    { type: "cab", icon: "bi-car-front-fill", title: "First-mile Cab to Station", desc: `From ${srcClean} to closest Transit Junction`, dist: "7.8 km", time: "18 mins" },
+                    { type: "train", icon: "bi-train-front-fill text-success", title: "Inter-city Train Transit", desc: `Express rail connection to ${dstClean} Junction`, dist: `${Math.max(1, activeDistance - 12)} km`, time: `${Math.floor(activeDistance / 70)}h ${Math.floor((activeDistance % 70) * 60 / 70)}m` },
+                    { type: "auto", icon: "bi-auto-rickshaw text-warning", title: "Last-mile Auto to Destination", desc: `From ${dstClean} Junction to final destination at ${dstClean}`, dist: "4.2 km", time: "12 mins" }
+                ]
+            }
+        };
+
+        const tabsContainer = document.getElementById('route-option-tabs');
+        tabsContainer.innerHTML = '';
+        
+        Object.keys(mockRoutes).forEach((key, index) => {
+            const route = mockRoutes[key];
+            const col = document.createElement('div');
+            col.className = 'col-sm-6 col-lg-3';
+            col.innerHTML = `
+                <div class="card route-tab-card p-3 cursor-pointer h-100 ${index === 0 ? 'active' : ''}" onclick="selectRouteOption('${key}', this)" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; transition: all 0.25s ease;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge text-white" style="font-size: 0.68rem; background: rgba(255,255,255,0.07);">${route.badge}</span>
+                        <i class="${route.icon.includes('fa-') ? '' : 'bi'} ${route.icon}" style="font-size: 1.1rem;"></i>
+                    </div>
+                    <h6 class="text-white mb-1 fw-bold" style="font-size: 0.92rem;">${route.name}</h6>
+                    <div class="d-flex justify-content-between align-items-baseline mt-2">
+                        <span class="text-cyan fw-bold" style="font-size: 1rem;">₹${route.price.toLocaleString('en-IN')}</span>
+                        <small class="text-muted" style="font-size: 0.72rem;"><i class="bi bi-clock me-1"></i>${route.duration}</small>
+                    </div>
+                </div>
+            `;
+            tabsContainer.appendChild(col);
+        });
+
+        selectRouteOption('bike');
+    }
+
+    window.selectRouteOption = function(key, element) {
+        if (element) {
+            document.querySelectorAll('.route-tab-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        const route = mockRoutes[key];
+        const detailContainer = document.getElementById('route-detail-card');
+        
+        let legsHtml = '';
+        route.legs.forEach((leg, i) => {
+            legsHtml += `
+                <div class="d-flex gap-3 position-relative pb-4">
+                    ${i < route.legs.length - 1 ? '<div style="position: absolute; left: 21px; top: 38px; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--cyan-accent), rgba(255,255,255,0.03));"></div>' : ''}
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.18); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; color: var(--cyan-accent); flex-shrink: 0; z-index: 2;">
+                        <i class="${leg.icon.includes('fa-') ? '' : 'bi'} ${leg.icon}"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-1 fw-bold" style="font-size: 0.95rem;">${leg.title}</h6>
+                        <p class="text-muted small mb-2" style="font-size: 0.82rem; line-height: 1.4;">${leg.desc}</p>
+                        <div class="d-flex gap-3 text-secondary" style="font-size: 0.75rem;">
+                            <span><i class="bi bi-geo me-1"></i>${leg.dist}</span>
+                            <span><i class="bi bi-clock me-1"></i>${leg.time}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        detailContainer.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+                <h5 class="text-white mb-0 fw-bold" style="font-size: 1.05rem;"><i class="bi bi-map me-2 text-cyan"></i>Journey Itinerary</h5>
+                <div class="text-end">
+                    <div class="text-cyan fw-bold" style="font-size: 1.15rem;">₹${route.price.toLocaleString('en-IN')}</div>
+                    <small class="text-muted" style="font-size: 0.75rem;">Est. Duration: ${route.duration}</small>
+                </div>
+            </div>
+            <div class="ps-2">
+                ${legsHtml}
+            </div>
+        `;
+
+        // Update carbon footprint and mode metrics dynamically
+        const passengers = parseInt(document.getElementById('passengersInput').value) || 1;
+        const co2SavedEl = document.getElementById('eco-co2-saved');
+        const modesEl = document.getElementById('transit-modes-count');
+        
+        if (co2SavedEl) {
+            let co2Factor = 0.12;
+            if (key === 'bike') co2Factor = 0.08;
+            if (key === 'auto') co2Factor = 0.09;
+            if (key === 'cab') co2Factor = 0.02;
+            if (key === 'public') co2Factor = 0.15;
+            
+            const co2Saved = (activeDistance * co2Factor * passengers).toFixed(1);
+            co2SavedEl.innerText = `~${co2Saved} kg CO₂ saved`;
+        }
+        
+        if (modesEl) {
+            modesEl.innerText = `${route.legs.length} Mode${route.legs.length > 1 ? 's' : ''} Combined`;
+        }
+    };
+</script>
+
+<style>
+    .route-tab-card:hover {
+        border-color: rgba(6, 182, 212, 0.4) !important;
+        background: rgba(30, 41, 59, 0.6) !important;
+        transform: translateY(-2px);
+    }
+    .route-tab-card.active {
+        border-color: var(--cyan-accent) !important;
+        background: rgba(6, 182, 212, 0.12) !important;
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+    }
+    .autocomplete-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        max-height: 200px;
+        overflow-y: auto;
+        border-radius: 0 0 8px 8px;
+        background: rgba(18, 30, 54, 0.95) !important;
+        backdrop-filter: blur(10px);
+    }
+    .autocomplete-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .cursor-pointer { cursor: pointer; }
+</style>
+
+<!-- =============================================
+     FLOATING PREMIUM THEME DRAWER (Main Page Only)
+     ============================================= -->
+<button class="btn btn-glow d-flex align-items-center justify-content-center" id="theme-floating-btn" style="position: fixed; right: 20px; bottom: 80px; width: 50px; height: 50px; border-radius: 50%; z-index: 1050; box-shadow: 0 5px 20px rgba(59,130,246,0.4); padding: 0;">
+    <i class="bi bi-palette-fill" style="font-size: 1.3rem;"></i>
+</button>
+
+<div id="theme-side-drawer" style="position: fixed; top: 0; right: -340px; width: 320px; height: 100vh; z-index: 1051; background: var(--sidebar-bg); border-left: 1px solid var(--border-color); box-shadow: -10px 0 40px rgba(0,0,0,0.6); transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; display: flex; flex-direction: column; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);">
+    <!-- Drawer Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-2" style="border-bottom: 1px solid var(--border-color);">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-sliders text-accent-blue" style="font-size: 1.2rem;"></i>
+            <h5 class="mb-0 text-white fw-bold" style="font-size: 1.05rem; letter-spacing: 0.3px;">Platform Appearance</h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" id="theme-drawer-close" style="font-size: 0.8rem; opacity: 0.6; box-shadow: none;"></button>
+    </div>
+    
+    <p class="text-secondary small mb-4" style="line-height: 1.4;">
+        Switch the global theme instantly across all traveler portals, driver dashboards, and administrative panels.
+    </p>
+    
+    <!-- Theme Selection Grid -->
+    <div class="d-flex flex-column gap-3 overflow-y-auto pr-1" style="flex: 1;">
+        <!-- Theme 1 -->
+        <button class="btn w-100 text-start d-flex align-items-center justify-content-between p-3 theme-option-btn" id="theme-opt-dark" onclick="setGlobalTheme('dark')" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 14px; transition: var(--transition-smooth); color: #fff;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: #05091a; border: 2px solid #2563eb;"></div>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.85rem;">TravelFusion Dark</div>
+                    <div class="text-secondary" style="font-size: 0.72rem;">Default Premium theme</div>
+                </div>
+            </div>
+            <i class="bi bi-check-circle-fill text-accent-blue check-mark-indicator"></i>
+        </button>
+        
+        <!-- Theme 2 -->
+        <button class="btn w-100 text-start d-flex align-items-center justify-content-between p-3 theme-option-btn" id="theme-opt-light" onclick="setGlobalTheme('light')" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 14px; transition: var(--transition-smooth); color: #fff;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: #f8fafc; border: 2px solid #cbd5e1;"></div>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.85rem;">TravelFusion Light</div>
+                    <div class="text-secondary" style="font-size: 0.72rem;">Google Travel / MakeMyTrip style</div>
+                </div>
+            </div>
+            <i class="bi bi-check-circle-fill text-accent-blue check-mark-indicator"></i>
+        </button>
+        
+        <!-- Theme 3 -->
+        <button class="btn w-100 text-start d-flex align-items-center justify-content-between p-3 theme-option-btn" id="theme-opt-professional" onclick="setGlobalTheme('professional')" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 14px; transition: var(--transition-smooth); color: #fff;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: #eceff1; border: 2px solid #0f172a;"></div>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.85rem;">TravelFusion Corporate</div>
+                    <div class="text-secondary" style="font-size: 0.72rem;">Enterprise SaaS style</div>
+                </div>
+            </div>
+            <i class="bi bi-check-circle-fill text-accent-blue check-mark-indicator"></i>
+        </button>
+        
+        <!-- Theme 4 -->
+        <button class="btn w-100 text-start d-flex align-items-center justify-content-between p-3 theme-option-btn" id="theme-opt-glass" onclick="setGlobalTheme('glass')" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 14px; transition: var(--transition-smooth); color: #fff;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)); border: 2px solid rgba(255,255,255,0.25);"></div>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.85rem;">TravelFusion Glass</div>
+                    <div class="text-secondary" style="font-size: 0.72rem;">Startup glassmorphism style</div>
+                </div>
+            </div>
+            <i class="bi bi-check-circle-fill text-accent-blue check-mark-indicator"></i>
+        </button>
+        
+        <!-- Theme 5 -->
+        <button class="btn w-100 text-start d-flex align-items-center justify-content-between p-3 theme-option-btn" id="theme-opt-ocean" onclick="setGlobalTheme('ocean')" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 14px; transition: var(--transition-smooth); color: #fff;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: #07101e; border: 2px solid #0ea5e9;"></div>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.85rem;">TravelFusion Ocean</div>
+                    <div class="text-secondary" style="font-size: 0.72rem;">Navy & Cyan highlights</div>
+                </div>
+            </div>
+            <i class="bi bi-check-circle-fill text-accent-blue check-mark-indicator"></i>
+        </button>
+        
+        <!-- Theme 6 -->
+        <button class="btn w-100 text-start d-flex align-items-center justify-content-between p-3 theme-option-btn" id="theme-opt-emerald" onclick="setGlobalTheme('emerald')" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 14px; transition: var(--transition-smooth); color: #fff;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 24px; height: 24px; border-radius: 50%; background: #041b12; border: 2px solid #10b981;"></div>
+                <div>
+                    <div class="fw-bold" style="font-size: 0.85rem;">TravelFusion Emerald</div>
+                    <div class="text-secondary" style="font-size: 0.72rem;">Clean booking green style</div>
+                </div>
+            </div>
+            <i class="bi bi-check-circle-fill text-accent-blue check-mark-indicator"></i>
+        </button>
+    </div>
+    
+    <div class="mt-4 pt-3" style="border-top: 1px solid var(--border-color);">
+        <div class="d-flex align-items-center justify-content-between small text-secondary">
+            <span>Status:</span>
+            <span class="text-success fw-bold d-flex align-items-center gap-1">
+                <span class="dot" style="width:6px;height:6px;background:#10b981;border-radius:50%;display:inline-block;"></span> Active
+            </span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .theme-option-btn:hover {
+        background: rgba(59,130,246,0.06) !important;
+        transform: translateY(-1px);
+    }
+    .theme-option-btn.active {
+        background: rgba(37,99,235,0.08) !important;
+    }
+    .theme-option-btn .check-mark-indicator {
+        display: none;
+    }
+    .theme-option-btn.active .check-mark-indicator {
+        display: block;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const floatBtn = document.getElementById('theme-floating-btn');
+        const sideDrawer = document.getElementById('theme-side-drawer');
+        const closeBtn = document.getElementById('theme-drawer-close');
+        
+        // Open drawer
+        floatBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sideDrawer.style.right = '0';
+        });
+        
+        // Close drawer
+        closeBtn.addEventListener('click', function() {
+            sideDrawer.style.right = '-340px';
+        });
+        
+        // Close on clicking outside the drawer
+        document.addEventListener('click', function(e) {
+            if (!sideDrawer.contains(e.target) && !floatBtn.contains(e.target)) {
+                sideDrawer.style.right = '-340px';
+            }
+        });
+        
+        // Highlight active theme on panel load
+        const activeTheme = localStorage.getItem('global-theme') || 'dark';
+        const activeOpt = document.getElementById('theme-opt-' + activeTheme);
+        if (activeOpt) {
+            activeOpt.classList.add('active');
+            activeOpt.style.borderColor = 'var(--accent-blue)';
+        }
+    });
+</script>
+

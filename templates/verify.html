@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile E-Ticket | TravelFusion AI</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            {% if train %}
+            --brand-color: #10b981;
+            {% elif bus %}
+            --brand-color: #f59e0b;
+            {% elif ride %}
+            --brand-color: #a855f7;
+            {% else %}
+            --brand-color: #3b82f6;
+            {% endif %}
+        }
+        body {
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px 15px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* SCANNING SCREEN */
+        #scanning-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 100;
+        }
+        .scanner-box {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #fff;
+            box-shadow: 0 0 15px #fff;
+            animation: scan 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+
+        /* WALLET PASS STYLING */
+        #result-screen {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(100px); } to { opacity: 1; transform: translateY(0); } }
+
+        .wallet-pass {
+            background-color: var(--brand-color);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+            position: relative;
+        }
+        .pass-header {
+            padding: 20px 20px 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pass-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pass-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+        .pass-body {
+            padding: 10px 20px 25px 20px;
+        }
+        .route-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .city-block { width: 40%; }
+        .city-code { font-size: 2.8rem; font-weight: 300; line-height: 1; margin-bottom: 4px; }
+        .city-name { font-size: 0.85rem; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .transit-icon { font-size: 1.8rem; opacity: 0.8; }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 10px;
+        }
+        .info-block {}
+        .info-label { font-size: 0.65rem; text-transform: uppercase; opacity: 0.7; margin-bottom: 2px; }
+        .info-val { font-size: 1.1rem; font-weight: 600; }
+        
+        .pass-cutout {
+            height: 40px;
+            background: #fff;
+            position: relative;
+        }
+        .pass-cutout::before, .pass-cutout::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30px;
+            height: 30px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+        .pass-cutout::before { left: -15px; }
+        .pass-cutout::after { right: -15px; }
+        .pass-cutout .dotted-line {
+            position: absolute;
+            top: 50%;
+            left: 25px;
+            right: 25px;
+            border-top: 2px dashed #cbd5e1;
+            transform: translateY(-50%);
+        }
+
+        .pass-footer {
+            background-color: #fff;
+            padding: 30px 20px;
+            text-align: center;
+            color: #000;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        .qr-wrapper {
+            background: #fff;
+            padding: 10px;
+            display: inline-block;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        .add-wallet-btn {
+            background: #1f2937;
+            color: #fff;
+            border-radius: 20px;
+            padding: 14px 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            margin-top: 20px;
+            width: 100%;
+            justify-content: center;
+            border: none;
+            transition: 0.2s;
+        }
+        .add-wallet-btn:hover {
+            background: #374151;
+            color: white;
+        }
+
+        /* Invalid Ticket State */
+        .wallet-pass.invalid {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="scanning-screen">
+        <div class="scanner-box">
+            <i class="bi bi-qr-code" style="font-size: 8rem; color: rgba(255,255,255,0.2); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);"></i>
+            <div class="scan-line"></div>
+        </div>
+        <div style="font-family:'Share Tech Mono'; letter-spacing:2px; font-size:1.1rem; color: #fff;">READING DIGITAL TICKET...</div>
+    </div>
+
+    <div id="result-screen">
+        {% if valid %}
+        <div class="wallet-pass">
+            <div class="pass-header">
+                <div class="pass-logo">
+                    {% if flight %}<i class="bi bi-airplane-engines-fill"></i>
+                    {% elif train %}<i class="bi bi-train-front-fill"></i>
+                    {% elif bus %}<i class="bi bi-bus-front-fill"></i>
+                    {% else %}<i class="bi bi-car-front-fill"></i>{% endif %}
+                    TravelFusion
+                </div>
+                <div class="pass-type">Boarding Pass</div>
+            </div>
+            
+            <div class="pass-body">
+                <div class="route-flex">
+                    <div class="city-block">
+                        <div class="city-code">{{ booking.source.split(',')[0][:3].upper() }}</div>
+                        <div class="city-name">{{ booking.source.split(',')[0] }}</div>
+                    </div>
+                    <div class="transit-icon">
+                        {% if flight %}✈️{% elif train %}🚆{% elif bus %}🚌{% else %}🚕{% endif %}
+                    </div>
+                    <div class="city-block text-end">
+                        <div class="city-code">{{ booking.destination.split(',')[0][:3].upper() }}</div>
+                        <div class="city-name">{{ booking.destination.split(',')[0] }}</div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-block">
+                        <div class="info-label">Passenger(s)</div>
+                        <div class="info-val" style="font-size:0.9rem;">
+                            {% if booking.passengers %}
+                                {% for p in booking.passengers %}
+                                    <div class="text-truncate" style="max-width: 150px;">{{ p.name }}</div>
+                                {% endfor %}
+                            {% else %}
+                                {{ booking.passenger_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-block text-end">
+                        <div class="info-label">Date</div>
+                        <div class="info-val">{{ booking.travel_date }}</div>
+                    </div>
+                    
+                    {% if flight %}
+                    <div class="info-block">
+                        <div class="info-label">Flight</div>
+                        <div class="info-val">{{ flight.flight_number }}</div>
+                    </div>
+                    <div class="info-block text-end">
+                        <div class="info-label">Gate / Seat</div>
+                        <div class="info-val">{{ flight.gate }} • {{ flight.seat_number }}</div>
+                    </div>
+                    {% elif train %}
+                    <div class="info-block">
+                        <div class="info-label">Train</div>
+                        <div class="info-val">{{ train.train_number }}</div>
+                    </div>
+                    <div class="info-block text-end">
+                        <div class="info-label">Coach / Seat</div>
+                        <div class="info-val">{{ train.coach_number }} • {{ train.seat_number }}</div>
+                    </div>
+                    {% elif bus %}
+                    <div class="info-block">
+                        <div class="info-label">Bus</div>
+                        <div class="info-val">{{ bus.operator_name }}</div>
+                    </div>
+                    <div class="info-block text-end">
+                        <div class="info-label">Seat</div>
+                        <div class="info-val">{{ bus.seat_number }}</div>
+                    </div>
+                    {% elif ride %}
+                    <div class="info-block">
+                        <div class="info-label">Vehicle</div>
+                        <div class="info-val">{{ ride.vehicle_type.upper() }}</div>
+                    </div>
+                    <div class="info-block text-end">
+                        <div class="info-label">Status</div>
+                        <div class="info-val">Confirmed</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="pass-cutout">
+                <div class="dotted-line"></div>
+            </div>
+
+            <div class="pass-footer">
+                <div class="qr-wrapper">
+                    <div id="real-qrcode" style="width: 150px; height: 150px;"></div>
+                </div>
+                <div style="font-family:'Share Tech Mono'; letter-spacing:4px; font-size:1.1rem; font-weight:bold; color:#475569;">TF-{{ booking.id }}</div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:5px;">Verified by TravelFusion AI Core</div>
+            </div>
+        </div>
+        
+        <button class="add-wallet-btn" onclick="this.innerHTML='<i class=\'bi bi-check-circle-fill\'></i> Saved to Device Wallet'; this.style.background='#10b981';">
+            <i class="bi bi-wallet2"></i> Add to Device Wallet
+        </button>
+        
+        {% else %}
+        <div class="wallet-pass invalid">
+            <div class="pass-header">
+                <div class="pass-logo"><i class="bi bi-shield-fill-x"></i> Security Alert</div>
+            </div>
+            <div class="pass-body text-center py-5">
+                <i class="bi bi-x-circle-fill" style="font-size: 5rem; opacity: 0.8;"></i>
+                <h2 class="mt-4 fw-bold">Invalid Ticket</h2>
+                <p style="opacity: 0.9;">This ticket reference does not exist or has been tampered with.</p>
+            </div>
+            <div class="pass-cutout"><div class="dotted-line"></div></div>
+            <div class="pass-footer py-4">
+                <div style="font-weight:bold; color:#dc2626; letter-spacing: 2px;">ACCESS DENIED</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Simulate scanning delay for realism
+            setTimeout(() => {
+                document.getElementById('scanning-screen').style.display = 'none';
+                document.getElementById('result-screen').style.display = 'block';
+                
+                // Generate QR Code if valid
+                const qrContainer = document.getElementById('real-qrcode');
+                if (qrContainer) {
+                    new QRCode(qrContainer, {
+                        text: "VALID-TF-{{ booking.id if booking else 'ERR' }}",
+                        width: 150,
+                        height: 150,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+            }, 1200);
+        });
+    </script>
+</body>
+</html>

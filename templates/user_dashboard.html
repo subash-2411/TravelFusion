@@ -1,0 +1,1451 @@
+<!-- USER DASHBOARD - FULL FEATURED -->
+<div class="text-start" id="dashboardRoot">
+<style>
+    .active-emoji {
+        background: rgba(14, 165, 233, 0.25) !important;
+        border-color: #0ea5e9 !important;
+        box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+        transform: scale(1.1);
+    }
+</style>
+
+<!-- ===== TAB SECTIONS ===== -->
+
+<!-- =============================== SECTION: DASHBOARD =============================== -->
+<div id="section-dashboard" class="dash-section active fade-in-up">
+
+    <!-- Hero Row -->
+    <div class="row g-4 mb-4">
+        <!-- Main Hero Card -->
+        <div class="col-lg-8">
+            {% if upcoming and len(upcoming) > 0 %}
+            <div class="glass-card position-relative overflow-hidden h-100 d-flex flex-column justify-content-end p-5" style="border: 1px solid rgba(59,130,246,0.35); border-radius: 20px; min-height: 340px;">
+                <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(to right, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.1) 100%), url('/static/images/smart_map.png') center/cover no-repeat; z-index: 0; opacity: 0.8;"></div>
+                <div class="position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <div class="badge badge-glass badge-glass-primary py-2 px-3 shadow-lg"><i class="bi bi-geo-alt-fill me-2"></i>Next Destination</div>
+                        {% if upcoming[0].ride %}<span class="badge badge-glass badge-glass-cyan py-2 px-3"><i class="bi bi-car-front-fill me-1"></i>Ride</span>{% endif %}
+                        {% if upcoming[0].bus %}<span class="badge badge-glass badge-glass-success py-2 px-3"><i class="bi bi-bus-front-fill me-1"></i>Bus</span>{% endif %}
+                        {% if upcoming[0].train %}<span class="badge badge-glass badge-glass-purple py-2 px-3"><i class="bi bi-train-front-fill me-1"></i>Train</span>{% endif %}
+                        {% if upcoming[0].flight %}<span class="badge badge-glass badge-glass-warning py-2 px-3"><i class="bi bi-airplane-fill me-1"></i>Flight</span>{% endif %}
+                    </div>
+                    <h2 class="text-white fw-bold mb-1" style="font-size: 3rem; letter-spacing: -1px; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">{{ upcoming[0].destination.split(',')[0] }}</h2>
+                    <p class="text-white-50 mb-4 fs-5"><i class="bi bi-calendar-event me-2 text-primary"></i>{{ upcoming[0].travel_date }}</p>
+                    <div class="d-flex gap-3 mt-auto">
+                        <a href="/tracking/{{ upcoming[0].id }}" class="btn btn-glow-cyan px-4 py-2 fw-bold" style="border-radius: 30px;"><i class="bi bi-geo-alt-fill me-2"></i>Live Track</a>
+                        {% if ((1 if upcoming[0].ride else 0) + (1 if upcoming[0].bus else 0) + (1 if upcoming[0].train else 0) + (1 if upcoming[0].flight else 0)) > 1 %}
+                            <button class="btn btn-glass px-4 py-2" onclick="viewBooking({{ upcoming[0].id }}, 'smart')" style="border-radius: 30px; background: rgba(255,255,255,0.1);"><i class="bi bi-ticket-perforated me-2"></i>View Ticket</button>
+                            {% if upcoming[0].ride %}
+                            <button class="btn btn-glass px-4 py-2" onclick="viewBooking({{ upcoming[0].id }}, 'local')" style="border-radius: 30px; background: rgba(255,255,255,0.1);"><i class="bi bi-person-badge me-2"></i>Driver Info</button>
+                            {% endif %}
+                        {% elif upcoming[0].ride %}
+                            <button class="btn btn-glass px-4 py-2" onclick="viewBooking({{ upcoming[0].id }}, 'local')" style="border-radius: 30px; background: rgba(255,255,255,0.1);"><i class="bi bi-person-badge me-2"></i>Driver Info</button>
+                        {% else %}
+                            <button class="btn btn-glass px-4 py-2" onclick="viewBooking({{ upcoming[0].id }}, 'intercity')" style="border-radius: 30px; background: rgba(255,255,255,0.1);"><i class="bi bi-person-badge me-2"></i>Driver Info</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="glass-card position-relative overflow-hidden h-100 d-flex flex-column justify-content-center p-5" style="border: 1px solid rgba(59,130,246,0.3); border-radius: 20px; min-height: 340px;">
+                <div class="position-absolute w-100 h-100 top-0 start-0" style="background: linear-gradient(to right, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.1) 100%), url('/static/images/smart_map.png') center/cover no-repeat; z-index: 0; opacity: 0.8;"></div>
+                <div class="position-relative z-1 text-center">
+                    <div class="mb-4 d-inline-block p-4 rounded-circle" style="background: rgba(59,130,246,0.15); box-shadow: 0 0 40px rgba(59,130,246,0.3);">
+                        <i class="bi bi-compass-fill" style="font-size: 3.5rem; color: var(--accent-blue);"></i>
+                    </div>
+                    <h2 class="text-white fw-bold mb-3" style="font-size: 2.5rem;">Ready for an adventure?</h2>
+                    <p class="text-white-50 fs-5 mb-4 mx-auto" style="max-width: 80%;">You have no upcoming trips. Plan your next multi-modal journey with TravelFusion AI.</p>
+                    <button type="button" class="btn btn-glow-cyan px-5 py-3 fw-bold shadow-lg" style="border-radius: 30px; font-size: 1.1rem;" onclick="document.getElementById('plannerForm').scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>document.getElementById('pickup_input').focus(), 600);"><i class="bi bi-search me-2"></i>Search Routes</button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Widgets -->
+        <div class="col-lg-4 d-flex flex-column gap-4">
+            <!-- Live Weather Widget -->
+            <div class="stat-card flex-grow-1 d-flex flex-column justify-content-center position-relative overflow-hidden" style="border-radius: 20px; background: linear-gradient(135deg, rgba(14,165,233,0.15) 0%, rgba(2,132,199,0.05) 100%); border: 1px solid rgba(14,165,233,0.3);">
+                <div style="position:absolute; right:-15px; bottom:-10px; font-size: 7rem; opacity: 0.1; color: #0ea5e9; pointer-events: none;"><i class="bi bi-cloud-sun-fill"></i></div>
+                <div class="d-flex justify-content-between align-items-center mb-2 content-z">
+                    <div class="stat-icon mb-0 shadow-sm" style="width: 42px; height: 42px; font-size: 1.2rem; background: rgba(14,165,233,0.2); color: #0ea5e9;"><i class="bi bi-brightness-high-fill"></i></div>
+                    <div class="stat-label mb-0 text-white fw-bold" id="live-time">--:--</div>
+                </div>
+                <div class="content-z mt-1">
+                    <h3 class="stat-value text-white mb-0" style="font-size: 2.2rem;" id="weather-display">
+                        <span id="weather-temp">--°C</span> <span style="font-size: 1rem; color: rgba(255,255,255,0.7); font-weight: normal; font-family: sans-serif;" id="weather-cond">Loading...</span>
+                    </h3>
+                    <div class="small fw-bold mt-2" style="color: #7dd3fc;"><i class="bi bi-geo-alt-fill me-1"></i>Current Location</div>
+                    <p class="text-white-50 mt-1 mb-0" style="font-size: 0.78rem; line-height: 1.4;" id="live-date">--</p>
+                </div>
+            </div>
+
+            <!-- SOS Widget -->
+            <div class="stat-card red flex-grow-1 d-flex flex-column justify-content-center" onclick="triggerEmergencySOS();" style="border-radius: 20px; cursor: pointer;">
+                <i class="bi bi-arrow-right stat-arrow text-white"></i>
+                <div class="d-flex justify-content-between align-items-center mb-3 content-z">
+                    <div class="stat-icon red mb-0 pulse-danger" style="width: 42px; height: 42px; font-size: 1.2rem;"><i class="bi bi-shield-fill-exclamation"></i></div>
+                    <div class="stat-label mb-0 text-white">Safety Center</div>
+                </div>
+                <div class="content-z">
+                    <h3 class="stat-value text-white mb-1" style="font-size: 1.8rem;">{{ len(contacts) if contacts else 0 }} <span style="font-size: 1rem; color: rgba(255,255,255,0.6); font-weight: normal; font-family: sans-serif;">Contacts</span></h3>
+                    <div class="text-danger small fw-bold mt-1"><i class="bi bi-broadcast me-1"></i>Tap to trigger SOS Alert</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center" style="border-radius:16px; border: 1px solid rgba(59,130,246,0.2);">
+                <div style="font-size:2rem; color: var(--accent-blue); margin-bottom: 6px;"><i class="bi bi-ticket-perforated-fill"></i></div>
+                <div class="text-white fw-bold fs-4">{{ len(upcoming) if upcoming else 0 }}</div>
+                <div class="text-muted small">Active Trips</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center" style="border-radius:16px; border: 1px solid rgba(16,185,129,0.2);">
+                <div style="font-size:2rem; color: var(--success-green); margin-bottom: 6px;"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="text-white fw-bold fs-4">{{ len(history) if history else 0 }}</div>
+                <div class="text-muted small">Completed</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center" style="border-radius:16px; border: 1px solid rgba(245,158,11,0.2);">
+                <div style="font-size:2rem; color: #f59e0b; margin-bottom: 6px;"><i class="bi bi-star-fill"></i></div>
+                <div class="text-white fw-bold fs-4" id="reward-pts-dash">--</div>
+                <div class="text-muted small">Reward Points</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center" style="border-radius:16px; border: 1px solid rgba(6,182,212,0.2);">
+                <div style="font-size:2rem; color: var(--cyan-accent); margin-bottom: 6px;"><i class="bi bi-people-fill"></i></div>
+                <div class="text-white fw-bold fs-4">{{ len(contacts) if contacts else 0 }}</div>
+                <div class="text-muted small">SOS Contacts</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Planner Widget -->
+    <div class="glass-card p-0 position-relative overflow-hidden mb-4" style="background: linear-gradient(135deg, rgba(37,99,235,0.1) 0%, rgba(6,182,212,0.05) 100%); border-color: rgba(59,130,246,0.3); border-radius: 24px;">
+        <div class="row g-0">
+            <div class="col-md-6 p-5 d-flex flex-column justify-content-center position-relative z-1">
+                <div style="position:absolute;top:-50px;left:-50px;width:150px;height:150px;background:var(--accent-blue);filter:blur(60px);opacity:0.3;pointer-events:none;"></div>
+                <h3 class="text-white fw-bold mb-2 brand-font" style="letter-spacing: -0.5px;">Where to next, {{ profile.full_name }}?</h3>
+                <p class="text-muted mb-4" style="font-size: 0.95rem;">Enter your destination to coordinate your multimodal journey instantly.</p>
+                <form id="plannerForm" action="/planner" method="GET" style="position:relative; z-index: 2;">
+                    <div class="mb-3">
+                        <div class="input-group position-relative">
+                            <span class="input-group-text bg-transparent border-0 pe-0" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:5;"><i class="bi bi-geo-alt-fill text-accent-blue"></i></span>
+                            <input type="hidden" id="source_lat" name="source_lat" value="">
+                            <input type="hidden" id="source_lng" name="source_lng" value="">
+                            <input type="text" id="pickup_input" autocomplete="off" name="source" class="form-control form-glass py-3" placeholder="Pickup location..." required style="border-radius: 12px; padding-left: 45px !important; padding-right: 45px !important; font-size:1rem; border-color: rgba(59,130,246,0.3);">
+                            <div style="position:absolute; right:12px; top:50%; transform:translateY(-50%); z-index:5;">
+                                <button type="button" class="btn btn-sm border-0" style="background:transparent; color:#3b82f6; padding:0;" title="Use Current GPS Location" onclick="useCurrentLocation()"><i class="bi bi-crosshair fs-5"></i></button>
+                            </div>
+                            <div id="pickup_suggestions" class="autocomplete-dropdown dropdown-menu w-100 mt-1 glass-card border-0 shadow-lg" style="display:none; position:absolute; top:100%; z-index:1000; max-height:200px; overflow-y:auto; border-radius: 12px; padding: 5px;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-group position-relative">
+                            <span class="input-group-text bg-transparent border-0 pe-0" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:5;"><i class="bi bi-geo-fill text-danger"></i></span>
+                            <input type="hidden" id="dest_lat" name="dest_lat" value="">
+                            <input type="hidden" id="dest_lng" name="dest_lng" value="">
+                            <input type="text" id="drop_input" autocomplete="off" name="destination" class="form-control form-glass py-3" placeholder="Dropoff location..." required style="border-radius: 12px; padding-left: 45px !important; font-size:1rem; border-color: rgba(239,68,68,0.3);">
+                            <div id="drop_suggestions" class="autocomplete-dropdown dropdown-menu w-100 mt-1 glass-card border-0 shadow-lg" style="display:none; position:absolute; top:100%; z-index:1000; max-height:200px; overflow-y:auto; border-radius: 12px; padding: 5px;"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3 p-3 glass-card" style="border-radius: 12px; border: 1px solid rgba(16,185,129,0.3); background: rgba(0,0,0,0.1);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="text-white-50 small mb-0"><i class="bi bi-wallet2 text-success me-2"></i>Trip Budget (INR)</label>
+                            <div class="input-group" style="width: 120px;">
+                                <span class="input-group-text bg-transparent border-0 py-0 text-success fw-bold" style="padding-right: 2px;">₹</span>
+                                <input type="number" id="budget_input" name="budget" class="form-control form-glass py-1 px-2 text-end text-white fw-bold" value="3000" oninput="document.getElementById('budget_slider').value=this.value" style="border:none; border-bottom: 1px solid rgba(16,185,129,0.5); border-radius:0; background:transparent; font-size: 1.1rem;">
+                            </div>
+                        </div>
+                        <input type="range" class="form-range" id="budget_slider" min="100" max="20000" step="100" value="3000" oninput="document.getElementById('budget_input').value=this.value" style="accent-color: #10b981;">
+                    </div>
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <div class="input-group position-relative">
+                                <span class="input-group-text bg-transparent border-0 pe-0" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:5;"><i class="bi bi-calendar-event text-muted"></i></span>
+                                <input type="date" id="travel_date" name="travel_date" class="form-control form-glass py-2" required style="border-radius: 12px; padding-left: 40px !important; color-scheme: dark; font-size: 0.9rem;">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group position-relative">
+                                <span class="input-group-text bg-transparent border-0 pe-0" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:5;"><i class="bi bi-people-fill text-muted"></i></span>
+                                <input type="number" id="passengers" name="passengers" class="form-control form-glass py-2" min="1" max="10" value="1" required style="border-radius: 12px; padding-left: 40px !important; color-scheme: dark; font-size: 0.9rem;" placeholder="Pax">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-glow rounded-pill w-100 py-3 d-flex align-items-center justify-content-center shadow-lg" style="font-size: 1.05rem; font-weight: 600;">
+                        <i class="bi bi-search me-2"></i> Search Routes & Rides
+                    </button>
+                </form>
+            </div>
+            <!-- Map Side -->
+            <div class="col-md-6 position-relative" style="min-height: 400px; background: #0b1120;">
+                <div id="dashboardMap" style="width: 100%; height: 100%; border-top-right-radius: 24px; border-bottom-right-radius: 24px; z-index: 1;"></div>
+                <div id="routeStatsWidget" class="position-absolute glass-card shadow-lg p-3" style="display: none; bottom: 20px; left: 20px; right: 20px; z-index: 1000; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div class="d-flex justify-content-around align-items-center text-center">
+                        <div>
+                            <p class="text-muted mb-0" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Distance</p>
+                            <h5 id="routeDistance" class="text-white mb-0 fw-bold">-- km</h5>
+                        </div>
+                        <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
+                        <div>
+                            <p class="text-muted mb-0" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Est. Travel Time</p>
+                            <h5 id="routeTime" class="text-white mb-0 fw-bold text-success">-- mins</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings Preview -->
+    {% if upcoming and len(upcoming) > 0 %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-white mb-0"><i class="bi bi-calendar-check-fill me-2 text-accent-blue"></i>Upcoming Trips</h5>
+        <button class="btn btn-glass btn-sm" onclick="switchSection('bookings')"><i class="bi bi-arrow-right me-1"></i>View All</button>
+    </div>
+    <div class="glass-card p-4 mb-2" style="border-left:3px solid var(--accent-blue);">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="text-white mb-1">{{ upcoming[0].source.split(',')[0] }} → {{ upcoming[0].destination.split(',')[0] }}</h6>
+                <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>{{ upcoming[0].travel_date }}</span>
+            </div>
+            <div class="text-end">
+                <div class="text-success fw-bold">₹{{ upcoming[0].total_fare }}</div>
+                <span class="badge badge-glass badge-glass-primary mt-1">{{ upcoming[0].status.upper() }}</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- =============================== SECTION: MY BOOKINGS =============================== -->
+<div id="section-bookings" class="dash-section fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-ticket-perforated-fill me-2 text-accent-blue"></i>My Bookings</h4>
+            <p class="text-muted mb-0" style="font-size:.85rem;">All active, upcoming and cancelled bookings</p>
+        </div>
+        <button type="button" class="btn btn-glow btn-sm" onclick="sideSwitch('dashboard'); setTimeout(() => { document.getElementById('plannerForm').scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(() => document.getElementById('pickup_input').focus(), 400); }, 200);"><i class="bi bi-plus-circle me-1"></i>New Trip</button>
+    </div>
+
+    <!-- Upcoming Bookings -->
+    <h6 class="text-white-50 mb-3" style="font-size:0.75rem; letter-spacing: 1px; text-transform:uppercase; font-weight:700;"><i class="bi bi-clock-fill me-2 text-warning"></i>Active & Upcoming</h6>
+    {% if upcoming and len(upcoming) > 0 %}
+    <div class="mb-4">
+        {% for b in upcoming %}
+        <div class="glass-card p-4 mb-3 position-relative overflow-hidden" style="border-left:3px solid var(--accent-blue); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge badge-glass badge-glass-primary">BOOKING #{{ b.id }}</span>
+                        <span class="badge badge-glass {% if b.status == 'active' %}badge-glass-warning{% elif b.status == 'completed' %}badge-glass-success{% else %}badge-glass-cyan{% endif %}">{{ b.status.upper() }}</span>
+                    </div>
+                    <h5 class="text-white mb-1">{{ b.source.split(',')[0] }} <i class="bi bi-arrow-right mx-2 text-muted" style="font-size:.85rem;"></i>{{ b.destination.split(',')[0] }}</h5>
+                    <span class="text-muted" style="font-size:.83rem;"><i class="bi bi-calendar3 me-1"></i>{{ b.travel_date }}</span>
+                </div>
+                <div class="text-end">
+                    <div class="text-success fw-800" style="font-size:1.3rem;">₹{{ b.total_fare }}</div>
+                </div>
+            </div>
+            {% if b.ride or b.bus or b.train or b.flight %}
+            <div class="d-flex gap-2 flex-wrap mb-3 p-3 rounded" style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1);">
+                {% if b.ride %}
+                <div class="flex-grow-1 text-center border-end border-secondary border-opacity-25 px-2">
+                    <span class="badge badge-glass badge-glass-cyan mb-1"><i class="bi bi-car-front-fill me-1"></i>{{ b.ride.vehicle_type.upper() if b.ride.vehicle_type else 'RIDE' }}</span>
+                    {% if b.ride.driver_details %}<div class="small text-muted">{{ b.ride.driver_details.vehicle_model }}</div>{% endif %}
+                </div>
+                {% endif %}
+                {% if b.bus %}<div class="flex-grow-1 text-center border-end border-secondary border-opacity-25 px-2"><span class="badge badge-glass badge-glass-primary mb-1"><i class="bi bi-bus-front-fill me-1"></i>BUS</span><div class="small text-muted">Seat {{ b.bus.seat_number }}</div></div>{% endif %}
+                {% if b.train %}<div class="flex-grow-1 text-center border-end border-secondary border-opacity-25 px-2"><span class="badge badge-glass badge-glass-purple mb-1"><i class="bi bi-train-front-fill me-1"></i>TRAIN</span><div class="small text-muted">C:{{ b.train.coach_number }} S:{{ b.train.seat_number }}</div></div>{% endif %}
+                {% if b.flight %}<div class="flex-grow-1 text-center px-2"><span class="badge badge-glass badge-glass-warning mb-1"><i class="bi bi-airplane-fill me-1"></i>FLIGHT</span><div class="small text-muted">Gate {{ b.flight.gate }}, S:{{ b.flight.seat_number }}</div></div>{% endif %}
+            </div>
+            {% endif %}
+            <div class="d-flex gap-2 justify-content-end mt-3">
+                <button type="button" class="btn btn-glass btn-sm" style="color:var(--danger-red);border-color:rgba(239,68,68,0.25);" onclick="try { openCancelModal({{ b.id }}, {{ b.total_fare }}, '{{ b.departure_time_str }}'); } catch(e) { alert('Error: ' + e.message); console.error(e); }">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+                {% if b.ride and (b.bus or b.train or b.flight) %}
+                    <button type="button" class="btn btn-glass btn-sm" style="color:var(--cyan-accent);border-color:rgba(6,182,212,0.25);" onclick="viewBooking({{ b.id }}, 'smart')"><i class="bi bi-qr-code-scan me-1"></i>View Ticket</button>
+                {% endif %}
+                    <button type="button" class="btn btn-glass btn-sm" style="color:var(--cyan-accent);border-color:rgba(6,182,212,0.25);" onclick="viewBooking({{ b.id }}, 'local')"><i class="bi bi-person-badge me-1"></i>Driver Info</button>
+                <a href="/tracking/{{ b.id }}" class="btn btn-glow btn-sm"><i class="bi bi-broadcast me-1"></i>Live Track</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-5 text-center mb-4" style="border: 1px dashed rgba(255,255,255,0.1);">
+        <i class="bi bi-ticket-perforated fs-1 text-muted mb-3 d-block"></i>
+        <h5 class="text-white mb-2">No Active Bookings</h5>
+        <button type="button" class="btn btn-glow" onclick="sideSwitch('dashboard'); setTimeout(() => { document.getElementById('plannerForm').scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(() => document.getElementById('pickup_input').focus(), 400); }, 200);"><i class="bi bi-plus-circle me-2"></i>Plan a Journey</button>
+    </div>
+    {% endif %}
+
+    <!-- Cancelled Bookings & Refund Status -->
+    <h6 class="text-white-50 mt-4 mb-3" style="font-size:0.75rem; letter-spacing: 1px; text-transform:uppercase; font-weight:700;"><i class="bi bi-x-octagon-fill me-2 text-danger"></i>Cancelled Trips & Refund Status</h6>
+    {% if cancelled and len(cancelled) > 0 %}
+    <div class="mb-4">
+        {% for cb in cancelled %}
+        <div class="glass-card p-4 mb-3 position-relative overflow-hidden" style="border-left:3px solid var(--danger-red); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge badge-glass badge-glass-danger">CANCELLED #{{ cb.id }}</span>
+                        {% if cb.refund_status == 'Refund Completed' %}
+                            <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50"><i class="bi bi-check-circle-fill me-1"></i>REFUND COMPLETED</span>
+                        {% elif cb.refund_status == 'Refund Processing' %}
+                            <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50"><i class="bi bi-hourglass-split me-1"></i>REFUND PROCESSING</span>
+                        {% elif cb.refund_status == 'Refund Rejected' %}
+                            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50"><i class="bi bi-x-circle-fill me-1"></i>REFUND REJECTED</span>
+                        {% else %}
+                            <span class="badge bg-info bg-opacity-25 text-cyan border border-cyan border-opacity-50"><i class="bi bi-arrow-clockwise me-1"></i>REFUND INITIATED</span>
+                        {% endif %}
+                    </div>
+                    <h5 class="text-white mb-1">{{ cb.source.split(',')[0] }} <i class="bi bi-arrow-right mx-2 text-muted" style="font-size:.85rem;"></i>{{ cb.destination.split(',')[0] }}</h5>
+                    <span class="text-muted" style="font-size:.83rem;"><i class="bi bi-calendar3 me-1"></i>{{ cb.travel_date }}</span>
+                </div>
+                <div class="text-end">
+                    <div class="text-white-50 small mb-1">Fare: ₹{{ cb.total_fare }}</div>
+                    <div class="text-success fw-800" style="font-size:1.2rem;">Refund: ₹{{ cb.refund_amount }}</div>
+                </div>
+            </div>
+
+            <!-- Step Progress Tracker for Refunds -->
+            <div class="my-4 position-relative px-3 py-2 rounded" style="background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.02); height: 65px;">
+                <div class="progress" style="height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; position: absolute; left: 10%; right: 10%; top: 22px;">
+                    <div class="progress-bar {% if cb.refund_status == 'Refund Completed' %}bg-success{% elif cb.refund_status == 'Refund Rejected' %}bg-danger{% else %}bg-warning{% endif %}" 
+                         role="progressbar" 
+                         style="width: {% if cb.refund_status == 'Refund Completed' or cb.refund_status == 'Refund Rejected' %}100%{% elif cb.refund_status == 'Refund Processing' %}50%{% else %}0%{% endif %};">
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between position-absolute start-0 end-0" style="padding: 0 5%;">
+                    <!-- Step 1: Initiated -->
+                    <div class="text-center" style="width: 80px; position: relative; z-index: 2;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 26px; height: 26px; font-size: 0.75rem; 
+                                    background: {% if cb.refund_status in ('Refund Initiated', 'Refund Processing', 'Refund Completed', 'Refund Rejected') %}#3b82f6{% else %}rgba(255,255,255,0.15){% endif %}; 
+                                    color: white; border: 2px solid #0e1630; box-shadow: 0 0 10px rgba(59,130,246,0.3);">
+                            <i class="bi bi-send-fill" style="font-size: 0.65rem;"></i>
+                        </div>
+                        <div class="small mt-1 text-white-50" style="font-size: 0.7rem;">Initiated</div>
+                    </div>
+                    
+                    <!-- Step 2: Processing -->
+                    <div class="text-center" style="width: 80px; position: relative; z-index: 2;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 26px; height: 26px; font-size: 0.75rem; 
+                                    background: {% if cb.refund_status in ('Refund Processing', 'Refund Completed', 'Refund Rejected') %}#f59e0b{% else %}rgba(255,255,255,0.15){% endif %}; 
+                                    color: white; border: 2px solid #0e1630; box-shadow: {% if cb.refund_status in ('Refund Processing', 'Refund Completed', 'Refund Rejected') %}0 0 10px rgba(245,158,11,0.3){% else %}none{% endif %};">
+                            <i class="bi bi-hourglass-split" style="font-size: 0.65rem;"></i>
+                        </div>
+                        <div class="small mt-1 text-white-50" style="font-size: 0.7rem;">Processing</div>
+                    </div>
+                    
+                    <!-- Step 3: Completed or Rejected -->
+                    <div class="text-center" style="width: 80px; position: relative; z-index: 2;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 26px; height: 26px; font-size: 0.75rem; 
+                                    background: {% if cb.refund_status == 'Refund Completed' %}#10b981{% elif cb.refund_status == 'Refund Rejected' %}#ef4444{% else %}rgba(255,255,255,0.15){% endif %}; 
+                                    color: white; border: 2px solid #0e1630; box-shadow: {% if cb.refund_status == 'Refund Completed' %}0 0 10px rgba(16,185,129,0.3){% elif cb.refund_status == 'Refund Rejected' %}0 0 10px rgba(239,68,68,0.3){% else %}none{% endif %};">
+                            {% if cb.refund_status == 'Refund Rejected' %}
+                                <i class="bi bi-x-circle-fill" style="font-size: 0.65rem;"></i>
+                            {% else %}
+                                <i class="bi bi-check-circle-fill" style="font-size: 0.65rem;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="small mt-1 text-white-50" style="font-size: 0.7rem;">
+                            {% if cb.refund_status == 'Refund Rejected' %}Rejected{% else %}Completed{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-3 rounded" style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem;">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="text-muted small">Cancellation Ref</div>
+                        <div class="text-white font-monospace">{{ cb.cancellation_id }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Refund Details / Status Message</div>
+                        <div class="text-white">{{ cb.reason or 'User requested cancellation.' }}</div>
+                    </div>
+                    {% if cb.refund_date %}
+                    <div class="col-12 mt-2 pt-2 border-top border-secondary border-opacity-25">
+                        <div class="text-muted small"><i class="bi bi-clock me-1"></i>Processed Date</div>
+                        <div class="text-white">{{ cb.refund_date }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-4 text-center text-muted" style="border: 1px dashed rgba(255,255,255,0.08); font-size: 0.88rem;">
+        No cancelled bookings or active refunds.
+    </div>
+    {% endif %}
+</div>
+
+<!-- =============================== SECTION: TRAVEL HISTORY =============================== -->
+<div id="section-history" class="dash-section fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-clock-history me-2 text-success"></i>Travel History</h4>
+            <p class="text-muted mb-0" style="font-size:.85rem;">Your completed and cancelled trips</p>
+        </div>
+    </div>
+    {% if history %}
+    <div class="mb-4">
+        {% for b in history %}
+        <div class="glass-card p-4 mb-3 position-relative overflow-hidden" style="border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform=''; this.style.boxShadow='';">
+            {% if b.status == 'completed' %}
+            <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, var(--success-green), rgba(16,185,129,0.2));"></div>
+            {% else %}
+            <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, var(--danger-red), rgba(239,68,68,0.2));"></div>
+            {% endif %}
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;">
+                        {% if b.status == 'completed' %}<i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        {% else %}<i class="bi bi-x-circle-fill text-danger fs-4"></i>{% endif %}
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <h6 class="text-white mb-0" style="font-size:1.05rem;">{{ b.source.split(',')[0] }}</h6>
+                            <i class="bi bi-arrow-right text-muted mx-1" style="font-size:0.8rem;"></i>
+                            <h6 class="text-white mb-0" style="font-size:1.05rem;">{{ b.destination.split(',')[0] }}</h6>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-calendar3 me-1 text-accent-blue"></i>{{ b.travel_date }} &nbsp;|&nbsp;
+                            <span class="font-monospace text-secondary">{{ format_booking_id(b.id) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="text-white fw-bold fs-5">₹{{ b.total_fare }}</div>
+                    <span class="badge badge-glass {% if b.status == 'completed' %}badge-glass-success{% else %}badge-glass-danger{% endif %} mt-1">{{ b.status.upper() }}</span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-3">
+                <span class="badge" style="background:rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1);"><i class="bi bi-geo-alt-fill me-1 text-primary"></i>Multi-modal Route</span>
+                <div>
+                    <a href="/tracking/{{ b.id }}" class="btn btn-glow-cyan btn-sm me-2"><i class="bi bi-map me-1"></i>Journey Map</a>
+                    <button type="button" class="btn btn-glass btn-sm" onclick="viewBooking({{ b.id }})"><i class="bi bi-receipt me-1"></i>View Details</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card p-5 text-center" style="border: 1px dashed rgba(255,255,255,0.1);">
+        <i class="bi bi-journal-x fs-1 text-muted mb-3 d-block"></i>
+        <h5 class="text-white mb-2">No Past Journeys</h5>
+        <p class="text-muted mb-0" style="font-size:.9rem;">Your travel history will appear here once you complete a trip.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- =============================== SECTION: REWARDS & OFFERS =============================== -->
+<div id="section-rewards" class="dash-section fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-gift-fill me-2 text-warning"></i>Rewards & Offers</h4>
+            <p class="text-muted mb-0" style="font-size:.85rem;">Your points, badges and exclusive travel deals</p>
+        </div>
+    </div>
+
+    <!-- Points Card -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="glass-card p-4 text-center position-relative overflow-hidden" style="border: 1px solid rgba(245,158,11,0.4); border-radius: 20px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.05));">
+                <div style="position:absolute;top:-20px;right:-20px;font-size:8rem;opacity:0.07;color:#f59e0b;pointer-events:none;"><i class="bi bi-star-fill"></i></div>
+                <div class="mb-3" style="font-size:3rem;"><i class="bi bi-trophy-fill" style="color:#f59e0b;"></i></div>
+                <h2 class="text-white fw-bold mb-1" id="reward-pts-main" style="font-size:3rem;">{{ (len(history) * 150 + len(upcoming) * 50) if (history or upcoming) else 0 }}</h2>
+                <p class="text-warning mb-3">TravelFusion Points</p>
+                <div class="glass-card p-2" style="border-radius:10px; background: rgba(245,158,11,0.1);">
+                    <small class="text-muted">Next reward at <span class="text-warning fw-bold">500 pts</span></small>
+                    <div class="progress mt-2" style="height:6px; background: rgba(255,255,255,0.1); border-radius:3px;">
+                        <div class="progress-bar" style="width: {{ [(len(history) * 150 + len(upcoming) * 50) % 500 / 500 * 100, 100] | min | int }}%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius:3px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="row g-3 h-100">
+                <div class="col-6">
+                    <div class="glass-card p-4 text-center" style="border-radius:16px; border: 1px solid rgba(59,130,246,0.2); height:100%;">
+                        <div style="font-size:2.5rem; margin-bottom:8px;">🎫</div>
+                        <h5 class="text-white fw-bold mb-1">{{ len(upcoming) if upcoming else 0 }}</h5>
+                        <p class="text-muted small mb-2">Active Trips</p>
+                        <span class="badge badge-glass badge-glass-primary">+{{ (len(upcoming) or 0) * 50 }} pts earned</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="glass-card p-4 text-center" style="border-radius:16px; border: 1px solid rgba(16,185,129,0.2); height:100%;">
+                        <div style="font-size:2.5rem; margin-bottom:8px;">✅</div>
+                        <h5 class="text-white fw-bold mb-1">{{ len(history) if history else 0 }}</h5>
+                        <p class="text-muted small mb-2">Trips Completed</p>
+                        <span class="badge badge-glass badge-glass-success">+{{ (len(history) or 0) * 150 }} pts earned</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="glass-card p-4 text-center" style="border-radius:16px; border: 1px solid rgba(139,92,246,0.2);">
+                        <div style="font-size:2.5rem; margin-bottom:8px;">🏅</div>
+                        <h5 class="text-white fw-bold mb-1">Silver</h5>
+                        <p class="text-muted small mb-0">Member Tier</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="glass-card p-4 text-center" style="border-radius:16px; border: 1px solid rgba(6,182,212,0.2);">
+                        <div style="font-size:2.5rem; margin-bottom:8px;">🌱</div>
+                        <h5 class="text-white fw-bold mb-1">Eco</h5>
+                        <p class="text-muted small mb-0">Green Traveler</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exclusive Offers -->
+    <h5 class="text-white mb-3"><i class="bi bi-percent me-2 text-success"></i>Exclusive Offers</h5>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="glass-card p-4" style="border-radius:16px; border: 1px solid rgba(59,130,246,0.3); background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(6,182,212,0.05));">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div style="font-size:2rem;">🚌</div>
+                    <div>
+                        <div class="text-white fw-bold">Bus Bonanza</div>
+                        <div class="text-muted small">State Transport Offer</div>
+                    </div>
+                </div>
+                <div class="text-white fw-bold" style="font-size:1.8rem; color: var(--accent-blue);">20% OFF</div>
+                <p class="text-muted small mb-3">On all State Transport bus bookings above ₹200. Valid till July 31.</p>
+                <div class="glass-card p-2 text-center" style="border-radius:8px; background: rgba(59,130,246,0.1);">
+                    <code class="text-accent-blue fw-bold" style="font-size:1.1rem; letter-spacing:2px;">BUS20TF</code>
+                </div>
+                <small class="text-muted d-block mt-2"><i class="bi bi-clock me-1"></i>Expires: July 31, 2026</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4" style="border-radius:16px; border: 1px solid rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05));">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div style="font-size:2rem;">🚂</div>
+                    <div>
+                        <div class="text-white fw-bold">Train Saver</div>
+                        <div class="text-muted small">Indian Railways Special</div>
+                    </div>
+                </div>
+                <div class="text-white fw-bold" style="font-size:1.8rem; color: var(--success-green);">15% OFF</div>
+                <p class="text-muted small mb-3">On AC 3-Tier and above bookings. Book 7 days in advance.</p>
+                <div class="glass-card p-2 text-center" style="border-radius:8px; background: rgba(16,185,129,0.1);">
+                    <code class="text-success fw-bold" style="font-size:1.1rem; letter-spacing:2px;">TRAIN15</code>
+                </div>
+                <small class="text-muted d-block mt-2"><i class="bi bi-clock me-1"></i>Expires: Aug 15, 2026</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4" style="border-radius:16px; border: 1px solid rgba(245,158,11,0.3); background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.05));">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div style="font-size:2rem;">✈️</div>
+                    <div>
+                        <div class="text-white fw-bold">Fly Smart</div>
+                        <div class="text-muted small">IndiGo Weekend Deal</div>
+                    </div>
+                </div>
+                <div class="text-white fw-bold" style="font-size:1.8rem; color: #f59e0b;">₹500 OFF</div>
+                <p class="text-muted small mb-3">On first flight booking via TravelFusion. Economy class only.</p>
+                <div class="glass-card p-2 text-center" style="border-radius:8px; background: rgba(245,158,11,0.1);">
+                    <code class="text-warning fw-bold" style="font-size:1.1rem; letter-spacing:2px;">FLY500TF</code>
+                </div>
+                <small class="text-muted d-block mt-2"><i class="bi bi-clock me-1"></i>Expires: July 15, 2026</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =============================== SECTION: SOS & EMERGENCY =============================== -->
+<div id="section-sos" class="dash-section fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-shield-fill-exclamation me-2 text-danger"></i>SOS & Emergency</h4>
+            <p class="text-muted mb-0" style="font-size:.85rem;">Manage emergency contacts and trigger SOS alerts</p>
+        </div>
+    </div>
+
+    <!-- SOS Trigger -->
+    <div class="glass-card p-4 mb-4 text-center" style="border: 2px solid rgba(239,68,68,0.4); border-radius: 20px; background: linear-gradient(135deg, rgba(239,68,68,0.05), rgba(185,28,28,0.02));">
+        <div class="mb-3" style="font-size:4rem;"><i class="bi bi-shield-fill-exclamation text-danger"></i></div>
+        <h4 class="text-white fw-bold mb-2">Emergency SOS</h4>
+        <p class="text-muted mb-4">Tap the button to immediately alert your emergency contacts with your current GPS location. Use only in genuine emergencies.</p>
+        <button class="btn btn-danger btn-lg px-5 py-3 fw-bold pulse-danger" style="border-radius:30px; font-size:1.1rem;" onclick="triggerEmergencySOS()">
+            <i class="bi bi-broadcast me-2"></i> TRIGGER SOS ALERT
+        </button>
+        <p class="text-muted mt-3" style="font-size:0.8rem;">This will broadcast your location to all saved emergency contacts</p>
+    </div>
+
+    <!-- Emergency Contacts -->
+    <div class="glass-card p-4" style="border-radius:20px;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="text-white mb-0"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Emergency Contacts</h5>
+            <button class="btn btn-glass btn-sm" onclick="openContactModal()"><i class="bi bi-plus me-1"></i>Add Contact</button>
+        </div>
+        {% if contacts %}
+        <div class="d-flex flex-column gap-3">
+            {% for c in contacts %}
+            <div class="glass-card p-3 d-flex justify-content-between align-items-center" style="border-left: 3px solid var(--danger-red); border-radius: 12px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:44px;height:44px;border-radius:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;color:#ef4444;">{{ c.name[0].upper() }}</div>
+                    <div>
+                        <div class="text-white fw-bold">{{ c.name }}</div>
+                        <div class="text-muted small">{{ c.relationship }} • {{ c.phone }}</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="tel:{{ c.phone }}" class="btn btn-glass btn-sm" style="color: var(--success-green);"><i class="bi bi-telephone-fill"></i></a>
+                    <button class="btn btn-glass btn-sm" style="color:var(--danger-red);" onclick="deleteContact({{ c.id }})"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center p-4">
+            <i class="bi bi-shield-x text-muted mb-3 d-block" style="font-size: 3rem;"></i>
+            <h6 class="text-white mb-2">No Emergency Contacts Added</h6>
+            <p class="text-muted small mb-3">Add family members or friends to receive SOS alerts during emergencies.</p>
+            <button class="btn btn-glow-danger btn-sm" onclick="openContactModal()"><i class="bi bi-plus me-1"></i>Add First Contact</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- =============================== SECTION: PROFILE =============================== -->
+<div id="section-profile" class="dash-section fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="text-white mb-1"><i class="bi bi-person-fill me-2 text-accent-blue"></i>My Profile</h4>
+            <p class="text-muted mb-0" style="font-size:.85rem;">Manage your personal information and travel preferences</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Profile Avatar & Info -->
+        <div class="col-md-4">
+            <div class="glass-card p-4 text-center" style="border-radius:20px;">
+                <div class="mb-4 position-relative d-inline-block">
+                    {% if profile.avatar_url and profile.avatar_url != '/static/images/default-avatar.png' %}
+                        <img id="profile-avatar-img" src="{{ profile.avatar_url }}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;box-shadow:0 8px 24px rgba(37,99,235,0.4);border:3px solid #06b6d4;margin:0 auto;display:block;">
+                    {% else %}
+                        <div id="profile-avatar-letter" class="d-flex align-items-center justify-content-center text-white fw-bold" style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#06b6d4);font-size:2.8rem;box-shadow:0 8px 24px rgba(37,99,235,0.4);border:3px solid #06b6d4;margin:0 auto;">{{ profile.full_name[0].upper() if profile.full_name else 'U' }}</div>
+                        <img id="profile-avatar-img" src="" style="width:100px;height:100px;border-radius:50%;object-fit:cover;box-shadow:0 8px 24px rgba(37,99,235,0.4);border:3px solid #06b6d4;margin:0 auto;display:none;">
+                    {% endif %}
+                    <label for="avatar-file-input" style="position:absolute;bottom:0;right:0;width:32px;height:32px;background:#0ea5e9;border-radius:50%;border:2px solid #0f172a;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);" title="Change Photo">
+                        <i class="bi bi-camera-fill text-white" style="font-size:0.9rem;"></i>
+                    </label>
+                    <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" onchange="uploadAvatarImage(this)">
+                </div>
+                <h5 class="text-white fw-bold mb-1">
+                    <span id="display-status-emoji" style="margin-right: 4px;">{{ profile.status_emoji or '✈️' }}</span>{{ profile.full_name }}
+                </h5>
+                <p class="text-muted small mb-1">{{ profile.email }}</p>
+                <p class="text-muted small mb-3">{{ profile.phone or 'Phone not set' }}</p>
+                <span class="badge badge-glass badge-glass-cyan px-3 py-2"><i class="bi bi-person-badge me-1"></i>Traveler</span>
+                <div class="mt-4 p-3 glass-card" style="border-radius:12px; background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Reward Points</span>
+                        <span class="text-warning fw-bold">{{ (len(history) * 150 + len(upcoming) * 50) if (history or upcoming) else 0 }} pts</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span class="text-muted small">Member Tier</span>
+                        <span class="text-white fw-bold">{{ profile.member_tier }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span class="text-muted small">Total Trips</span>
+                        <span class="text-white fw-bold">{{ (len(history) or 0) + (len(upcoming) or 0) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="col-md-8">
+            <div class="glass-card p-4" style="border-radius:20px;">
+                <h6 class="text-white fw-bold mb-4"><i class="bi bi-pencil-fill me-2 text-accent-blue"></i>Edit Personal Information</h6>
+                <form id="profileUpdateForm" action="/profile/update" method="POST">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Full Name</label>
+                            <input type="text" name="full_name" id="pf_fullname" class="form-control form-glass" value="{{ profile.full_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Phone Number</label>
+                            <input type="text" name="phone" id="pf_phone" class="form-control form-glass" value="{{ profile.phone or '' }}" placeholder="+91 XXXXXXXXXX">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Email Address</label>
+                            <input type="email" class="form-control form-glass" value="{{ profile.email }}" disabled style="opacity:0.6; cursor:not-allowed;">
+                            <small class="text-muted">Email cannot be changed</small>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Preferred Mode</label>
+                            <select name="preferred_mode" id="pf_preferred_mode" class="form-select form-glass">
+                                <option value="Train" {% if profile.preferred_mode == 'Train' or (not profile.preferred_mode and 'Train' == 'Train') %}selected{% endif %}>Train</option>
+                                <option value="Bus" {% if profile.preferred_mode == 'Bus' %}selected{% endif %}>Bus</option>
+                                <option value="Flight" {% if profile.preferred_mode == 'Flight' %}selected{% endif %}>Flight</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label class="form-label text-muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Select Status Emoji</label>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                <input type="hidden" name="status_emoji" id="pf_status_emoji" value="{{ profile.status_emoji or '✈️' }}">
+                                {% for emoji in ['✈️', '🚗', '🚆', '🎒', '🌴', '🏔️', '🌟', '🚀'] %}
+                                    <button type="button" class="btn btn-glass emoji-selector-btn {% if profile.status_emoji == emoji or (not profile.status_emoji and emoji == '✈️') %}active-emoji{% endif %}" onclick="selectStatusEmoji('{{ emoji }}', this)" style="font-size: 1.4rem; padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); transition: all 0.2s;">
+                                        {{ emoji }}
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-glow px-4"><i class="bi bi-save me-2"></i>Save Changes</button>
+                        <button type="button" class="btn btn-glass px-4" onclick="resetProfileForm()"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Password Change -->
+            <div class="glass-card p-4 mt-4" style="border-radius:20px;">
+                <h6 class="text-white fw-bold mb-4"><i class="bi bi-lock-fill me-2 text-warning"></i>Security Settings</h6>
+                <div class="d-flex align-items-center justify-content-between p-3 glass-card" style="border-radius:12px; background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2);">
+                    <div>
+                        <div class="text-white fw-bold">Change Password</div>
+                        <div class="text-muted small">Update your account password securely</div>
+                    </div>
+                    <a href="/forgot-password" class="btn btn-glass btn-sm" style="color:#f59e0b;"><i class="bi bi-key-fill me-1"></i>Change</a>
+                </div>
+                <div class="d-flex align-items-center justify-content-between p-3 glass-card mt-3" style="border-radius:12px; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2);">
+                    <div>
+                        <div class="text-white fw-bold">Sign Out</div>
+                        <div class="text-muted small">Securely log out from all sessions</div>
+                    </div>
+                    <a href="/logout" class="btn btn-glass btn-sm" style="color:var(--danger-red);"><i class="bi bi-box-arrow-right me-1"></i>Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div><!-- end dashboardRoot -->
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/map_picker.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- Booking View Modal -->
+<div class="modal fade" id="viewBookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content form-glass">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">Booking Ticket Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingDetailsContent" class="text-white">
+                    <div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dash-section { display: none; padding-right: 10px; }
+.dash-section.active { display: block; }
+.dash-section::-webkit-scrollbar, .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.dash-section::-webkit-scrollbar-track, .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 4px; }
+.dash-section::-webkit-scrollbar-thumb, .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.3); border-radius: 4px; }
+.dash-section::-webkit-scrollbar-thumb:hover, .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.6); }
+@keyframes routeFlow { to { stroke-dashoffset: -20; } }
+.animated-route-line { animation: routeFlow 1.2s linear infinite !important; }
+</style>
+
+<script>
+// ==================== SECTION SWITCHER ====================
+function switchSection(name) {
+    document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('section-' + name);
+    if (target) {
+        target.classList.add('active');
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    // Update sidebar active link
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    const sidebarMap = {
+        'dashboard': '/dashboard',
+        'bookings': '#bookings',
+        'history': '#history',
+        'rewards': '#rewards',
+        'sos': '#sos',
+        'profile': '#profile'
+    };
+    document.querySelectorAll('.sidebar-link').forEach(l => {
+        const href = l.getAttribute('href') || '';
+        if (href.includes(name) || (name === 'dashboard' && href === '/dashboard')) {
+            l.classList.add('active');
+        }
+    });
+}
+
+// ==================== LIVE TIME ====================
+function updateLiveTime() {
+    const now = new Date();
+    const timeEl = document.getElementById('live-time');
+    const dateEl = document.getElementById('live-date');
+    if (timeEl) timeEl.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    if (dateEl) dateEl.innerText = now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
+}
+setInterval(updateLiveTime, 1000);
+document.addEventListener('DOMContentLoaded', () => {
+    updateLiveTime();
+
+    // Set travel date to today
+    const dateInput = document.getElementById('travel_date');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+        dateInput.value = today;
+    }
+
+    // Live weather fetch
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+            .then(r => r.json())
+            .then(d => {
+                if (d.current_weather) {
+                    const cw = d.current_weather;
+                    const temp = Math.round(cw.temperature);
+                    const wc = cw.weathercode;
+                    let cond = 'Clear';
+                    if ([2,3].includes(wc)) cond = 'Partly Cloudy';
+                    else if ([51,53,55,61,63,65,80,81,82].includes(wc)) cond = 'Rainy';
+                    else if ([95,96,99].includes(wc)) cond = 'Heavy Rain';
+                    else if ([71,73,75].includes(wc)) cond = 'Snowy';
+                    document.getElementById('weather-temp').innerText = `${temp}°C`;
+                    document.getElementById('weather-cond').innerText = cond;
+                }
+            }).catch(() => {});
+        }, () => {
+            document.getElementById('weather-temp').innerText = '31°C';
+            document.getElementById('weather-cond').innerText = 'Partly Cloudy';
+        });
+    } else {
+        document.getElementById('weather-temp').innerText = '31°C';
+        document.getElementById('weather-cond').innerText = 'Partly Cloudy';
+    }
+
+    // Sync reward points across sections
+    const pts = document.getElementById('reward-pts-main');
+    const ptsDash = document.getElementById('reward-pts-dash');
+    if (pts && ptsDash) ptsDash.innerText = pts.innerText;
+
+    // Handle hash routing on load
+    const hash = window.location.hash;
+    if (hash === '#bookings') switchSection('bookings');
+    else if (hash === '#history') switchSection('history');
+    else if (hash === '#rewards') switchSection('rewards');
+    else if (hash === '#sos') switchSection('sos');
+    else if (hash === '#profile') switchSection('profile');
+    else switchSection('dashboard');
+});
+
+// ==================== MODAL BOOKING VIEW ====================
+function viewBooking(bookingId, bookingType = 'smart') {
+    document.body.appendChild(document.getElementById('viewBookingModal'));
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('viewBookingModal'));
+    modal.show();
+    const content = document.getElementById('bookingDetailsContent');
+    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>';
+    const ftLink = document.getElementById('fullTicketLink');
+    if (ftLink) {
+        ftLink.href = '/ticket/' + bookingId;
+        if (bookingType === 'smart') {
+            ftLink.style.display = 'inline-flex';
+        } else {
+            ftLink.style.display = 'none';
+        }
+    }
+    fetch('/admin/booking/' + bookingId + '?t=' + new Date().getTime())
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const b = data.booking;
+                let html = '';
+                
+                if (bookingType === 'smart') {
+                    let hostIp = '{{ local_ip }}';
+                    let port = window.location.port ? ':' + window.location.port : '';
+                    let qrUrl = 'http://' + hostIp + port + '/verify/TF-' + b.id;
+                    const md = b.mode_details || {};
+                    let seatInfo = '';
+                    if (md.mode) {
+                        seatInfo = `
+                            <div class="row g-4 mt-2 mb-3">
+                                <div class="col-6">
+                                    <p class="text-muted mb-1" style="font-size: 0.8rem;">Transport</p>
+                                    <h6 class="text-white mb-0" style="font-size: 0.95rem;">${md.mode} ${md.details && md.details !== 'N/A' ? '- ' + md.details : ''}</h6>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-1" style="font-size: 0.8rem;">Seat</p>
+                                    <h6 class="text-warning mb-0" style="font-size: 0.95rem;">${md.seat && md.seat !== 'N/A' ? md.seat : 'Not Assigned'}</h6>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    html = `
+                        <div class="ticket-premium position-relative overflow-hidden">
+                            <div class="ticket-header d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px dashed rgba(255,255,255,0.2);">
+                                <div>
+                                    <h6 class="text-muted mb-0" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Ticket Record</h6>
+                                    <h4 class="text-white mb-0 mt-1 brand-font">#TF-${b.id}</h4>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge badge-glass ${b.status === 'completed' ? 'badge-glass-success' : (b.status === 'cancelled' ? 'badge-glass-danger' : 'badge-glass-primary')} px-3 py-2" style="font-size: 0.85rem;">
+                                        <i class="bi ${b.status === 'completed' ? 'bi-check-circle-fill' : 'bi-clock-fill'} me-1"></i> ${b.status.toUpperCase()}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row g-4 mb-2">
+                                <div class="col-6">
+                                    <p class="text-muted mb-1" style="font-size: 0.8rem;">Departure</p>
+                                    <h6 class="text-white mb-0" style="font-size: 0.95rem;">${b.source ? b.source.split(',')[0] : 'N/A'}</h6>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-1" style="font-size: 0.8rem;">Destination</p>
+                                    <h6 class="text-white mb-0" style="font-size: 0.95rem;">${b.destination ? b.destination.split(',')[0] : 'N/A'}</h6>
+                                </div>
+                            </div>
+                            ${seatInfo}
+                            <div class="mt-2 pt-3 d-flex justify-content-between align-items-center" style="border-top: 2px dashed rgba(255,255,255,0.15);">
+                                <div class="text-center" style="flex-grow: 1;">
+                                    <div style="font-family: 'Courier New', Courier, monospace; font-size: 1.5rem; letter-spacing: 5px; color: rgba(255,255,255,0.3); transform: scaleY(1.5);">||| | || ||| || ||| |</div>
+                                    <p class="text-muted mt-2 mb-0" style="font-size: 0.65rem; letter-spacing: 2px;">SCAN TO VERIFY</p>
+                                </div>
+                                <div class="bg-white p-2 rounded-3 ms-4 shadow-sm">
+                                    <div id="qr-${b.id}" style="width:80px;height:80px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    content.innerHTML = html;
+                    new QRCode(document.getElementById('qr-' + b.id), {
+                        text: qrUrl, width: 80, height: 80, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+                    });
+                } else if (bookingType === 'local' || bookingType === 'intercity') {
+                    const md = b.ride_details || b.mode_details || {};
+                    html = `
+                    <div class="ticket-premium position-relative overflow-hidden">
+                        <div class="ticket-header d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px dashed rgba(255,255,255,0.2);">
+                            <div>
+                                <h6 class="text-muted mb-0" style="font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;">Driver Info</h6>
+                                <h4 class="text-white mb-0 mt-1 brand-font">#TF-${b.id}</h4>
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (md.driver_name) {
+                        html += `
+                        <div class="row g-4 mb-4">
+                            <div class="col-6">
+                                <p class="text-muted mb-1" style="font-size: 0.8rem;">Driver</p>
+                                <h6 class="text-white mb-0" style="font-size: 0.95rem;">${md.driver_name}</h6>
+                                <small class="text-muted">${md.driver_phone}</small>
+                            </div>
+                            <div class="col-6 text-end">
+                                <p class="text-muted mb-1" style="font-size: 0.8rem;">Vehicle</p>
+                                <h6 class="text-white mb-0" style="font-size: 0.95rem;">${md.vehicle_number || ''}</h6>
+                                <small class="text-muted">${md.vehicle_model || md.details || ''}</small>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 text-center" style="border-top: 2px dashed rgba(255,255,255,0.15);">
+                            <h4 class="text-warning mb-0 letter-spacing-5" style="letter-spacing: 5px;">${md.otp || 'N/A'}</h4>
+                            <p class="text-muted mt-2 mb-0" style="font-size: 0.65rem; letter-spacing: 2px;">RIDE OTP</p>
+                        </div>
+                        `;
+                    } else {
+                        html += `
+                        <div class="text-center py-4">
+                            <i class="bi bi-person-bounding-box text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <h6 class="text-white">Assigning Driver...</h6>
+                            <p class="text-muted small mb-0">We are finding the best driver for you. Check back shortly!</p>
+                        </div>
+                        `;
+                    }
+                    html += `</div>`;
+                    content.innerHTML = html;
+                }
+            } else {
+                content.innerHTML = '<div class="alert alert-danger">Failed to load booking details</div>';
+            }
+        })
+        .catch(error => {
+            content.innerHTML = '<div class="alert alert-danger">An error occurred while loading booking details</div>';
+            console.error('Error:', error);
+        });
+}
+
+// ==================== CONTACT MANAGEMENT ====================
+function toggleCustomRelation() {
+    const rel = document.getElementById('contactRelation').value;
+    const customInput = document.getElementById('customRelation');
+    if (rel === 'Other') { customInput.style.display = 'block'; customInput.required = true; }
+    else { customInput.style.display = 'none'; customInput.required = false; }
+}
+
+function saveContact() {
+    const name = document.getElementById('contactName').value;
+    const phone = document.getElementById('contactPhone').value;
+    let rel = document.getElementById('contactRelation').value;
+    if (rel === 'Other') {
+        rel = document.getElementById('customRelation').value;
+        if (!rel) { showNotification('Error', 'Please type a relationship', 'danger'); return; }
+    }
+    if (!name || !phone) { showNotification('Error', 'Please fill all fields', 'danger'); return; }
+    const btn = document.querySelector('#addContactModal .btn-glow-danger');
+    btn.innerHTML = 'Saving...'; btn.disabled = true;
+    fetch('/api/contact/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name: name, phone: phone, relationship: rel })
+    }).then(r => r.json()).then(data => {
+        if (data.success) { window.location.reload(); }
+        else { showNotification('Error', data.message, 'danger'); btn.innerHTML = '<i class="bi bi-save me-2"></i>Save Contact'; btn.disabled = false; }
+    }).catch(() => {
+        showNotification('Error', 'Failed to connect.', 'danger');
+        btn.innerHTML = '<i class="bi bi-save me-2"></i>Save Contact'; btn.disabled = false;
+    });
+}
+
+function deleteContact(id) {
+    if (!confirm('Remove this emergency contact?')) return;
+    fetch('/api/contact/delete/' + id, { method: 'POST' })
+    .then(r => r.json()).then(data => {
+        if (data.success) { window.location.reload(); }
+        else { showNotification('Error', data.message, 'danger'); }
+    });
+}
+
+function openContactModal() {
+    const modalEl = document.getElementById('addContactModal');
+    if (modalEl) {
+        document.body.appendChild(modalEl);
+        modalEl.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        modalEl.style.zIndex = '9999';
+        try {
+            const modal = new bootstrap.Modal(modalEl, { backdrop: false });
+            modal.show();
+        } catch(e) {
+            modalEl.style.display = 'block';
+            modalEl.classList.add('show');
+        }
+    }
+}
+
+function closeContactModal() {
+    const modalEl = document.getElementById('addContactModal');
+    if (modalEl) {
+        try {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        } catch(e) {}
+        modalEl.style.display = 'none';
+        modalEl.classList.remove('show');
+    }
+}
+
+function resetProfileForm() {
+    document.getElementById('profileUpdateForm').reset();
+    showNotification('Reset', 'Form reset to original values', 'info');
+}
+
+function selectStatusEmoji(emoji, btn) {
+    document.getElementById('pf_status_emoji').value = emoji;
+    document.querySelectorAll('.emoji-selector-btn').forEach(b => b.classList.remove('active-emoji'));
+    btn.classList.add('active-emoji');
+}
+
+function uploadAvatarImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Data = e.target.result;
+            // Update preview on page
+            const avatarImg = document.getElementById('profile-avatar-img');
+            const avatarLetter = document.getElementById('profile-avatar-letter');
+            if (avatarImg) {
+                avatarImg.src = base64Data;
+                avatarImg.style.display = 'block';
+            }
+            if (avatarLetter) {
+                avatarLetter.style.display = 'none';
+            }
+            
+            // Sync with sidebar profile avatar if exists
+            const sideAvatar = document.querySelector('.sidebar-user-card .avatar');
+            if (sideAvatar) {
+                sideAvatar.innerHTML = `<img src="${base64Data}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+                sideAvatar.style.background = 'none';
+            }
+            
+            // Send to backend API
+            fetch('/api/profile/avatar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ avatar: base64Data })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Success', 'Profile photo updated successfully!', 'success');
+                } else {
+                    showNotification('Error', 'Failed to update photo: ' + data.error, 'danger');
+                }
+            })
+            .catch(err => {
+                showNotification('Error', 'Failed to update photo.', 'danger');
+            });
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function applyFavorite(label, address, lat, lng) {
+    const dropInput = document.getElementById('drop_input');
+    const destLat = document.getElementById('dest_lat');
+    const destLng = document.getElementById('dest_lng');
+    if (dropInput && destLat && destLng) {
+        dropInput.value = address;
+        destLat.value = lat;
+        destLng.value = lng;
+        showNotification('Favorite Selected', `Dropoff set to ${label}: ${address}`, 'success');
+    }
+}
+</script>
+
+{% endblock %}
+
+{% block modals %}
+<!-- Add Contact Modal -->
+<div class="modal fade" id="addContactModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="background: rgba(14, 22, 48, 0.95); border: 1px solid rgba(239, 68, 68, 0.3);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-white fw-bold"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Add Emergency Contact</h5>
+                <button type="button" class="btn-close btn-close-white" onclick="closeContactModal()"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addContactForm">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Contact Name</label>
+                        <input type="text" id="contactName" class="form-control form-glass" placeholder="e.g. Mom, Dad, Ravi" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Phone Number (with Country Code)</label>
+                        <input type="text" id="contactPhone" class="form-control form-glass" placeholder="+919876543210" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Relationship</label>
+                        <select id="contactRelation" class="form-select form-glass" onchange="toggleCustomRelation()">
+                            <option value="Parent">Parent</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Other">Other (Manual Typing)</option>
+                        </select>
+                        <input type="text" id="customRelation" class="form-control form-glass mt-2" placeholder="Type relationship..." style="display:none;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" onclick="closeContactModal()">Cancel</button>
+                <button type="button" class="btn btn-glow-danger" onclick="saveContact()"><i class="bi bi-save me-2"></i>Save Contact</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancellation Modal -->
+<div class="modal fade" id="bookingCancelModal" tabindex="-1" aria-hidden="true" style="z-index: 10005;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card" style="background: rgba(14, 22, 48, 0.96); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-white fw-bold"><i class="bi bi-exclamation-octagon-fill text-danger me-2"></i>Cancel Your Journey</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start mt-2">
+                <div class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Booking ID:</span>
+                        <span class="text-white fw-bold" id="cancelModalBookingId">#--</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Total Fare:</span>
+                        <span class="text-white fw-bold" id="cancelModalTotalFare">₹--</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Est. Refund Amount:</span>
+                        <span class="text-success fw-900" id="cancelModalEstRefund" style="font-size:1.1rem;">₹--</span>
+                    </div>
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-25">
+                        <span class="text-muted small d-block">Applied Policy:</span>
+                        <span class="text-warning small" id="cancelModalPolicyText" style="font-weight: 600;">--</span>
+                    </div>
+                </div>
+
+                <!-- Refund Policy Reference Info -->
+                <div class="mb-3 p-3 rounded bg-dark bg-opacity-25" style="border: 1px dashed rgba(255,255,255,0.1); font-size: 0.78rem;">
+                    <div class="text-white fw-bold mb-2"><i class="bi bi-info-circle me-1 text-accent-blue"></i>Cancellation Refund Policies</div>
+                    <div class="d-flex justify-content-between text-muted mb-1">
+                        <span>More than 24 Hours before departure:</span>
+                        <span class="text-success">100% Refund</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted mb-1">
+                        <span>12 to 24 Hours before departure:</span>
+                        <span class="text-warning">75% Refund</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted mb-1">
+                        <span>6 to 12 Hours before departure:</span>
+                        <span class="text-warning">50% Refund</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted">
+                        <span>Less than 6 Hours before departure:</span>
+                        <span class="text-danger">No Refund</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Select Reason for Cancellation</label>
+                    <select id="cancelReasonSelect" class="form-select form-glass" onchange="toggleCustomCancelReason()">
+                        <option value="Change of plans">Change of plans</option>
+                        <option value="Duplicate booking">Duplicate booking</option>
+                        <option value="Health or personal emergency">Health or personal emergency</option>
+                        <option value="Operator delay / schedule issue">Operator delay / schedule issue</option>
+                        <option value="Other">Other Reason (Manual Entry)</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3" id="customCancelReasonContainer" style="display: none;">
+                    <label class="form-label text-muted small">Specify Cancellation Reason</label>
+                    <textarea id="customCancelReasonInput" class="form-control form-glass" rows="2" placeholder="Tell us why you are cancelling..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal" style="border-radius: 10px;">Keep Booking</button>
+                <button type="button" id="confirmCancelBtn" class="btn btn-glow-danger px-4 py-2" style="border-radius: 10px;"><i class="bi bi-x-circle me-1"></i>Confirm Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- AI Pickup Insight Floating Toast -->
+<div id="aiPickupToast" class="glass-card shadow-lg p-3" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 350px; background: rgba(11, 17, 32, 0.95); border-left: 4px solid #3b82f6; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-radius: 12px; display: flex; flex-direction: column; gap: 10px; transform: translateY(150%); opacity: 0; pointer-events: none;">
+    <div class="d-flex justify-content-between align-items-start">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-robot text-accent-blue fs-4"></i>
+            <h6 class="text-accent-blue fw-bold mb-0">TravelFusion AI Insight</h6>
+        </div>
+        <button type="button" class="btn-close btn-close-white" style="font-size: 0.75rem;" onclick="document.getElementById('aiPickupToast').style.transform = 'translateY(150%)'; document.getElementById('aiPickupToast').style.opacity = '0';"></button>
+    </div>
+    <p class="text-white-50 mb-1" style="font-size: 0.85rem; line-height: 1.4;">
+        Your upcoming pickup is intelligently scheduled to ensure you reach the station exactly <strong class="text-white">20 minutes</strong> before your departure time, factoring in current traffic conditions.
+    </p>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        {% if upcoming and len(upcoming) > 0 and upcoming[0].ride %}
+            if(!sessionStorage.getItem('ai_pickup_shown_' + {{ upcoming[0].id }})) {
+                setTimeout(() => {
+                    const toast = document.getElementById('aiPickupToast');
+                    if (toast) {
+                        toast.style.transform = 'translateY(0)';
+                        toast.style.opacity = '1';
+                        toast.style.pointerEvents = 'auto';
+                        sessionStorage.setItem('ai_pickup_shown_' + {{ upcoming[0].id }}, 'true');
+                        
+                        // Auto-hide after 8 seconds
+                        setTimeout(() => {
+                            toast.style.transform = 'translateY(150%)';
+                            toast.style.opacity = '0';
+                            toast.style.pointerEvents = 'none';
+                        }, 8000);
+                    }
+                }, 1500);
+            }
+        {% endif %}
+    });
+
+    function openCancelModal(bookingId, totalFare, departureTimeStr) {
+        document.getElementById('cancelModalBookingId').innerText = '#' + bookingId;
+        document.getElementById('cancelModalTotalFare').innerText = '₹' + totalFare;
+        
+        // Compute estimated refund
+        let refundPct = 1.0;
+        let policyText = 'Standard Ride Policy: 100% Refund';
+        
+        if (departureTimeStr && departureTimeStr !== 'None' && departureTimeStr.trim() !== '') {
+            try {
+                const depTime = new Date(departureTimeStr.replace(' ', 'T'));
+                const now = new Date();
+                const hoursDiff = (depTime - now) / (1000 * 60 * 60);
+                
+                if (hoursDiff > 24) {
+                    refundPct = 1.0;
+                    policyText = '> 24 Hours: 100% Refund';
+                } else if (hoursDiff > 12 && hoursDiff <= 24) {
+                    refundPct = 0.75;
+                    policyText = '12 to 24 Hours: 75% Refund';
+                } else if (hoursDiff > 6 && hoursDiff <= 12) {
+                    refundPct = 0.50;
+                    policyText = '6 to 12 Hours: 50% Refund';
+                } else {
+                    refundPct = 0.0;
+                    policyText = '< 6 Hours: No Refund';
+                }
+            } catch (e) {
+                console.error("Error parsing date:", e);
+            }
+        }
+        
+        const estRefund = (totalFare * refundPct).toFixed(2);
+        document.getElementById('cancelModalEstRefund').innerText = '₹' + estRefund;
+        document.getElementById('cancelModalPolicyText').innerText = policyText;
+        
+        // Reset dropdown and text inputs
+        document.getElementById('cancelReasonSelect').value = 'Change of plans';
+        document.getElementById('customCancelReasonContainer').style.display = 'none';
+        document.getElementById('customCancelReasonInput').value = '';
+        
+        document.getElementById('confirmCancelBtn').onclick = function() {
+            submitCancellation(bookingId);
+        };
+        
+        const modalEl = document.getElementById('bookingCancelModal');
+        if (modalEl) {
+            document.body.appendChild(modalEl);
+            modalEl.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            modalEl.style.zIndex = '10005';
+            const modal = new bootstrap.Modal(modalEl, { backdrop: false });
+            modal.show();
+        }
+    }
+
+    function toggleCustomCancelReason() {
+        const select = document.getElementById('cancelReasonSelect');
+        const container = document.getElementById('customCancelReasonContainer');
+        if (select.value === 'Other') {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    function submitCancellation(bookingId) {
+        const select = document.getElementById('cancelReasonSelect');
+        let reason = select.value;
+        if (reason === 'Other') {
+            reason = document.getElementById('customCancelReasonInput').value || 'User cancellation';
+        }
+        
+        const btn = document.getElementById('confirmCancelBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Cancelling...';
+        btn.disabled = true;
+        
+        fetch('/booking/cancel/' + bookingId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(async res => {
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            if (!res.ok) {
+                const text = await res.text();
+                Swal.fire({
+                    title: 'Server Error ' + res.status,
+                    html: `<div style="text-align:left; font-size:0.75rem; overflow:auto; max-height:250px; font-family:monospace; color:#ef4444; background:rgba(0,0,0,0.3); padding:10px; border-radius:5px;">${text}</div>`,
+                    icon: 'error',
+                    background: '#0e1630',
+                    color: '#ffffff'
+                });
+                throw new Error(`Server Error ${res.status}`);
+            }
+            return isJson ? await res.json() : null;
+        })
+        .then(data => {
+            if (!data) return;
+            if (data.success) {
+                const modalEl = document.getElementById('bookingCancelModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+                Swal.fire({
+                    title: 'Booking Cancelled!',
+                    text: 'Your booking has been cancelled and refund has been initiated.',
+                    icon: 'success',
+                    confirmButtonColor: '#ef4444',
+                    background: '#0e1630',
+                    color: '#ffffff'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                Swal.fire({
+                    title: 'Error',
+                    text: data.error || 'Failed to cancel booking',
+                    icon: 'error',
+                    background: '#0e1630',
+                    color: '#ffffff'
+                });
+            }
+        })
+        .catch(err => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            if (err.message && err.message.startsWith('Server Error')) {
+                return; // Traceback modal already displayed
+            }
+            Swal.fire({
+                title: 'Error',
+                text: err.message || 'Network error occurred.',
+                icon: 'error',
+                background: '#0e1630',
+                color: '#ffffff'
+            });
+        });
+    }
+</script>
+{% endblock %}

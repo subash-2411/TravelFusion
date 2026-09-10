@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login – TravelFusion AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
+    <style>
+        body { margin: 0; padding: 0; }
+        .login-brand-side { background: linear-gradient(145deg,#0d0305 0%,#200a0a 50%,#2a0c0c 100%) !important; }
+        .login-brand-side::before {
+            background:
+                radial-gradient(ellipse at 30% 30%, rgba(239,68,68,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.1) 0%, transparent 55%) !important;
+        }
+    </style>
+</head>
+<body>
+<!-- ====================== ROLE SPECIFIC LOADER ====================== -->
+<div id="pageLoader" class="page-loader">
+    <div class="loader-content" style="color: var(--danger-red);">
+        <div class="loader-logo">
+            <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <h2 class="loader-title text-white">Admin Console</h2>
+        <div class="loader-spinner"></div>
+    </div>
+</div>
+
+<div class="login-wrapper">
+    <!-- Brand Side -->
+    <div class="login-brand-side">
+        <div class="mesh-grid"></div>
+        <div class="content">
+            <div class="login-brand-logo">
+                <div class="icon" style="background:linear-gradient(135deg,#dc2626,#ef4444);"><i class="bi bi-hdd-network-fill"></i></div>
+                <div class="name">TravelFusion <span style="color:#f87171;">AI</span></div>
+            </div>
+            <div class="login-portal-title">
+                Admin<br>Console
+            </div>
+            <p class="login-portal-sub">
+                Secure access to the TravelFusion system administration and control tower. Authorised personnel only.
+            </p>
+            <div class="login-features-list">
+                <div class="login-feature-item">
+                    <i class="bi bi-bar-chart-line-fill text-danger"></i>
+                    <span>System analytics and reports</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-people-fill text-warning"></i>
+                    <span>User and driver management</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-shield-fill-exclamation text-danger"></i>
+                    <span>Live SOS emergency monitoring</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-download" style="color:var(--cyan-accent);"></i>
+                    <span>CSV export and reporting</span>
+                </div>
+            </div>
+            <div style="position:absolute;bottom:-60px;right:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(239,68,68,0.1),transparent);pointer-events:none;"></div>
+        </div>
+    </div>
+
+    <!-- Form Side -->
+    <div class="login-form-side">
+        <div class="login-form-box">
+            <a href="/" class="text-muted text-decoration-none d-flex align-items-center gap-2 mb-4" style="font-size:.85rem;">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div style="width:52px;height:52px;border-radius:14px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--danger-red);">
+                    <i class="bi bi-person-lock"></i>
+                </div>
+                <div>
+                    <h2 style="font-size:1.6rem;">Admin Sign In</h2>
+                    <p class="sub mb-0">Restricted access — credentials required</p>
+                </div>
+            </div>
+
+            {% if context.get('error') %}
+            <div class="alert-glass alert-glass-danger mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>{{ context.get('error') }}</span>
+            </div>
+            {% endif %}
+
+            <form action="/admin-login" method="POST" id="adminLoginForm">
+                <div class="mb-3">
+                    <label class="form-label text-muted" style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Admin Email or Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                        <input type="text" name="email" class="form-control form-glass" placeholder="Narmu or Narmu@travelfusion.ai" required autocomplete="username">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted" style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" name="password" class="form-control form-glass" placeholder="••••••••" required autocomplete="current-password" id="adminPass">
+                        <button type="button" class="input-group-text" onclick="togglePass()" style="cursor:pointer;" title="Toggle password visibility">
+                            <i class="bi bi-eye-fill" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-3 mb-4" style="border-radius:12px;border-color:rgba(239,68,68,0.2);">
+                    <div class="d-flex gap-2 align-items-start">
+                        <i class="bi bi-shield-fill-exclamation text-danger mt-1" style="flex-shrink:0;"></i>
+                        <p class="mb-0 text-muted" style="font-size:.82rem;line-height:1.5;">
+                            <strong class="text-white">Restricted Area.</strong> This panel is for authorised administrators only. Unauthorised access attempts are logged.
+                        </p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-glow-danger w-100 py-3" id="adminLoginBtn" style="font-size:.95rem;">
+                    <i class="bi bi-person-lock me-2"></i>Access Admin Console
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <p class="text-muted" style="font-size:.82rem;">Not an admin?
+                    <a href="/login" class="text-accent-blue text-decoration-none fw-700">Traveler Portal →</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+            }, 800);
+        }
+    });
+
+    function togglePass() {
+        const inp = document.getElementById('adminPass');
+        const icon = document.getElementById('eyeIcon');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            icon.className = 'bi bi-eye-slash-fill';
+        } else {
+            inp.type = 'password';
+            icon.className = 'bi bi-eye-fill';
+        }
+    }
+    document.getElementById('adminLoginForm').addEventListener('submit', function() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+            loader.classList.remove('fade-out');
+        }
+        const btn = document.getElementById('adminLoginBtn');
+        setTimeout(() => {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Verifying Credentials...';
+            btn.disabled = true;
+        }, 10);
+    });
+</script>
+</body>
+</html>

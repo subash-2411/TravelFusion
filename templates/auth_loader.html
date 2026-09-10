@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - TravelFusion AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --theme-color: {% if color %}{{ color }}{% else %}#3b82f6{% endif %};
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #05091a;
+            background-image: radial-gradient(circle at center, var(--theme-color)15 0%, #05091a 75%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #ffffff;
+        }
+        .loader-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 2rem;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .brand-logo {
+            font-size: 5rem;
+            color: var(--theme-color);
+            margin-bottom: 30px;
+            display: inline-block;
+            filter: drop-shadow(0 0 25px var(--theme-color));
+            animation: floatLogo 3s ease-in-out infinite;
+        }
+        .welcome-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .welcome-title span {
+            color: var(--theme-color);
+            position: relative;
+            display: inline-block;
+        }
+        .loading-text {
+            color: #94a3b8;
+            font-size: 1.05rem;
+            margin-bottom: 35px;
+            font-weight: 500;
+        }
+        
+        /* Sleek Neon Progress Line */
+        .progress-line-container {
+            width: 280px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+        }
+        .progress-line-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--theme-color), #ffffff);
+            width: 0%;
+            border-radius: 10px;
+            box-shadow: 0 0 8px var(--theme-color), 0 0 16px var(--theme-color);
+            animation: fillProgress 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .loading-status {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 15px;
+            font-weight: 700;
+            animation: pulseText 1.5s infinite ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+        @keyframes fillProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-container">
+        <div class="brand-logo">
+            <i class="bi {% if icon %}{{ icon }}{% else %}bi-speedometer2{% endif %}" style="font-size: 5rem; color: var(--theme-color);"></i>
+        </div>
+        <h1 class="welcome-title">Welcome back, <span>{{ welcome_name }}</span>!</h1>
+        <div class="loading-text">Preparing your {{ title }} ecosystem...</div>
+        
+        <div class="progress-line-container">
+            <div class="progress-line-fill" style="animation: fillProgress 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;"></div>
+        </div>
+        <div class="loading-status" id="statusText">Establishing secure session</div>
+    </div>
+
+    <script>
+        const statuses = [
+            "Establishing secure session...",
+            "Loading AI route patterns...",
+            "Authenticating credentials...",
+            "Initializing navigation matrices...",
+            "Connecting dispatch network..."
+        ];
+        let idx = 0;
+        const statusEl = document.getElementById('statusText');
+        
+        const interval = setInterval(() => {
+            idx = (idx + 1) % statuses.length;
+            if(statusEl) statusEl.innerText = statuses[idx];
+        }, 200);
+
+        setTimeout(() => {
+            clearInterval(interval);
+            var targetUrl = "{{ target }}";
+            var sid = "{{ session_id if session_id else '' }}";
+            if (sid) {
+                targetUrl += (targetUrl.indexOf('?') >= 0 ? '&' : '?') + 'sid=' + sid;
+            }
+            window.location.href = targetUrl;
+        }, 1200);
+    </script>
+</body>
+</html>
+

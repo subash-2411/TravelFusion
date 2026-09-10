@@ -1,0 +1,21 @@
+{
+  "name": "TravelFusion AI",
+  "short_name": "TravelFusion",
+  "description": "Next-Gen AI Travel Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1128",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/static/images/app-icon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/static/images/app-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

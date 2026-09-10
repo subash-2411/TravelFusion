@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveler Login – TravelFusion AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
+    <style>
+        body { margin: 0; padding: 0; }
+        .login-wrapper { min-height: 100vh; }
+    </style>
+</head>
+<body>
+<!-- ====================== ROLE SPECIFIC LOADER ====================== -->
+<div id="pageLoader" class="page-loader">
+    <div class="loader-content" style="color: var(--accent-blue);">
+        <div class="loader-logo">
+            <i class="bi bi-map-fill"></i>
+        </div>
+        <h2 class="loader-title text-white">Traveler Portal</h2>
+        <div class="loader-spinner"></div>
+    </div>
+</div>
+
+<div class="login-wrapper">
+    <!-- Brand Side -->
+    <div class="login-brand-side">
+        <div class="mesh-grid"></div>
+        <div class="content">
+            <div class="login-brand-logo">
+                <div class="icon"><i class="bi bi-compass-fill"></i></div>
+                <div class="name">TravelFusion <span>AI</span></div>
+            </div>
+            <div class="login-portal-title">
+                Traveler<br>Portal
+            </div>
+            <p class="login-portal-sub">
+                Plan your complete door-to-door journey with AI. First-mile to last-mile — all automated.
+            </p>
+            <div class="login-features-list">
+                <div class="login-feature-item">
+                    <i class="bi bi-cpu-fill text-accent-blue"></i>
+                    <span>AI-generated multi-modal routes</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-geo-alt-fill" style="color:var(--cyan-accent);"></i>
+                    <span>Live GPS tracking per journey leg</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-shield-fill-check text-success"></i>
+                    <span>SOS emergency alert system</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-ticket-perforated-fill text-warning"></i>
+                    <span>Instant multi-modal bookings</span>
+                </div>
+            </div>
+            <!-- Decorative orbs -->
+            <div style="position:absolute;bottom:-60px;right:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,0.15),transparent);pointer-events:none;"></div>
+            <div style="position:absolute;top:20%;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,0.1),transparent);pointer-events:none;"></div>
+        </div>
+    </div>
+
+    <!-- Form Side -->
+    <div class="login-form-side">
+        <div class="login-form-box">
+            <!-- Back link -->
+            <a href="/" class="text-muted text-decoration-none d-flex align-items-center gap-2 mb-4" style="font-size:.85rem;">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div style="width:52px;height:52px;border-radius:14px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--accent-blue);">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                    <h2 style="font-size:1.6rem;">Traveler Sign In</h2>
+                    <p class="sub mb-0">New users are auto-registered</p>
+                </div>
+            </div>
+
+            {% if context.get('error') %}
+            <div class="alert-glass alert-glass-danger mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>{{ context.get('error') }}</span>
+            </div>
+            {% endif %}
+
+            <form action="/login/traveler" method="POST" id="travelerLoginForm">
+                <div class="mb-3">
+                    <label class="form-label text-muted" style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                        <input type="email" name="email" class="form-control form-glass" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted" style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mobile Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-phone-fill"></i></span>
+                        <input type="text" name="phone" class="form-control form-glass" placeholder="+91 98765 43210" required autocomplete="tel">
+                    </div>
+                </div>
+
+                <div class="glass-card p-3 mb-4" style="border-radius:12px;border-color:rgba(59,130,246,0.2);">
+                    <div class="d-flex gap-2 align-items-start">
+                        <i class="bi bi-info-circle-fill text-accent-blue mt-1" style="flex-shrink:0;"></i>
+                        <p class="mb-0 text-muted" style="font-size:.82rem;line-height:1.5;">
+                            <strong class="text-white">No password required.</strong> Enter your email and phone. If not registered, a Traveler account is created automatically.
+                        </p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-glow w-100 py-3" id="travelerLoginBtn" style="font-size:.95rem;">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Continue to Dashboard
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <p class="text-muted" style="font-size:.82rem;">Are you a driver?
+                    <a href="/login/driver" class="text-success text-decoration-none fw-700">Driver Portal →</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.remove(), 600);
+            }, 1500);
+        }
+    });
+
+    document.getElementById('travelerLoginForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('travelerLoginBtn');
+        setTimeout(() => {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Authenticating...';
+            btn.disabled = true;
+        }, 10);
+    });
+</script>
+</body>
+</html>

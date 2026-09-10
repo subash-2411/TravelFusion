@@ -1,0 +1,1379 @@
+{% extends 'base.html' %}
+{% block title %}Build Your Journey{% endblock %}
+
+{% block content %}
+<!-- Include Leaflet Maps CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/map_simulation.js"></script>
+
+<div class="container-fluid px-3 px-md-4 my-3 text-start">
+    {% if routes_json %}
+    <div id="planner-layout">
+        <!-- ROW 1: Step 1 (Pickup Ride) + AI Assistant -->
+        <div class="row g-4 mb-4" id="step-1-row">
+            <div class="col-xl-6">
+                <div class="glass-card p-4 mb-4">
+                    <a href="/dashboard" class="btn btn-glass btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Back to Dashboard</a>
+                    <div class="d-flex align-items-center gap-3 mb-1">
+                        <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--royal-blue),var(--cyan-accent));display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:white;flex-shrink:0;">
+                            <i class="bi bi-magic"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white mb-0">Build Your Journey</h3>
+                            <p class="text-secondary small mb-0">
+                                <i class="bi bi-geo-alt-fill text-success me-1"></i>{{ session.active_src or 'Source' }}
+                                <i class="bi bi-arrow-right mx-2 text-muted"></i>
+                                <i class="bi bi-geo-fill text-danger me-1"></i>{{ session.active_dst or 'Destination' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 1: Pickup Ride -->
+                <div class="glass-card p-4" id="step-1-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="text-white mb-0"><span class="badge bg-primary me-2">1</span> Choose Pickup Ride</h5>
+                            <div class="d-flex gap-1 ms-2" id="fm-preview-toggles" style="display:none !important">
+                                <button class="btn btn-sm px-2 py-0 text-secondary border-0 preview-toggle" data-mode="train" onclick="setPreviewMode('train')" title="Preview Train Distance"><i class="bi bi-train-front"></i></button>
+                                <button class="btn btn-sm px-2 py-0 text-secondary border-0 preview-toggle" data-mode="bus" onclick="setPreviewMode('bus')" title="Preview Bus Distance"><i class="bi bi-bus-front"></i></button>
+                                <button class="btn btn-sm px-2 py-0 text-secondary border-0 preview-toggle" data-mode="flight" onclick="setPreviewMode('flight')" title="Preview Flight Distance"><i class="bi bi-airplane"></i></button>
+                            </div>
+                        </div>
+                        <small class="text-muted">First Mile</small>
+                    </div>
+                    <div id="intercity-mode-toggle" class="d-flex mb-3 p-1 rounded" style="background: rgba(255,255,255,0.05); display:none !important;">
+                        <button class="btn btn-sm flex-fill fw-bold text-secondary" id="btn-transit-mode" onclick="setIntercityMode('transit')" style="border-radius: 8px; background: transparent;">Transit Mode</button>
+                        <button class="btn btn-sm flex-fill fw-bold active-toggle text-white" id="btn-door-mode" onclick="setIntercityMode('door')" style="border-radius: 8px; background: rgba(59,130,246,0.3);">Door-to-Door Cab</button>
+                    </div>
+                    <div id="first-mile-options" class="d-flex flex-column gap-2"></div>
+                </div>
+            </div>
+            <div class="col-xl-6" id="row-1-right-col">
+                <!-- BIG AI Dashboard -->
+                <div class="glass-card p-0" id="ai-assistant-card" style="border: 1px solid var(--cyan-accent); overflow: hidden; position: relative; box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); display: flex; flex-direction: column; min-height: 450px;">
+                    <div style="position: absolute; top: -20px; right: -20px; font-size: 10rem; opacity: 0.05; color: var(--cyan-accent); pointer-events: none;" id="ai-bg-icon"><i class="bi bi-robot"></i></div>
+                    
+                    <div class="p-3" style="border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="spinner-grow spinner-grow-sm text-cyan" role="status" style="width: 12px; height: 12px;"></div>
+                            <h5 class="text-white mb-0 fw-bold" style="letter-spacing: 1px;">TravelFusion AI Assistant</h5>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 flex-grow-1" id="ai-dashboard-content" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
+                        <!-- Initial Content -->
+                        <div class="text-center text-muted">
+                            <div class="spinner-border text-cyan mb-3" role="status"></div>
+                            <p>Analyzing route details...</p>
+                        </div>
+                    </div>
+                    <!-- Ask AI Chat Input -->
+                    <div class="p-3 border-top mt-auto" style="border-color: rgba(255,255,255,0.05) !important; background: rgba(0,0,0,0.1);">
+                        <button id="ai-chat-btn" class="btn btn-outline-info w-100 btn-sm" onclick="toggleAIChat()" style="border-radius: 8px;">
+                            <i class="bi bi-chat-dots me-2"></i>Ask AI for Help
+                        </button>
+                        <div class="input-group" id="ai-chat-group" style="display: none; opacity: 0; transition: opacity 0.3s ease;">
+                            <input type="text" id="ai-chat-input" class="form-control form-glass" placeholder="Ask AI (e.g., I have a pet dog...)" style="font-size: 0.85rem;" onkeypress="if(event.key === 'Enter') handleAIChat()">
+                            <button class="btn btn-glow px-3 py-1" onclick="handleAIChat()">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROW 2: Step 2 & 3 (Left) + Map & Journey Summary (Right) -->
+        <div class="row g-4 mb-4" id="step-2-row" style="display:none; opacity:0; transition: opacity 0.5s ease;">
+            <div class="col-xl-6">
+                <!-- STEP 2: Main Transit -->
+                <div class="glass-card p-4 mb-4" id="step-2-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-white mb-0"><span class="badge bg-primary me-2">2</span> Choose Main Transit</h5>
+                        <small class="text-muted">Long Distance</small>
+                    </div>
+                    <div id="long-distance-options" class="d-flex flex-column gap-2"></div>
+                </div>
+
+                <!-- STEP 3: Drop-off Ride -->
+                <div class="glass-card p-4 mb-4" id="step-3-card" style="display:none; opacity:0; transition: opacity 0.5s ease;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="text-white mb-0"><span class="badge bg-primary me-2">3</span> Choose Drop-off Ride</h5>
+                            <div class="d-flex gap-1 ms-2" id="lm-preview-toggles" style="display:none !important">
+                                <button class="btn btn-sm px-2 py-0 text-secondary border-0 preview-toggle" data-mode="train" onclick="setPreviewMode('train')" title="Preview Train Distance"><i class="bi bi-train-front"></i></button>
+                                <button class="btn btn-sm px-2 py-0 text-secondary border-0 preview-toggle" data-mode="bus" onclick="setPreviewMode('bus')" title="Preview Bus Distance"><i class="bi bi-bus-front"></i></button>
+                                <button class="btn btn-sm px-2 py-0 text-secondary border-0 preview-toggle" data-mode="flight" onclick="setPreviewMode('flight')" title="Preview Flight Distance"><i class="bi bi-airplane"></i></button>
+                            </div>
+                        </div>
+                        <small class="text-muted">Last Mile</small>
+                    </div>
+                    <div class="alert mb-3" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:#34d399; border-radius:12px;">
+                        <i class="bi bi-broadcast me-2"></i><strong>Driver Auto-Assignment:</strong> Your selected vehicle will be assigned 15 mins before you reach your destination station.
+                    </div>
+                    <div id="last-mile-options" class="d-flex flex-column gap-2"></div>
+                </div>
+            </div>
+            <div class="col-xl-6" id="row-2-right-col">
+                <!-- Leaflet Map -->
+                <div class="glass-card p-0 mb-4 overflow-hidden" id="map-card" style="border-radius:16px;">
+                    <div class="p-2" style="background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                         <div class="d-flex justify-content-between align-items-center px-2">
+                             <small class="text-white fw-bold"><i class="bi bi-map-fill text-accent-blue me-2"></i>Live Map</small>
+                             <span id="active-preview-badge" class="badge" style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3); font-size: 0.65rem;">AWAITING SELECTION</span>
+                         </div>
+                    </div>
+                    <div id="map" style="height: 480px; width:100%;"></div>
+                </div>
+
+                <!-- Selected Route Summary -->
+                <div class="glass-card p-4 mb-4" id="active-route-detail-panel" style="display:none; margin-top: 180px;">
+                    <h6 class="text-white mb-3"><i class="bi bi-receipt text-accent-blue me-2"></i>Journey Summary</h6>
+                    <div id="active-route-steps"></div>
+                    
+                    <!-- AI Suggestion Panel -->
+                    <div id="ai-suggestion-panel" class="mt-3 p-3 rounded" style="display: none; background: rgba(6,182,212,0.05); border: 1px solid rgba(6,182,212,0.2);">
+                        <div id="ai-suggestion-content"></div>
+                    </div>
+
+                    <!-- Form to POST custom plan -->
+                    <form method="POST" action="/booking/custom" id="booking-form" onsubmit="return handleBookingProcess(event)">
+                        <input type="hidden" name="custom_plan" id="custom_plan_input">
+                        <div class="d-flex gap-3 mt-3 pt-3 border-top border-secondary border-opacity-25 align-items-center">
+                            <div class="flex-fill">
+                                <div class="text-muted small">Total Fare</div>
+                                <div class="text-success fw-700 fs-4" id="summary-fare">₹--</div>
+                            </div>
+                            <div class="flex-fill text-center">
+                                <div class="text-muted small">Est. Time</div>
+                                <div class="text-white fw-700" id="summary-time">-- mins</div>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-glow px-4 py-2" id="btn-book-plan">
+                                    <i class="bi bi-check-circle me-2"></i>Proceed to Book
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="glass-card p-5 text-center text-secondary">
+        <i class="bi bi-geo-alt-fill fs-1 text-muted mb-3 d-block"></i>
+        <h5>No journey parameters found.</h5>
+        <p class="small mb-4">Please go back to the home page and enter your source and destination.</p>
+        <a href="/" class="btn btn-glow">Return to Home</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Realistic Booking Progress Modal -->
+<div class="modal fade" id="bookingProgressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border border-secondary shadow-lg" style="background: var(--dark-bg); color: white;">
+            <div class="modal-header border-bottom border-secondary border-opacity-25 py-2">
+                <h6 class="modal-title m-0 text-accent-blue"><i class="bi bi-ticket-detailed-fill me-2"></i>TravelFusion Booking Engine</h6>
+            </div>
+            <div class="modal-body text-center py-4" id="booking-modal-body">
+                <div class="spinner-border text-info mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+                <h5 class="fw-bold mb-2" id="booking-status-title">Initiating Secure Booking...</h5>
+                <p class="text-muted small" id="booking-status-desc">Connecting to inventory servers.</p>
+                <div class="progress mt-3" style="height: 6px; background-color: rgba(255,255,255,0.1);">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" id="booking-progress-bar" role="progressbar" style="width: 10%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if routes_json %}
+<script>
+    const routeData = {{ routes_json }};
+    const userBudget = parseFloat("{{ budget }}") || Infinity;
+    
+    let selectedFirstMile = null;
+    let selectedLongDistance = null;
+    let selectedLastMile = null;
+    let previewMode = null;
+    let intercityMode = 'door'; // Default for intercity
+    
+    const modeConfig = {
+        bike:   { icon: 'fa-solid fa-motorcycle',         color: '#06b6d4', label: 'Bike Ride' },
+        auto:   { icon: 'bi-auto-rickshaw',   color: '#10b981', label: 'Auto Rickshaw' },
+        cab:    { icon: 'bi-taxi-front-fill',  color: '#f59e0b', label: 'Cab' },
+        suv:    { icon: 'bi-car-front',        color: '#c084fc', label: 'Premium SUV' },
+        multi_cab:{ icon: 'bi-car-front-fill', color: '#f43f5e', label: 'Multi-Vehicle' },
+        multi_auto:{ icon: 'bi-auto-rickshaw', color: '#10b981', label: 'Multi-Auto' },
+        mixed_fleet:{ icon: 'bi-taxi-front-fill" style="font-size: 0.85rem; margin-right: 2px;"></i><i class="bi bi-auto-rickshaw" style="font-size: 0.85rem;', color: '#8b5cf6', label: 'Mixed Fleet' },
+        bus:    { icon: 'bi-bus-front-fill',   color: '#3b82f6', label: 'Express Bus' },
+        train:  { icon: 'bi-train-front-fill', color: '#ef4444', label: 'Train' },
+        flight: { icon: 'bi-airplane-fill',    color: '#a855f7', label: 'Flight' },
+        walk:   { icon: 'bi-person-walking',   color: '#22c55e', label: 'Walk' },
+        personal_drop:   { icon: 'bi-car-front" style="font-size: 0.85rem; margin-right: 2px;"></i><i class="fa-solid fa-motorcycle" style="font-size: 0.75rem;', color: '#ec4899', label: 'Personal Drop' },
+        personal_pickup: { icon: 'bi-car-front" style="font-size: 0.85rem; margin-right: 2px;"></i><i class="fa-solid fa-motorcycle" style="font-size: 0.75rem;', color: '#eab308', label: 'Personal Pick-up' }
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        if (routeData.is_local || routeData.is_intercity) {
+            const mapEl = document.getElementById('map');
+            if (mapEl) {
+                mapEl.style.height = '300px';
+            }
+            const rightCol1 = document.getElementById('row-1-right-col');
+            const mapCard = document.getElementById('map-card');
+            const summaryCard = document.getElementById('active-route-detail-panel');
+            if (rightCol1 && mapCard) {
+                mapCard.classList.remove('h-100');
+                mapCard.classList.add('mt-3');
+                rightCol1.appendChild(mapCard);
+            }
+            if (rightCol1 && summaryCard) {
+                summaryCard.classList.remove('h-100');
+                summaryCard.classList.add('mt-3');
+                rightCol1.appendChild(summaryCard);
+            }
+        }
+
+        if (routeData.is_local) {
+            // Local ride, no long distance step
+            document.getElementById('step-2-row').style.display = 'none';
+            document.getElementById('step-3-card').style.display = 'none';
+            
+            const s1Header = document.querySelector('#step-1-card h5');
+            if (s1Header) s1Header.innerHTML = '<span class="badge bg-primary me-2">1</span> Select Local Vehicle';
+            const s1Small = document.querySelector('#step-1-card small');
+            if (s1Small) s1Small.innerText = 'Local Ride Mode';
+            
+            const dist = routeData.total_distance;
+            let recMode = "";
+            let recReason = "";
+            let recIcon = "bi-robot";
+            let recColor = "var(--cyan-accent)";
+            
+            if (dist <= 1.5 && window.passengerCount <= 2) {
+                recMode = "Walk";
+                recReason = `The distance is only ${dist} KM. Walking is completely free, healthy, eco-friendly, and faster than waiting for a ride!`;
+                recIcon = "bi-person-walking";
+            } else if (dist <= 6 && window.passengerCount === 1) {
+                recMode = "Bike";
+                recReason = `A Bike ride is recommended for this ${dist} KM trip. It is the fastest option to zip through city traffic and is highly economical for 1 person.`;
+                recIcon = "fa-solid fa-motorcycle";
+                recColor = "#06b6d4";
+            } else if (dist <= 12 && window.passengerCount <= 3) {
+                recMode = "Auto Rickshaw";
+                recReason = `An Auto Rickshaw is the ideal balanced choice for comfort and price for ${window.passengerCount} people on a ${dist} KM trip.`;
+                recIcon = "bi-auto-rickshaw";
+                recColor = "#10b981";
+            } else if (window.passengerCount <= 4) {
+                recMode = "AC Cab";
+                recReason = `A Cab is recommended for ${window.passengerCount} passengers to ensure maximum comfort, safety, and AC cooling.`;
+                recIcon = "bi-taxi-front-fill";
+                recColor = "#f59e0b";
+            } else if (window.passengerCount <= 6) {
+                recMode = "Premium SUV";
+                recReason = `An SUV is recommended for a large group of ${window.passengerCount} passengers to ensure enough seating and luggage space.`;
+                recIcon = "bi-car-front";
+                recColor = "#c084fc";
+            } else {
+                let numCabs = Math.ceil(window.passengerCount / 4);
+                recMode = "Multi-Vehicle";
+                recReason = `For a large group of ${window.passengerCount} passengers, we automatically recommend booking multiple vehicles (${numCabs} Cabs) for your comfort.`;
+                recIcon = "bi-car-front-fill";
+                recColor = "#f43f5e";
+            }
+            
+            updateAIAssistant(`AI Suggests: ${recMode}`, recReason, recIcon, recColor);
+            renderFirstMileOptions();
+            
+        } else if (routeData.is_intercity) {
+            // INTERCITY MODE
+            document.getElementById('intercity-mode-toggle').style.setProperty('display', 'flex', 'important');
+            
+            const s1Header = document.querySelector('#step-1-card h5');
+            if (s1Header) s1Header.innerHTML = '<span class="badge bg-primary me-2">1</span> Intercity Travel Mode';
+            
+            applyIntercityModeUI();
+            
+        } else {
+            // SMART TRAVEL MODE (100+ KM)
+            document.getElementById('fm-preview-toggles').style.setProperty('display', 'flex', 'important');
+            document.getElementById('lm-preview-toggles').style.setProperty('display', 'flex', 'important');
+            updatePreviewToggleUI();
+            renderLongDistanceOptions();
+            renderLastMileOptions();
+            
+            const dist = routeData.total_distance;
+            if (routeData.journey_context) {
+                renderAdvancedAIDashboard();
+            }
+            renderFirstMileOptions();
+        }
+        
+        if (typeof initTrackingMap === 'function') {
+            initTrackingMap('map', [{start_coords: routeData.start_coords, end_coords: routeData.start_coords}], routeData.start_coords[0], routeData.start_coords[1]);
+        }
+    });
+    
+    window.renderAdvancedAIDashboard = function() {
+        if (!routeData.journey_context) return;
+        const ctx = routeData.journey_context;
+        
+        let weatherIcon = 'bi-cloud-sun'; let weatherColor = '#f59e0b';
+        if (ctx.weather.includes('Rain')) { weatherIcon = 'bi-cloud-rain'; weatherColor = '#3b82f6'; }
+        if (ctx.weather.includes('Wind')) { weatherIcon = 'bi-wind'; weatherColor = '#94a3b8'; }
+        
+        let alertsHtml = '';
+        if (ctx.weather.includes('Rain') || ctx.weather.includes('Storm')) {
+            alertsHtml += `<div class="alert bg-dark border border-primary text-white p-2 mb-2" style="font-size:0.85rem;"><i class="bi bi-cloud-rain me-2 text-primary"></i><strong>Weather Alert:</strong> Rain detected in your area. Please carry an umbrella and prefer AC Cabs.</div>`;
+        } else if (ctx.weather.includes('Clear') || ctx.weather.includes('Sunny')) {
+            alertsHtml += `<div class="alert bg-dark border border-success text-white p-2 mb-2" style="font-size:0.85rem;"><i class="bi bi-brightness-high me-2 text-warning"></i><strong>Weather Optimal:</strong> Great weather for travel!</div>`;
+        }
+        if (alertsHtml === '') {
+            alertsHtml = `<div class="alert bg-dark border border-success text-white p-2 mb-2" style="font-size:0.85rem;"><i class="bi bi-check-circle me-2 text-success"></i><strong>Clear to Travel:</strong> All conditions optimal.</div>`;
+        }
+
+        const dashboardHtml = `
+            <div class="row g-2 mb-3">
+                <div class="col-12">
+                    <div class="p-3 rounded border d-flex align-items-center gap-3" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                        <i class="bi ${weatherIcon} fs-1" style="color:${weatherColor}"></i>
+                        <div>
+                            <div class="fw-bold text-white fs-5">${ctx.weather}</div>
+                            <small class="text-muted" style="font-size:0.75rem; text-transform:uppercase;">Live Local Weather</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h6 class="text-secondary small fw-bold mb-2">DYNAMIC ALERTS</h6>
+            ${alertsHtml}
+        `;
+        updateAIAssistant('Journey Intelligence Dashboard', dashboardHtml, 'bi-radar', '#0ea5e9');
+    };
+    
+    window.updateAIAssistant = function(title, text, icon = 'bi-robot', color = 'var(--cyan-accent)') {
+        const content = document.getElementById('ai-dashboard-content');
+        if (!content) return;
+        
+        content.style.opacity = '0';
+        content.style.transform = 'translateY(10px)';
+        content.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            content.innerHTML = `
+                <div class="d-flex flex-column gap-3">
+                    <div style="width:56px;height:56px;border-radius:16px;background:${color}20;display:flex;align-items:center;justify-content:center;color:${color};font-size:1.8rem;flex-shrink:0;box-shadow: 0 4px 15px ${color}30;">
+                        <i class="${icon.startsWith('bi-') ? 'bi ' : ''}${icon}"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white mb-2 fw-bold" style="letter-spacing: 0.5px;">${title}</h4>
+                        <div class="text-secondary" style="font-size: 0.95rem; line-height: 1.6;">${text}</div>
+                    </div>
+                </div>
+            `;
+            content.style.opacity = '1';
+            content.style.transform = 'translateY(0)';
+        }, 300);
+    };
+
+    window.setPreviewMode = function(mode) {
+        if (previewMode === mode) {
+            previewMode = null; // Toggle OFF
+            updatePreviewToggleUI();
+            renderFirstMileOptions();
+            renderLastMileOptions();
+            if (typeof renderAdvancedAIDashboard === 'function') {
+                renderAdvancedAIDashboard();
+            }
+            return;
+        }
+        
+        previewMode = mode;
+        updatePreviewToggleUI();
+        renderFirstMileOptions();
+        renderLastMileOptions();
+        
+        // SYNC main journey tab with preview mode selection!
+        if (typeof window.switchLDTab === 'function' && mode !== currentLDTab) {
+            window.switchLDTab(mode);
+        }
+        
+        // Dynamic AI Insight for preview
+        if (mode === 'bus') {
+            const fmBus = routeData.first_mile_options['bus'] ? routeData.first_mile_options['bus'][0] : null;
+            if (fmBus && fmBus.distance < 5.0) {
+                const busMsg = `
+                    <p class="mb-3">I have cross-referenced the geographical vectors of your route with the intercity bus pathway.</p>
+                    <div class="alert p-3 mb-0" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3);">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                            <div>
+                                <strong class="text-white">Smart Boarding Identified</strong><br>
+                                <span class="text-secondary small">Because the bus travels along your directional vector, you do not need to commute to the main Bus Stand. You can board at a local highway transit stop just <strong>${fmBus.distance} km</strong> away!</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                updateAIAssistant('Intelligent Routing Analysis', busMsg, 'bi-geo-alt-fill', '#10b981');
+            } else {
+                const busMsg = `
+                    <p class="mb-3">I have analyzed the route matrix for your journey.</p>
+                    <div class="alert p-3 mb-0" style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3);">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-info-circle-fill text-accent-blue mt-1"></i>
+                            <div>
+                                <strong class="text-white">Main Terminus Boarding Required</strong><br>
+                                <span class="text-secondary small">The intercity bus does not pass near your local vicinity. You will need to book a First Mile ride to the main Bus Stand to catch your departure.</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                updateAIAssistant('Routing Analysis', busMsg, 'bi-bus-front', '#3b82f6');
+            }
+        } else if (mode === 'train') {
+            updateAIAssistant('Railway Logistics', `<p>Rail travel provides superior long-distance comfort and cost efficiency.</p><ul class="text-secondary small mb-0 ps-3"><li>I have automatically calculated the precise First Mile distance to your nearest railway node.</li><li>Driver auto-assignment will trigger 15 minutes before your arrival at the destination station.</li></ul>`, 'bi-train-front', '#ef4444');
+        } else if (mode === 'flight') {
+            updateAIAssistant('Aviation & Luggage Logistics \uD83E\uDDF3', `<p>Air travel minimizes transit duration significantly. I detect you are traveling to an Airport.</p><ul class="text-secondary small mb-0 ps-3"><li><strong>Luggage Insight:</strong> You likely have heavy luggage. Please avoid selecting a Bike ride for your First Mile. An AC Cab or Premium SUV will provide adequate trunk space.</li><li><strong>Critical:</strong> Please ensure you factor in an additional 2 hours for TSA security and check-in procedures when reviewing your First Mile ETA.</li></ul>`, 'bi-airplane', '#a855f7');
+        }
+    };
+    
+    function updatePreviewToggleUI() {
+        let currentMode = 'train';
+        if (previewMode) currentMode = previewMode;
+        else if (selectedLongDistance) currentMode = selectedLongDistance.mode;
+        else {
+            const rec = routeData.long_distance_options.find(o => o.is_recommended && o.available) || routeData.long_distance_options[0];
+            if (rec) currentMode = rec.mode;
+        }
+        
+        document.querySelectorAll('.preview-toggle').forEach(btn => {
+            if (btn.getAttribute('data-mode') === currentMode) {
+                btn.classList.remove('text-secondary');
+                btn.classList.add('text-primary');
+                btn.style.background = 'rgba(59,130,246,0.1)';
+            } else {
+                btn.classList.add('text-secondary');
+                btn.classList.remove('text-primary');
+                btn.style.background = 'transparent';
+            }
+        });
+    }
+    
+    function setIntercityMode(mode) {
+        if (!routeData.is_intercity) return;
+        intercityMode = mode;
+        
+        if (mode === 'door') {
+            document.getElementById('btn-door-mode').classList.add('active-toggle', 'text-white');
+            document.getElementById('btn-door-mode').classList.remove('text-secondary');
+            document.getElementById('btn-door-mode').style.background = 'rgba(59,130,246,0.3)';
+            
+            document.getElementById('btn-transit-mode').classList.remove('active-toggle', 'text-white');
+            document.getElementById('btn-transit-mode').classList.add('text-secondary');
+            document.getElementById('btn-transit-mode').style.background = 'transparent';
+        } else {
+            document.getElementById('btn-transit-mode').classList.add('active-toggle', 'text-white');
+            document.getElementById('btn-transit-mode').classList.remove('text-secondary');
+            document.getElementById('btn-transit-mode').style.background = 'rgba(59,130,246,0.3)';
+            
+            document.getElementById('btn-door-mode').classList.remove('active-toggle', 'text-white');
+            document.getElementById('btn-door-mode').classList.add('text-secondary');
+            document.getElementById('btn-door-mode').style.background = 'transparent';
+        }
+        
+        applyIntercityModeUI();
+    }
+    
+    function applyIntercityModeUI() {
+        if (!routeData.is_intercity) return;
+        
+        // Intercity mode ONLY has Step 1 (either transit drop-off or door-to-door). 
+        // We never show Step 2 (Main Transit) or Step 3 (Drop-off Ride) in Intercity mode.
+        document.getElementById('step-2-row').style.display = 'none';
+        document.getElementById('step-3-card').style.display = 'none';
+        document.getElementById('fm-preview-toggles').style.setProperty('display', 'none', 'important');
+        document.getElementById('lm-preview-toggles').style.setProperty('display', 'none', 'important');
+        
+        const s1Small = document.querySelector('#step-1-card small');
+        const s1Header = document.querySelector('#step-1-card h5');
+        
+        if (intercityMode === 'door') {
+            if (s1Small) s1Small.innerText = 'Door-To-Door Cab';
+            if (s1Header) s1Header.innerHTML = '<span class="badge bg-primary me-2">1</span> Book Your Cab';
+            
+            const rec = routeData.long_distance_options.find(o => o.is_recommended && o.available) || routeData.long_distance_options[0];
+            const transitName = routeData.journey_context.source_transit_names[rec.mode];
+            
+            const aiHtml = `
+                <div class="alert bg-dark border border-info p-3 mb-3 text-white">
+                    <h6 class="text-info"><i class="bi bi-robot me-2"></i>AI Transit Recommendation</h6>
+                    <p class="small text-secondary mb-2">We found the following public transit option if you wish to travel independently:</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${transitName}</strong><br>
+                            <small class="text-muted">${rec.name}</small>
+                        </div>
+                        <div class="text-end">
+                            <strong class="text-success">₹${rec.fare}</strong><br>
+                            <small class="text-muted">~${rec.duration} mins</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            updateAIAssistant('Intercity Options', aiHtml + '<p class="text-muted small">Alternatively, book a comfortable Door-To-Door Cab on the left.</p>', 'bi-signpost-split', 'var(--cyan-accent)');
+            
+            renderFirstMileOptions();
+            
+        } else {
+            // Transit Mode
+            if (s1Small) s1Small.innerText = 'Transit Hub Drop';
+            if (s1Header) s1Header.innerHTML = '<span class="badge bg-primary me-2">1</span> Get to Transit Hub';
+            
+            const currentHour = new Date().getHours();
+            const isLateNight = currentHour >= 23 || currentHour < 5;
+            const hub = isLateNight ? null : routeData.transit_hub_info;
+            
+            if (hub) {
+                renderFirstMileOptions();
+                
+                // AI Suggestion
+                const isTrainHub = hub.type === 'train';
+                const recTitle = isTrainHub ? 'Train Available!' : 'Bus Recommended';
+                const recMsg = isTrainHub
+                    ? `Train available for your journey. Please book a ride to <strong>${hub.hub_name}</strong>.`
+                    : `No train available. Please book a ride to <strong>${hub.hub_name}</strong>.`;
+                const rIcon = isTrainHub ? 'bi-train-front' : 'bi-bus-front';
+                const rColor = isTrainHub ? '#ef4444' : '#3b82f6';
+                updateAIAssistant(`AI Suggests: ${recTitle}`, recMsg, rIcon, rColor);
+            } else {
+                // No transit available (e.g. late night)
+                const fmContainer = document.getElementById('first-mile-options');
+                fmContainer.innerHTML = `
+                    <div class="glass-card p-4 text-center border-danger" style="background:rgba(239,68,68,0.05);">
+                        <i class="bi bi-moon-stars text-warning fs-1 mb-2 d-block"></i>
+                        <h6 class="text-white">Transit Mode Not Available</h6>
+                        <p class="text-secondary small mb-0">Trains and Buses are not available right now. Please use Door-to-Door Cab option.</p>
+                    </div>`;
+                updateAIAssistant(`AI Suggests: Door-to-Door`, `No transit options available. Door-to-Door cab is recommended.`, `bi-car-front`, `#3b82f6`);
+            }
+        }
+    }
+
+    function getActiveFirstMileOptions() {
+        if (routeData.is_local) return routeData.first_mile_options;
+        if (routeData.is_intercity && intercityMode === 'door') return routeData.door_to_door_options;
+        
+        let mode = 'train';
+        if (routeData.is_intercity && routeData.transit_hub_info) {
+            mode = routeData.transit_hub_info.type;
+        } else if (previewMode) {
+            mode = previewMode;
+        } else if (selectedLongDistance) {
+            mode = selectedLongDistance.mode;
+        } else {
+            const rec = routeData.long_distance_options.find(o => o.is_recommended && o.available) || routeData.long_distance_options[0];
+            if (rec) mode = rec.mode;
+            if (routeData.is_intercity && routeData.transit_hub_info && !selectedLongDistance) {
+                 mode = currentLDTab; // Fallback
+            }
+        }
+        return routeData.first_mile_options[mode] || [];
+    }
+    
+    function getActiveLastMileOptions() {
+        if (routeData.is_local) return routeData.last_mile_options;
+        let mode = 'train';
+        if (previewMode) {
+            mode = previewMode;
+        } else if (selectedLongDistance) {
+            mode = selectedLongDistance.mode;
+        } else {
+            const rec = routeData.long_distance_options.find(o => o.is_recommended && o.available) || routeData.long_distance_options[0];
+            if (rec) mode = rec.mode;
+        }
+        return routeData.last_mile_options[mode] || [];
+    }
+
+    function renderFirstMileOptions() {
+        const container = document.getElementById('first-mile-options');
+        let html = '';
+        const opts = getActiveFirstMileOptions();
+        opts.forEach((opt, idx) => {
+            const mc = modeConfig[opt.mode] || { icon: 'bi-car-front-fill', color: '#fff' };
+            let subtitle = "";
+            let destName = "Station";
+            if (!routeData.is_local) {
+                let currentMode = 'train';
+                if (routeData.is_intercity && routeData.transit_hub_info) {
+                    currentMode = routeData.transit_hub_info.type;
+                } else if (previewMode) {
+                    currentMode = previewMode;
+                } else if (selectedLongDistance) {
+                    currentMode = selectedLongDistance.mode;
+                } else {
+                    const rec = routeData.long_distance_options.find(o => o.is_recommended && o.available) || routeData.long_distance_options[0];
+                    if (rec) currentMode = rec.mode;
+                    if (routeData.is_intercity && routeData.transit_hub_info && !selectedLongDistance) {
+                        currentMode = currentLDTab; // Fallback
+                    }
+                }
+                if (currentMode === 'flight') destName = routeData.journey_context.source_transit_names['flight'];
+                else if (currentMode === 'train') destName = routeData.journey_context.source_transit_names['train'];
+                else if (currentMode === 'bus') destName = routeData.journey_context.source_transit_names['bus'];
+            }
+            
+            if (routeData.is_local || (routeData.is_intercity && intercityMode === 'door')) {
+                const driverETA = Math.floor(Math.random() * 4) + 2;
+                subtitle = `${opt.distance} km • ~${opt.duration} mins travel time • Driver Arrival: ~${driverETA} mins`;
+            } else {
+                subtitle = `Distance to ${destName}: ${opt.distance} km • ~${opt.duration} mins`;
+            }
+            html += `
+            <div class="option-card p-3 d-flex justify-content-between align-items-center" id="fm-opt-${idx}" onclick="selectFirstMile(${idx})">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:40px;height:40px;border-radius:50%;background:${mc.color}20;display:flex;align-items:center;justify-content:center;color:${mc.color};">
+                        <i class="${mc.icon.startsWith('bi-') ? 'bi ' : ''}${mc.icon} fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-0">${opt.name}</h6>
+                        <small class="text-secondary">${subtitle}</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="text-success fw-bold fs-5">₹${opt.fare}</div>
+                    ${opt.fare_label ? `<small class="text-secondary d-block" style="font-size:0.65rem;">${opt.fare_label}</small>` : ''}
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+        
+        if (selectedFirstMile) {
+            const selIdx = opts.findIndex(o => o.mode === selectedFirstMile.mode);
+            if (selIdx !== -1) {
+                selectedFirstMile = opts[selIdx]; 
+                setTimeout(() => document.getElementById(`fm-opt-${selIdx}`).classList.add('selected'), 10);
+            } else {
+                selectedFirstMile = null;
+            }
+        }
+    }
+
+    function renderLastMileOptions() {
+        const container = document.getElementById('last-mile-options');
+        let html = '';
+        const opts = getActiveLastMileOptions();
+        opts.forEach((opt, idx) => {
+            const mc = modeConfig[opt.mode] || { icon: 'bi-car-front-fill', color: '#fff' };
+            let srcName = "Station";
+            if (!routeData.is_local) {
+                let currentMode = 'train';
+                if (previewMode) {
+                    currentMode = previewMode;
+                } else if (selectedLongDistance) {
+                    currentMode = selectedLongDistance.mode;
+                } else {
+                    const rec = routeData.long_distance_options.find(o => o.is_recommended && o.available) || routeData.long_distance_options[0];
+                    if (rec) currentMode = rec.mode;
+                }
+                if (currentMode === 'flight') srcName = routeData.journey_context.dest_transit_names['flight'];
+                else if (currentMode === 'train') srcName = routeData.journey_context.dest_transit_names['train'];
+                else if (currentMode === 'bus') srcName = routeData.journey_context.dest_transit_names['bus'];
+            }
+            
+            html += `
+            <div class="option-card p-3 d-flex justify-content-between align-items-center" id="lm-opt-${idx}" onclick="selectLastMile(${idx})">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:40px;height:40px;border-radius:50%;background:${mc.color}20;display:flex;align-items:center;justify-content:center;color:${mc.color};">
+                        <i class="${mc.icon.startsWith('bi-') ? 'bi ' : ''}${mc.icon} fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-0">${opt.name}</h6>
+                        <small class="text-secondary">${srcName} to Destination: ${opt.distance} km • ~${opt.duration} mins</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="text-success fw-bold fs-5">₹${opt.fare}</div>
+                    ${opt.fare_label ? `<small class="text-secondary d-block" style="font-size:0.65rem;">${opt.fare_label}</small>` : ''}
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+        
+        if (selectedLastMile) {
+            const selIdx = opts.findIndex(o => o.mode === selectedLastMile.mode);
+            if (selIdx !== -1) {
+                selectedLastMile = opts[selIdx];
+                setTimeout(() => document.getElementById(`lm-opt-${selIdx}`).classList.add('selected'), 10);
+            } else {
+                selectedLastMile = null;
+            }
+        }
+    }
+
+    let currentLDTab = 'train';
+    // Initialize tab based on AI recommendation
+    if (routeData.transit_hub_info) {
+        currentLDTab = routeData.transit_hub_info.type;
+    } else if (routeData.long_distance_options && routeData.long_distance_options.length > 0) {
+        const rec = routeData.long_distance_options.find(o => o.is_recommended && o.available) || routeData.long_distance_options[0];
+        if (rec) currentLDTab = rec.mode;
+    }
+    
+    function renderLongDistanceOptions() {
+        const container = document.getElementById('long-distance-options');
+        let html = '';
+        
+        if (routeData.is_intercity && routeData.transit_hub_info) {
+            currentLDTab = routeData.transit_hub_info.type;
+        } else {
+            // Build Tabs UI for Smart Travel
+            html += `
+            <ul class="nav nav-pills nav-fill mb-3 gap-2" id="ld-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link w-100 fw-bold ${currentLDTab === 'bus' ? 'active' : ''}" style="border-radius: 8px; background-color: ${currentLDTab === 'bus' ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)'}; color: ${currentLDTab === 'bus' ? '#3b82f6' : '#94a3b8'}; border: 1px solid ${currentLDTab === 'bus' ? 'rgba(59,130,246,0.5)' : 'transparent'};" onclick="switchLDTab('bus')">
+                        <i class="bi bi-bus-front-fill me-2"></i>Bus
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link w-100 fw-bold ${currentLDTab === 'train' ? 'active' : ''}" style="border-radius: 8px; background-color: ${currentLDTab === 'train' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)'}; color: ${currentLDTab === 'train' ? '#ef4444' : '#94a3b8'}; border: 1px solid ${currentLDTab === 'train' ? 'rgba(239,68,68,0.5)' : 'transparent'};" onclick="switchLDTab('train')">
+                        <i class="bi bi-train-front-fill me-2"></i>Train
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link w-100 fw-bold ${currentLDTab === 'flight' ? 'active' : ''}" style="border-radius: 8px; background-color: ${currentLDTab === 'flight' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.05)'}; color: ${currentLDTab === 'flight' ? '#a855f7' : '#94a3b8'}; border: 1px solid ${currentLDTab === 'flight' ? 'rgba(168,85,247,0.5)' : 'transparent'};" onclick="switchLDTab('flight')">
+                        <i class="bi bi-airplane-fill me-2"></i>Flight
+                    </button>
+                </li>
+            </ul>
+            `;
+        }
+        
+        const filteredOptions = routeData.long_distance_options.filter(o => o.mode === currentLDTab);
+        
+        if (filteredOptions.length === 0) {
+            let emptyReason = "Flights are generally not available for routes under 250km.";
+            let emptySuggest = "Try switching to Bus or Train for this journey.";
+            
+            if (currentLDTab === 'flight') {
+                const srcName = routeData.journey_context.source_transit_names['train'] || 'your location';
+                const destName = routeData.journey_context.dest_transit_names['train'] || 'your destination';
+                emptyReason = `No direct commercial flights operate between ${srcName} and ${destName}.`;
+                emptySuggest = `AI Suggestion: Take an AC Volvo Bus or Superfast Train instead. They are more efficient for distances under 250km.`;
+            }
+
+            html += `
+            <div class="text-center p-4 border rounded mt-2" style="background: rgba(168,85,247,0.05); border-color: rgba(168,85,247,0.2) !important;">
+                <i class="bi bi-robot text-primary fs-2 mb-3 d-block" style="color: #a855f7 !important;"></i>
+                <h6 class="text-white fw-bold mb-2">🤖 AI Route Intelligence</h6>
+                <p class="text-muted small mb-2">${emptyReason}</p>
+                <div class="badge" style="background: rgba(16,185,129,0.1); color: #10b981; white-space: normal; text-align: center; line-height: 1.4;">${emptySuggest}</div>
+            </div>
+            `;
+        } else {
+            filteredOptions.forEach((opt) => {
+                const idx = routeData.long_distance_options.indexOf(opt);
+                const mc = modeConfig[opt.mode];
+                
+                let tagsHtml = '';
+                if (opt.is_cheapest) tagsHtml += `<span class="badge bg-success ms-1" style="font-size:0.65rem;">💰 Cheapest</span>`;
+                if (opt.is_fastest) tagsHtml += `<span class="badge bg-primary ms-1" style="font-size:0.65rem;">⚡ Fastest</span>`;
+                if (opt.is_best_value) tagsHtml += `<span class="badge text-dark ms-1" style="background-color: #f59e0b; font-size:0.65rem;">🏆 Best Value</span>`;
+                
+                let statusColor = '#10b981'; // Green
+                let statusText = 'Available';
+                let tooltipAttr = '';
+                
+                if (opt.inventory) {
+                    if (opt.inventory.status === 'Sold Out' || opt.inventory.status === 'Cancelled' || opt.inventory.status === 'Departed' || opt.inventory.status.includes('Next')) {
+                        statusColor = '#ef4444'; // Red
+                        statusText = opt.inventory.status;
+                        if (opt.inventory.ai_reason) tooltipAttr = `title="🤖 AI Insight: ${opt.inventory.ai_reason}" data-bs-toggle="tooltip" style="cursor:help;"`;
+                    } else if (opt.inventory.status === 'Waitlist') {
+                        statusColor = '#ef4444'; // Red
+                        statusText = `WL ${opt.inventory.waiting_list}`;
+                        if (opt.inventory.ai_reason) tooltipAttr = `title="🤖 AI Insight: ${opt.inventory.ai_reason}" data-bs-toggle="tooltip" style="cursor:help;"`;
+                    } else if (opt.inventory.status === 'High Demand') {
+                        statusColor = '#f59e0b'; // Orange
+                        statusText = `Only ${opt.inventory.available_seats} Left`;
+                    } else if (opt.inventory.status === 'Few Seats Left') {
+                        statusColor = '#f59e0b'; // Orange
+                        statusText = `Few Seats (${opt.inventory.available_seats})`;
+                    } else {
+                        statusText = `Avl-${opt.inventory.available_seats}`;
+                    }
+                }
+
+                const alertHtml = opt.alert ? `<div class="bg-danger text-white rounded px-2 py-1 mb-2 d-inline-block" style="font-size: 0.65rem; font-weight: bold;"><i class="bi bi-exclamation-triangle-fill me-1"></i>${opt.alert}</div>` : '';
+                
+                const srcName = routeData.journey_context.source_transit_names[opt.mode] || 'Source';
+                const destName = routeData.journey_context.dest_transit_names[opt.mode] || 'Destination';
+                
+                const cardHtml = `
+                <div class="option-card p-3 mb-3 d-flex flex-column ${opt.available ? '' : 'opacity-50'}" id="ld-opt-${idx}" onclick="selectLongDistance(${idx}, ${opt.available})">
+                    ${alertHtml}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:40px;height:40px;border-radius:50%;background:${opt.available ? mc.color : '#64748b'}20;display:flex;align-items:center;justify-content:center;color:${opt.available ? mc.color : '#64748b'};">
+                                <i class="bi ${mc.icon} fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white mb-0" style="font-size: 1rem;">${opt.name} ${tagsHtml}</h6>
+                                <div class="text-muted" style="font-size: 0.75rem;">
+                                    ${opt.provider} • <span class="fw-bold text-light">${opt.inventory ? opt.inventory.class_name : ''}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="${opt.available ? 'text-success' : 'text-danger'} fw-bold fs-4">₹${opt.fare}</div>
+                            ${opt.fare_label ? `<small class="text-secondary d-block" style="font-size:0.7rem;">${opt.fare_label}</small>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.03);">
+                        <div class="d-flex gap-4">
+                            <div>
+                                <div class="text-white fw-bold fs-6">${opt.departure}</div>
+                                <div class="text-secondary" style="font-size: 0.65rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${srcName}"><i class="bi bi-geo-alt me-1"></i>${srcName}</div>
+                            </div>
+                            <div class="d-flex flex-column align-items-center justify-content-center">
+                                <div class="text-muted" style="font-size: 0.65rem;">${Math.floor(opt.duration/60)}h ${opt.duration%60}m</div>
+                                <div style="width: 40px; height: 1px; background: #475569; position: relative;">
+                                    <i class="bi ${mc.icon} text-secondary" style="position: absolute; top: -7px; left: 14px; font-size: 0.7rem;"></i>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="text-white fw-bold fs-6">${opt.arrival}</div>
+                                <div class="text-secondary" style="font-size: 0.65rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${destName}"><i class="bi bi-geo-alt me-1"></i>${destName}</div>
+                            </div>
+                        </div>
+                        <div class="text-end ms-2 border-start border-secondary ps-2">
+                            <div class="badge border" ${tooltipAttr} style="color: ${statusColor}; border-color: ${statusColor} !important; background: ${statusColor}10; font-size: 0.75rem;">
+                                ${statusText}
+                            </div>
+                            ${opt.schedule ? `<div class="text-muted mt-1" style="font-size: 0.65rem;">${opt.schedule}</div>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+
+                html += cardHtml;
+            });
+        }
+        
+        container.innerHTML = html;
+        
+        // Re-select if it was active
+        if (selectedLongDistance && selectedLongDistance.mode === currentLDTab) {
+            const idx = routeData.long_distance_options.indexOf(selectedLongDistance);
+            const el = document.getElementById(`ld-opt-${idx}`);
+            if (el) el.classList.add('selected');
+        }
+        
+        // Initialize tooltips
+        setTimeout(() => {
+            const tooltips = [].slice.call(container.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltips.map(function (el) { return new bootstrap.Tooltip(el); });
+        }, 100);
+    }
+    
+    window.switchLDTab = function(mode) {
+        currentLDTab = mode;
+        renderLongDistanceOptions();
+        renderFirstMileOptions(); // Dynamically update Step 1 destination based on selected tab
+    }
+
+    function selectFirstMile(idx) {
+        selectedFirstMile = getActiveFirstMileOptions()[idx];
+        
+        document.querySelectorAll('#first-mile-options .option-card').forEach(el => el.classList.remove('selected'));
+        document.getElementById(`fm-opt-${idx}`).classList.add('selected');
+        
+        if (selectedFirstMile.mode === 'walk') {
+            const cals = Math.round(selectedFirstMile.distance * 60);
+            const steps = Math.round(selectedFirstMile.distance * 1312);
+            let weatherInsight = "";
+            if (routeData.journey_context && routeData.journey_context.weather === 'Heavy Rain') {
+                weatherInsight = `<li class="text-primary fw-bold"><strong>Weather Alert:</strong> It is currently raining heavily. Walking might not be the best option unless you have an umbrella!</li>`;
+            } else if (routeData.journey_context && routeData.journey_context.weather === 'Clear') {
+                weatherInsight = `<li class="text-warning fw-bold"><strong>Weather Alert:</strong> It is 35°C sunny outside. Walking will be exhausting. We recommend an AC Cab instead!</li>`;
+            }
+            
+            const walkMsg = `
+                <p class="mb-3">Excellent choice! Walking is the ultimate eco-friendly First Mile choice. Here is your detailed physiological and environmental analysis:</p>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <div class="p-2 rounded border text-center" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                            <i class="bi bi-fire text-danger fs-4 mb-1"></i>
+                            <div class="fw-bold text-white">${cals}</div>
+                            <small class="text-muted" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;">Kcal Burned</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded border text-center" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                            <i class="bi bi-wallet2 text-success fs-4 mb-1"></i>
+                            <div class="fw-bold text-white">100%</div>
+                            <small class="text-muted" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;">Savings</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded border text-center" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                            <i class="bi bi-tree text-success fs-4 mb-1"></i>
+                            <div class="fw-bold text-white">0g CO₂</div>
+                            <small class="text-muted" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;">Emissions</small>
+                        </div>
+                    </div>
+                </div>
+                <ul class="text-secondary small mb-0 ps-3" style="line-height:1.6;">
+                    ${weatherInsight}
+                    <li><strong>Pace Algorithm:</strong> Estimated at a comfortable 4.8 km/h baseline walking speed over <strong>${selectedFirstMile.distance} km</strong>.</li>
+                    <li><strong>Health Impact:</strong> This journey contributes approximately <strong>${steps} steps</strong> towards your daily activity goal.</li>
+                    <li><strong>AI Recommendation:</strong> Ensure proper hydration and wear ergonomic footwear for this <strong>${selectedFirstMile.duration} minute</strong> segment.</li>
+                </ul>
+            `;
+            updateAIAssistant('Comprehensive Walking Analysis \uD83D\uDEB6', walkMsg, 'bi-person-walking', '#22c55e');
+        }
+        
+        if (routeData.is_local || routeData.is_intercity) {
+            updateSummary();
+        } else {
+            const s2 = document.getElementById('step-2-row');
+            s2.style.display = 'flex';
+            setTimeout(() => { s2.style.opacity = '1'; }, 50);
+            s2.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            updateSummary();
+        }
+    }
+
+    function selectLongDistance(idx, isAvailable) {
+        if (!isAvailable) {
+            if (typeof showNotification === 'function') {
+                showNotification('Unavailable', 'This transit option is not available for the selected route/time.', 'warning');
+            } else {
+                alert("This transit option has already departed or is unavailable.");
+            }
+            return;
+        }
+        selectedLongDistance = routeData.long_distance_options[idx];
+        previewMode = selectedLongDistance.mode;
+        updatePreviewToggleUI();
+        
+        document.querySelectorAll('#long-distance-options .option-card').forEach(el => el.classList.remove('selected'));
+        const el = document.getElementById(`ld-opt-${idx}`);
+        if(el) el.classList.add('selected');
+
+        renderFirstMileOptions();
+        renderLastMileOptions();
+        
+        const s3 = document.getElementById('step-3-card');
+        s3.style.display = 'block';
+        setTimeout(() => { s3.style.opacity = '1'; }, 50);
+        s3.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        
+        updateSummary();
+    }
+    
+    function toggleAIChat() {
+        document.getElementById('ai-chat-btn').style.display = 'none';
+        const group = document.getElementById('ai-chat-group');
+        group.style.display = 'flex';
+        setTimeout(() => { group.style.opacity = '1'; }, 10);
+        document.getElementById('ai-chat-input').focus();
+    }
+
+    function handleAIChat() {
+        const input = document.getElementById('ai-chat-input');
+        if (!input) return;
+        const text = input.value.trim().toLowerCase();
+        if (!text) return;
+        
+        input.value = '';
+        
+        let responseTitle = 'AI Response';
+        let responseMsg = 'I am the TravelFusion AI prototype. Currently, I am optimized for specific travel intents. Try asking me about <strong>"pets"</strong>, <strong>"budget"</strong>, <strong>"urgent travel"</strong>, <strong>"luggage"</strong>, <strong>"night safety"</strong>, or <strong>"wheelchair"</strong> accessibility!';
+        let icon = 'bi-robot';
+        
+        if (text.includes('dog') || text.includes('pet') || text.includes('cat') || text.includes('naay') || text.includes('nai')) {
+            responseTitle = 'Pet-Friendly Travel \uD83D\uDC15';
+            responseMsg = 'Traveling with a pet? I highly recommend choosing <strong>Personal Drop</strong> or an <strong>AC Cab</strong> for your local transit to ensure your pet travels comfortably. Buses and Trains may have strict pet policies, so a direct Cab is usually the safest bet!';
+            icon = 'bi-suit-heart-fill';
+        } else if (text.includes('budget') || text.includes('money') || text.includes('cheap') || text.includes('low cost') || text.includes('kassu') || text.includes('kaasu') || text.includes('panam')) {
+            responseTitle = 'Budget Optimization \uD83D\uDCB0';
+            responseMsg = 'Looking to save money? Notice the options marked with the green <strong>Cheapest</strong> badge. For the First Mile, walking is always 100% free! For Long Distance, Non-AC buses or Sleeper class trains are the most economical.';
+            icon = 'bi-piggy-bank';
+        } else if (text.includes('fast') || text.includes('urgent') || text.includes('quick') || text.includes('hurry') || text.includes('time') || text.includes('seekiram') || text.includes('vegama')) {
+            responseTitle = 'Time Optimization \u23F1\uFE0F';
+            responseMsg = 'In a hurry? Look for the options marked with the blue <strong>Fastest</strong> badge. Bikes are typically the quickest way to beat city traffic for First Mile! For Long distance, Flights are obviously your best bet.';
+            icon = 'bi-lightning-fill';
+        } else if (text.includes('luggage') || text.includes('bag') || text.includes('heavy') || text.includes('suitcase') || text.includes('mootai') || text.includes('baram')) {
+            responseTitle = 'Luggage Logistics \uD83E\uDDF3';
+            responseMsg = 'Carrying heavy luggage? <strong>Avoid Bike rides or walking.</strong> Book an AC Cab or Premium SUV for your First/Last Mile to ensure you have enough trunk space. For Long Distance, Trains offer the most generous luggage allowances.';
+            icon = 'bi-briefcase-fill';
+        } else if (text.includes('safe') || text.includes('night') || text.includes('dark') || text.includes('security') || text.includes('iruttu') || text.includes('rathiri') || text.includes('paathugappu')) {
+            responseTitle = 'Safety First \uD83D\uDEE1\uFE0F';
+            responseMsg = 'Traveling at night? We prioritize your safety. Our <strong>AC Cabs</strong> and <strong>Premium SUVs</strong> have GPS tracking and an SOS feature built into the app. Always share your tracking link with family when traveling late!';
+            icon = 'bi-shield-check';
+        } else if (text.includes('wheelchair') || text.includes('disabled') || text.includes('elderly') || text.includes('old') || text.includes('thaatha') || text.includes('paati') || text.includes('vayasanavanga')) {
+            responseTitle = 'Accessibility Support \u267F';
+            responseMsg = 'For elderly passengers or those needing wheelchair assistance, please select the <strong>Premium SUV</strong> option for easier boarding and maximum space. Avoid crowded buses or upper-berth train tickets.';
+            icon = 'bi-person-wheelchair';
+        } else if (text.includes('food') || text.includes('eat') || text.includes('hungry') || text.includes('meal') || text.includes('saapadu') || text.includes('pasi') || text.includes('sapadu')) {
+            responseTitle = 'Food & Refreshments \uD83C\uDF54';
+            responseMsg = 'Premium Trains (like Vande Bharat/Shatabdi) and Premium Economy Flights usually include complimentary meals. For bus journeys, the driver will stop at designated highway motels for food breaks.';
+            icon = 'bi-cup-hot-fill';
+        }
+        
+        updateAIAssistant(responseTitle, `<p>${responseMsg}</p><button class="btn btn-sm btn-outline-secondary mt-3 w-100" onclick="renderAdvancedAIDashboard()">Back to Dashboard</button>`, icon, '#ec4899');
+    }
+    
+    function selectLastMile(idx) {
+        selectedLastMile = getActiveLastMileOptions()[idx];
+        
+        document.querySelectorAll('#last-mile-options .option-card').forEach(el => el.classList.remove('selected'));
+        document.getElementById(`lm-opt-${idx}`).classList.add('selected');
+        
+        if (selectedLastMile.mode === 'walk') {
+            const cals = Math.round(selectedLastMile.distance * 60);
+            const steps = Math.round(selectedLastMile.distance * 1312);
+            const walkMsg = `
+                <p class="mb-3">Excellent choice! Walking is the ultimate eco-friendly Last Mile choice. Here is your detailed physiological and environmental analysis:</p>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <div class="p-2 rounded border text-center" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                            <i class="bi bi-fire text-danger fs-4 mb-1"></i>
+                            <div class="fw-bold text-white">${cals}</div>
+                            <small class="text-muted" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;">Kcal Burned</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded border text-center" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                            <i class="bi bi-wallet2 text-success fs-4 mb-1"></i>
+                            <div class="fw-bold text-white">100%</div>
+                            <small class="text-muted" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;">Savings</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 rounded border text-center" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                            <i class="bi bi-tree text-success fs-4 mb-1"></i>
+                            <div class="fw-bold text-white">0g CO₂</div>
+                            <small class="text-muted" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;">Emissions</small>
+                        </div>
+                    </div>
+                </div>
+                <ul class="text-secondary small mb-0 ps-3" style="line-height:1.6;">
+                    <li><strong>Pace Algorithm:</strong> Estimated at a comfortable 4.8 km/h baseline walking speed over <strong>${selectedLastMile.distance} km</strong>.</li>
+                    <li><strong>Health Impact:</strong> This journey contributes approximately <strong>${steps} steps</strong> towards your daily activity goal.</li>
+                    <li><strong>AI Recommendation:</strong> Ensure proper hydration and wear ergonomic footwear for this <strong>${selectedLastMile.duration} minute</strong> segment.</li>
+                </ul>
+            `;
+            updateAIAssistant('Comprehensive Walking Analysis \uD83D\uDEB6', walkMsg, 'bi-person-walking', '#22c55e');
+        }
+        
+        updateSummary();
+    }
+
+    function updateSummary() {
+        if (!selectedFirstMile) return;
+        
+        // Smart Travel requires all three legs. Local and Intercity only require first mile.
+        if (!routeData.is_local && !routeData.is_intercity) {
+            if (!selectedLongDistance) return;
+            if (!selectedLastMile) return;
+        }
+
+        document.getElementById('active-route-detail-panel').style.display = 'block';
+        document.getElementById('active-preview-badge').innerText = 'PREVIEWING: CUSTOM PLAN';
+
+        // Build Legs
+        let legs = [];
+        let totalFare = 0;
+        let totalTime = 0;
+        
+        // Both local and intercity modes are now single-leg bookings (direct cab/auto)
+        if (routeData.is_local || routeData.is_intercity) {
+            totalFare = selectedFirstMile.fare;
+            totalTime = selectedFirstMile.duration;
+            let dest = routeData.destination;
+            if (routeData.is_intercity && intercityMode !== 'door' && routeData.transit_hub_info) {
+                 dest = routeData.transit_hub_info.hub_name;
+            }
+            legs.push({
+                leg_type: "direct",
+                mode: selectedFirstMile.mode,
+                source: routeData.source,
+                destination: dest,
+                distance: selectedFirstMile.distance,
+                duration: selectedFirstMile.duration,
+                fare: selectedFirstMile.fare,
+                start_coords: routeData.start_coords,
+                end_coords: routeData.end_coords,
+                provider: selectedFirstMile.provider
+            });
+        } else {
+            // Smart Travel (3-legs)
+            if (!selectedLongDistance || !selectedLastMile) return;
+            totalFare = selectedFirstMile.fare + selectedLongDistance.fare + selectedLastMile.fare;
+            totalTime = selectedFirstMile.duration + selectedLongDistance.duration + selectedLastMile.duration;
+            
+            const srcTransit = routeData.journey_context.source_transit_names[selectedLongDistance.mode];
+            const dstTransit = routeData.journey_context.dest_transit_names[selectedLongDistance.mode];
+
+            legs.push({
+                leg_type: "first_mile",
+                mode: selectedFirstMile.mode,
+                source: routeData.source,
+                destination: srcTransit,
+                distance: selectedFirstMile.distance,
+                duration: selectedFirstMile.duration,
+                fare: selectedFirstMile.fare,
+                start_coords: routeData.start_coords,
+                end_coords: [routeData.start_coords[0] + 0.05, routeData.start_coords[1] + 0.05],
+                provider: selectedFirstMile.provider
+            });
+            legs.push({
+                leg_type: "long_distance",
+                mode: selectedLongDistance.mode,
+                source: srcTransit,
+                destination: dstTransit,
+                distance: routeData.total_distance - selectedFirstMile.distance - selectedLastMile.distance,
+                duration: selectedLongDistance.duration,
+                departure: selectedLongDistance.departure,
+                fare: selectedLongDistance.fare,
+                start_coords: [routeData.start_coords[0] + 0.05, routeData.start_coords[1] + 0.05],
+                end_coords: [routeData.end_coords[0] - 0.05, routeData.end_coords[1] - 0.05],
+                provider: selectedLongDistance.provider,
+                inventory: selectedLongDistance.inventory
+            });
+            legs.push({
+                leg_type: "last_mile",
+                mode: selectedLastMile.mode,
+                source: dstTransit,
+                destination: routeData.destination,
+                distance: selectedLastMile.distance,
+                duration: selectedLastMile.duration,
+                fare: selectedLastMile.fare,
+                start_coords: [routeData.end_coords[0] - 0.05, routeData.end_coords[1] - 0.05],
+                end_coords: routeData.end_coords,
+                provider: selectedLastMile.provider
+            });
+        }
+
+        // Draw Summary HTML
+        let html = '';
+        legs.forEach((leg, idx) => {
+            const mc = modeConfig[leg.mode] || { icon:'bi-geo-alt', color:'#94a3b8', label: leg.mode };
+            const isLast = idx === legs.length - 1;
+
+            html += `
+            <div class="mb-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-geo-fill text-danger fs-6"></i>
+                    <div class="fw-bold text-white fs-6">${leg.source.split(',')[0]}</div>
+                </div>
+                
+                <div class="d-flex ms-2 ps-3 border-start border-2 border-secondary position-relative py-2">
+                    <div class="flex-fill bg-dark p-2 rounded border border-secondary" style="margin-left: 10px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="${mc.icon.startsWith('fa-') ? '' : 'bi '}${mc.icon}" style="color:${mc.color};"></i>
+                                <div>
+                                    <div class="text-white fw-bold" style="font-size: 0.85rem;">${mc.label}</div>
+                                    <div class="text-muted" style="font-size: 0.65rem;">via ${leg.provider} • ${leg.distance} km</div>
+                                </div>
+                            </div>
+                            <span class="text-success fw-bold" style="font-size: 0.9rem;">₹${leg.fare}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                ${isLast ? `
+                <div class="d-flex align-items-center gap-2 mt-2">
+                    <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
+                    <div class="fw-bold text-white fs-6">${leg.destination.split(',')[0]}</div>
+                </div>
+                ` : ''}
+            </div>`;
+        });
+        
+        if (!routeData.is_local && !routeData.is_intercity) {
+            let smartReason = "";
+            const m = selectedLongDistance.mode;
+            const b = routeData.journey_context.budget;
+            
+            if (m === 'train') {
+                smartReason = `Nearest station with direct train connectivity. Given your ₹${b} budget, rail transport provides the best balance of comfort and cost efficiency while avoiding highway traffic.`;
+            } else if (m === 'flight') {
+                smartReason = `Nearest airport with direct flights. Since time is of the essence, flying saves you multiple hours of transit time while staying within budget constraints.`;
+            } else {
+                smartReason = `Nearest major bus terminus. This is the most practical and direct route, offering excellent schedule flexibility and keeping travel costs strictly under your ₹${b} limit.`;
+            }
+
+            html += `
+            <div class="mt-4 p-3 rounded" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3);">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-robot text-info fs-5"></i>
+                    <div class="fw-bold text-info">AI Recommendation Reason</div>
+                </div>
+                <div class="text-white small">
+                    <strong>Recommended:</strong> ${routeData.journey_context.source_transit_names[selectedLongDistance.mode]}
+                </div>
+                <div class="text-secondary small mt-1">
+                    <strong>Reason:</strong> ${smartReason}
+                </div>
+            </div>`;
+        }
+
+        document.getElementById('active-route-steps').innerHTML = html;
+
+        // Update Totals
+        document.getElementById('summary-fare').innerText = `₹${totalFare}`;
+        const hrs = Math.floor(totalTime / 60);
+        const mins = totalTime % 60;
+        document.getElementById('summary-time').innerText = hrs > 0 ? `${hrs}h ${mins}m` : `${mins} mins`;
+
+        // Update Map
+        if (typeof initTrackingMap === 'function') {
+            initTrackingMap('map', legs, routeData.start_coords[0], routeData.start_coords[1]);
+        }
+        
+        // Prepare JSON for submission
+        const finalPlan = {
+            name: "Custom Journey",
+            total_fare: totalFare,
+            total_duration: totalTime,
+            is_local: routeData.is_local,
+            is_intercity: routeData.is_intercity,
+            passengers: routeData.journey_context ? routeData.journey_context.passengers : 1,
+            legs: legs
+        };
+        document.getElementById('custom_plan_input').value = JSON.stringify(finalPlan);
+        
+        // Enable button
+        document.getElementById('btn-book-plan').disabled = false;
+
+        // --- AI BUDGET MONITOR & ADVICE ---
+        const aiPanel = document.getElementById('ai-suggestion-panel');
+        const aiContent = document.getElementById('ai-suggestion-content');
+        
+        aiPanel.style.display = 'block';
+        
+        let aiColor = "var(--cyan-accent)";
+        let aiIcon = "bi-robot";
+        let aiTitle = "TravelFusion AI Insight";
+        let aiMessage = "";
+
+        if (totalFare > userBudget) {
+            aiColor = "#ef4444"; // Red for over budget
+            aiPanel.style.borderColor = "rgba(239, 68, 68, 0.5)";
+            document.getElementById('ai-bg-icon').style.color = "#ef4444";
+            aiIcon = "bi-exclamation-triangle-fill";
+            aiTitle = "Budget Exceeded Warning";
+            aiMessage = `This combination costs <strong>₹${totalFare}</strong>, which exceeds your set budget of <strong>₹${userBudget}</strong>! The choice is still yours, but consider choosing a more economical transit or ride option to save money.`;
+        } else {
+            aiColor = "#06b6d4"; // Cyan for within budget
+            aiPanel.style.borderColor = "rgba(6, 182, 212, 0.3)";
+            document.getElementById('ai-bg-icon').style.color = "#06b6d4";
+            aiIcon = "bi-robot";
+            aiTitle = "AI Budget Monitor";
+            aiMessage = `Great choice! This combination costs <strong>₹${totalFare}</strong>, keeping you well within your budget of <strong>₹${userBudget}</strong>. `;
+            
+            if (selectedLongDistance) {
+                if (selectedLongDistance.mode === 'flight') {
+                    aiMessage += "Enjoy the speed and premium comfort of your flight!";
+                } else if (selectedLongDistance.mode === 'train') {
+                    aiMessage += "Train journeys offer a great mix of comfort and scenery.";
+                } else if (selectedLongDistance.mode === 'bus' && selectedLongDistance.name.toLowerCase().includes('sleeper')) {
+                    aiMessage += "A sleeper bus is perfect for getting some rest during your trip.";
+                }
+            } else if (selectedFirstMile && selectedFirstMile.mode === 'bike') {
+                aiMessage += "Zipping through traffic with a bike ride is a smart choice for local trips!";
+            }
+        }
+
+        aiContent.innerHTML = `
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:48px;height:48px;border-radius:12px;background:${aiColor}20;display:flex;align-items:center;justify-content:center;color:${aiColor};font-size:1.5rem;flex-shrink:0;">
+                    <i class="bi ${aiIcon}"></i>
+                </div>
+                <div>
+                    <h6 class="mb-1" style="color: ${aiColor} !important;"><i class="bi bi-magic me-2"></i>${aiTitle}</h6>
+                    <p class="text-secondary small mb-0">${aiMessage}</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    // --- REALISTIC BOOKING ENGINE ---
+    function showToast(title, message) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            container.style.zIndex = '1055';
+            document.body.appendChild(container);
+        }
+        
+        const toastEl = document.createElement('div');
+        toastEl.className = 'toast align-items-center text-white bg-danger border-0 shadow-lg';
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+        
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>${title}</strong><br>
+                    <span class="small">${message}</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        container.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        toast.show();
+        
+        toastEl.addEventListener('hidden.bs.toast', () => {
+            toastEl.remove();
+        });
+    }
+
+    function handleBookingProcess(e) {
+        e.preventDefault();
+        if (!routeData.is_local && !routeData.is_intercity && selectedLongDistance && selectedLongDistance.inventory) {
+            const inv = selectedLongDistance.inventory;
+            if (inv.status === 'Sold Out' || inv.status === 'Cancelled' || inv.status === 'Departed' || inv.status.includes('Next')) {
+                showToast(`Booking Failed`, `The selected ${selectedLongDistance.mode} is currently ${inv.status}. Please select another option.`);
+                return false;
+            }
+        }
+        
+        // Everything is fine, allow the native form submission to redirect to the checkout page instantly!
+        document.getElementById('booking-form').submit();
+        return false;
+    }
+</script>
+{% endif %}
+
+<style>
+.option-card {
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+}
+.option-card:hover {
+    border-color: rgba(59,130,246,0.4);
+    background: rgba(255,255,255,0.02);
+}
+.option-card.selected {
+    border-color: rgba(16,185,129,0.6) !important;
+    background: rgba(16,185,129,0.05) !important;
+    box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 4px 20px rgba(16,185,129,0.1) !important;
+}
+</style>
+{% endblock %}

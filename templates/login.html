@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – TravelFusion AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="/static/css/style.css?v=1.3">
+    <style>
+        body { margin: 0; padding: 0; }
+        .login-wrapper { min-height: 100vh; }
+        
+        .auth-tab {
+            padding: 12px 0;
+            text-align: center;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .auth-tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+        .auth-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .auth-content.active {
+            display: block;
+        }
+        
+        .btn-google {
+            background: white;
+            color: #333;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn-google:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 25px 0;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .divider:not(:empty)::before { margin-right: .25em; }
+        .divider:not(:empty)::after { margin-left: .25em; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<!-- ====================== ROLE SPECIFIC LOADER ====================== -->
+<div id="pageLoader" class="page-loader">
+    <div class="loader-content" style="color: var(--accent-blue);">
+        <div class="loader-logo">
+            <i class="bi bi-compass-fill"></i>
+        </div>
+        <h2 class="loader-title text-white">Traveler Portal</h2>
+        <div class="loader-spinner"></div>
+    </div>
+</div>
+
+<div class="login-wrapper">
+    <!-- Brand Side -->
+    <div class="login-brand-side">
+        <div class="mesh-grid"></div>
+        <div class="content">
+            <div class="login-brand-logo">
+                <div class="icon"><i class="bi bi-luggage-fill"></i></div>
+                <div class="name">TravelFusion <span>AI</span></div>
+            </div>
+            <div class="login-portal-title">
+                Traveler<br>Portal
+            </div>
+            <p class="login-portal-sub">
+                Plan, Book and Manage Every Journey with AI. Sign in to access your personal travel ecosystem.
+            </p>
+            <div class="login-features-list">
+                <div class="login-feature-item">
+                    <i class="bi bi-geo-alt-fill text-accent-blue"></i>
+                    <span>Real-Time GPS Tracking</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-shield-fill-check text-success"></i>
+                    <span>SOS Emergency Alert</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="bi bi-lightning-fill" style="color:var(--warning-yellow);"></i>
+                    <span>Smart AI Routing</span>
+                </div>
+            </div>
+            
+            <!-- Decorative orbs -->
+            <div style="position:absolute;bottom:-60px;right:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,0.15),transparent);pointer-events:none;"></div>
+        </div>
+    </div>
+
+    <!-- Form Side -->
+    <div class="login-form-side">
+        <div class="login-form-box">
+            <!-- Back link -->
+            <a href="/" class="text-muted text-decoration-none d-flex align-items-center gap-2 mb-4" style="font-size:.85rem;">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div style="width:52px;height:52px;border-radius:14px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--accent-blue);">
+                    <i class="bi bi-globe-americas"></i>
+                </div>
+                <div>
+                    <h2 style="font-size:1.6rem;">Traveler Sign In</h2>
+                    <p class="sub mb-0 text-muted">Welcome back to TravelFusion</p>
+                </div>
+            </div>
+
+            {% if context.get('error') %}
+            <div class="alert-glass alert-glass-danger mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>{{ context.get('error') }}</span>
+            </div>
+            {% endif %}
+            
+            {% if request.args.get('registered') %}
+            <div class="alert-glass alert-glass-success mb-4" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Registration successful! Please login below.</span>
+            </div>
+            {% endif %}
+
+            <!-- Real Google OAuth Login -->
+            <div id="g_id_onload"
+                 data-client_id="96275231078-s0pqjv2q4sukmsoamk4sdtdkojgdf92r.apps.googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="redirect"
+                 data-login_uri="http://localhost:5000/login"
+                 data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin mb-3"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="continue_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 data-width="100%">
+            </div>
+
+            <form id="realGoogleForm" action="/login" method="POST" style="display: none;">
+                <input type="hidden" name="auth_type" value="google">
+                <input type="hidden" name="credential" id="googleCredential">
+            </form>
+
+            <script>
+            function handleCredentialResponse(response) {
+                document.getElementById('googleCredential').value = response.credential;
+                document.getElementById('realGoogleForm').submit();
+            }
+            </script>
+
+            <div class="divider">OR</div>
+
+            <!-- Email or Phone Login Content -->
+            <div id="email-content" class="auth-content active">
+                <form action="/login" method="POST" id="emailForm">
+                    <input type="hidden" name="auth_type" value="email">
+                    <div class="mb-3">
+                        <label class="form-label text-muted" style="font-size:.75rem;font-weight:700;text-transform:uppercase;">Email or Mobile Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                            <input type="text" name="email" class="form-control form-glass" placeholder="Enter Email or Mobile Number" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label text-muted mb-0" style="font-size:.75rem;font-weight:700;text-transform:uppercase;">Password</label>
+                            <a href="/forgot-password" class="text-accent-blue text-decoration-none" style="font-size:.8rem;font-weight:600;">Forgot Password?</a>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input type="password" name="password" class="form-control form-glass" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-glow w-100 py-3" id="emailSubmitBtn">Login</button>
+                </form>
+            </div>
+
+
+            <div class="text-center mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                <p class="text-muted" style="font-size:.9rem;">Don't have an account? 
+                    <a href="/register" class="text-accent-blue text-decoration-none fw-700">Create Account</a>
+                </p>
+                <div class="mt-3">
+                    <a href="/driver-login" class="text-muted text-decoration-none" style="font-size:.8rem; margin-right: 15px;">Driver Portal</a>
+                    <a href="/admin-login" class="text-muted text-decoration-none" style="font-size:.8rem;">Admin Console</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const gOnload = document.getElementById('g_id_onload');
+        if (gOnload) {
+            gOnload.setAttribute('data-login_uri', window.location.origin + '/login');
+        }
+        
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+            }, 800);
+        }
+    });
+
+    document.getElementById('emailForm').addEventListener('submit', function() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+            loader.classList.remove('fade-out');
+        }
+        const btn = document.getElementById('emailSubmitBtn');
+        setTimeout(() => {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Logging in...';
+            btn.disabled = true;
+        }, 10);
+    });
+</script>
+</body>
+</html>

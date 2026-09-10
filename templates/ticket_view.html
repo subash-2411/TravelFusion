@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+{% block title %}E-Ticket | TravelFusion AI{% endblock %}
+{% block content %}
+
+<div class="container my-5 text-start fade-in-up">
+
+    <!-- Action Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="text-white mb-1"><i class="bi bi-ticket-perforated-fill text-accent-blue me-2"></i>E-Ticket & Journey Summary</h2>
+            <p class="text-secondary mb-0">
+                Booking Reference: <strong class="text-white font-monospace">TF-{{ booking.id }}{% if plan %}{{ plan.travel_date.replace('-','') }}{% endif %}</strong>
+                {% if txn %} · Transaction: <strong class="text-white font-monospace">{{ txn.transaction_id }}</strong>{% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/tracking/{{ booking.id }}" class="btn btn-glass">
+                <i class="bi bi-broadcast me-1"></i>Live Track
+            </a>
+            <button onclick="downloadPDFTicket()" class="btn btn-glow" id="download-btn">
+                <i class="bi bi-file-earmark-pdf-fill me-2"></i>Download PDF Ticket
+            </button>
+        </div>
+    </div>
+
+    <div id="ticket-container-wrapper" style="overflow-x: auto; padding-bottom: 20px;">
+        <div id="ticket-container" style="width: 850px; margin: 0 auto; background: #ffffff; border-radius: 12px; display: flex; font-family: 'Arial', sans-serif; color: #111; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            
+            <!-- LEFT SECTION -->
+            <div style="flex: 0 0 600px; padding: 30px; position: relative; border-right: 3px dashed #cbd5e1;">
+                
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+                    <div>
+                        <h2 style="margin: 0; color: #0f172a; font-weight: 900; font-size: 28px; letter-spacing: -1px;">TravelFusion<span style="color: #3b82f6;">AI</span></h2>
+                        <span style="background: #10b981; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase;">✔ Confirmed</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 11px; color: #64748b; font-weight: bold; letter-spacing: 1px;">BOOKING REFERENCE (PNR)</div>
+                        <div style="font-size: 24px; font-weight: 900; color: #0f172a; letter-spacing: 2px;">TF-{{ booking.id }}</div>
+                    </div>
+                </div>
+
+                <!-- Passenger Info -->
+                <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
+                    <div>
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold; letter-spacing: 1px;">PRIMARY PASSENGER</div>
+                        <div style="font-size: 18px; font-weight: bold; color: #0f172a; text-transform: uppercase;">{{ booking.passenger_name or 'Traveler' }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold; letter-spacing: 1px;">TRAVEL DATE</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #0f172a;">{{ plan.travel_date if plan else 'N/A' }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold; letter-spacing: 1px;">NO. OF TICKETS</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #0f172a;">
+                            {{ len(booking.passengers) if booking.passengers else 1 }} <span style="font-size: 12px; color: #64748b;">Passengers</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold; letter-spacing: 1px;">SEAT / CLASS</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #0f172a;">
+                            {% if flight %}{{ flight.seat_number }} (Economy){% elif train %}{{ train.seat_number }} (AC 3T){% elif bus %}{{ bus.seat_number }} (Sleeper){% else %}Auto Assigned{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Journey Details -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+                    <div style="width: 35%;">
+                        <div style="font-size: 11px; color: #64748b; font-weight: bold;">ORIGIN</div>
+                        <div style="font-size: 28px; font-weight: 900; color: #0f172a; line-height: 1.1;">{{ plan.source.split(',')[0][:3].upper() if plan else 'SRC' }}</div>
+                        <div style="font-size: 13px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ plan.source.split(',')[0] if plan else 'Source' }}</div>
+                        <div style="font-size: 14px; color: #3b82f6; font-weight: 900; margin-top: 5px;" id="formatted-dep-time">
+                            <script>
+                                const rawTime = "{{ flight.departure_time if flight else (train.departure_time if train else (bus.departure_time if bus else (plan.departure_time if plan and hasattr(plan, 'departure_time') else '08:00 AM'))) }}";
+                                try {
+                                    if (rawTime.includes('T')) {
+                                        const dateObj = new Date(rawTime);
+                                        if (!isNaN(dateObj)) {
+                                            document.write(dateObj.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}));
+                                        } else {
+                                            document.write(rawTime.substring(11, 16));
+                                        }
+                                    } else {
+                                        document.write(rawTime && rawTime !== 'None' ? rawTime : "08:00 AM");
+                                    }
+                                } catch(e) { document.write("08:00 AM"); }
+                            </script>
+                        </div>
+                    </div>
+                    
+                    <div style="width: 30%; text-align: center; position: relative;">
+                        <div style="font-size: 24px; color: #94a3b8;">
+                            {% if flight %}✈️{% elif train %}🚆{% elif bus %}🚌{% elif booking and booking.travel_mode and booking.travel_mode.lower() == 'bike' %}🏍️{% elif booking and booking.travel_mode and booking.travel_mode.lower() == 'auto' %}🛺{% else %}🚕{% endif %}
+                        </div>
+                        <div style="border-bottom: 2px solid #cbd5e1; width: 100%; position: absolute; top: 50%; z-index: 0;"></div>
+                    </div>
+
+                    <div style="width: 35%; text-align: right;">
+                        <div style="font-size: 11px; color: #64748b; font-weight: bold;">DESTINATION</div>
+                        <div style="font-size: 28px; font-weight: 900; color: #0f172a; line-height: 1.1;">{{ plan.destination.split(',')[0][:3].upper() if plan else 'DST' }}</div>
+                        <div style="font-size: 13px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ plan.destination.split(',')[0] if plan else 'Destination' }}</div>
+                        <div style="font-size: 14px; color: #3b82f6; font-weight: 900; margin-top: 5px;" id="formatted-arr-time">
+                            <script>
+                                const arrTime = "{{ flight.arrival_time if flight else (train.arrival_time if train else (bus.arrival_time if bus else '08:00 PM')) }}";
+                                try {
+                                    if (arrTime.includes('T')) {
+                                        const dateObj = new Date(arrTime);
+                                        if (!isNaN(dateObj)) {
+                                            document.write(dateObj.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}));
+                                        } else {
+                                            document.write(arrTime.substring(11, 16));
+                                        }
+                                    } else {
+                                        document.write(arrTime && arrTime !== 'None' ? arrTime : "08:00 PM");
+                                    }
+                                } catch(e) { document.write("08:00 PM"); }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+                {% if booking.passengers %}
+                <div style="margin-bottom: 25px;">
+                    <div style="font-size: 12px; color: #64748b; font-weight: bold; margin-bottom: 8px;">ALL PASSENGERS ({{ len(booking.passengers) }})</div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <tr style="border-bottom: 1px solid #e2e8f0; color: #64748b; text-align: left;">
+                            <th style="padding: 5px 0;">Name</th>
+                            <th style="padding: 5px 0;">Age/Gender</th>
+                            <th style="padding: 5px 0; text-align: right;">Seat</th>
+                        </tr>
+                        {% for p in booking.passengers %}
+                        <tr style="border-bottom: 1px dashed #f1f5f9;">
+                            <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">{{ p.passenger_name }}</td>
+                            <td style="padding: 8px 0; color: #334155;">{{ p.passenger_age }} / {{ p.passenger_gender }}</td>
+                            <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #3b82f6;">{{ p.seat_number or 'Assigned' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% endif %}
+
+
+
+                <!-- Sub details row -->
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                    <div>
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold;">OPERATOR</div>
+                        <div style="font-size: 14px; font-weight: bold; color: #0f172a;">
+                            {% if flight %}{{ flight.airline_name }} {{ flight.flight_number }}{% elif train %}{{ train.train_name }} {{ train.train_number }}{% elif bus %}{{ bus.operator_name }} {{ bus.bus_number }}{% else %}TravelFusion Select{% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold;">AMOUNT PAID</div>
+                        <div style="font-size: 16px; font-weight: 900; color: #10b981;">₹{{ f"{round(booking.total_fare + booking.total_fare * 0.05 + 45, 2):,.2f}" }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold;">GATE / PLATFORM</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #ef4444;">{% if flight %}{{ flight.gate }}{% elif train %}PF-2{% else %}G-1{% endif %}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SECTION (STUB) -->
+            <div style="flex: 1; padding: 30px 20px; background: #f8fafc; border-radius: 0 12px 12px 0; display: flex; flex-direction: column; align-items: center; position: relative;">
+                <div style="position: absolute; top: -15px; left: -15px; width: 30px; height: 30px; background: #05091a; border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -15px; left: -15px; width: 30px; height: 30px; background: #05091a; border-radius: 50%;"></div>
+                
+                <h3 style="margin: 0 0 20px 0; color: #0f172a; font-weight: 900; font-size: 20px; letter-spacing: -0.5px;">Boarding Pass</h3>
+                
+                <!-- QR Code -->
+                <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                    <div id="qrcode" style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;"></div>
+                </div>
+                
+                <div style="text-align: center; width: 100%;">
+                    <div style="font-size: 10px; color: #64748b; font-weight: bold; letter-spacing: 1px;">PASSENGER</div>
+                    <div style="font-size: 14px; font-weight: bold; color: #0f172a; text-transform: uppercase; margin-bottom: 10px;">{{ booking.passenger_name or 'Traveler' }}</div>
+                    
+                    <div style="font-size: 10px; color: #64748b; font-weight: bold; letter-spacing: 1px;">{% if flight %}FLIGHT{% elif train %}TRAIN{% elif bus %}BUS{% else %}VEHICLE{% endif %}</div>
+                    <div style="font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 15px;">
+                        {% if flight %}{{ flight.flight_number }}{% elif train %}{{ train.train_number }}{% elif bus %}{{ bus.bus_number }}{% else %}TF-{{ booking.id }}{% endif %}
+                    </div>
+                </div>
+                
+                <!-- Fake Barcode -->
+                <div style="width: 100%; height: 35px; background: repeating-linear-gradient(90deg, #111 0, #111 2px, transparent 2px, transparent 4px, #111 4px, #111 5px, transparent 5px, transparent 8px, #111 8px, #111 12px, transparent 12px, transparent 14px, #111 14px, #111 16px, transparent 16px, transparent 20px); margin-top: auto; opacity: 0.8;"></div>
+            </div>
+
+        </div>
+        
+        <!-- AI Pickup Note -->
+        {% if context.get('rides') or context.get('ride') %}
+        <div class="glass-card mb-4" style="margin-top: 25px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px; display: flex; align-items: flex-start; gap: 15px; max-width: 900px; margin-left: auto; margin-right: auto;">
+            <i class="bi bi-robot text-accent-blue fs-3 mt-1"></i>
+            <div>
+                <div class="text-accent-blue fw-900 mb-1" style="font-size: 1.1rem; letter-spacing: 0.5px;">TravelFusion AI Insight</div>
+                <div class="text-white" style="font-size: 0.95rem;">
+                    Your pickup is scheduled to ensure you reach the station exactly <strong>20 minutes</strong> before your departure time.
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Driver OTP Section (Added below ticket) -->
+        {% if context.get('rides') or context.get('ride') %}
+        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+        {% for ride in (context.get('rides') if context.get('rides') else [context.get('ride')]) %}
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+            <div style="display: flex; align-items: center; width: 60%;">
+                <div style="width: 60px; height: 60px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; margin-right: 20px; flex-shrink: 0;">
+                    <i class="{% if ride.vehicle_type and ride.vehicle_type.lower() == 'auto' %}bi bi-auto-rickshaw{% elif ride.vehicle_type and ride.vehicle_type.lower() == 'bike' %}fa-solid fa-motorcycle{% else %}bi bi-car-front-fill{% endif %}"></i>
+                </div>
+                <div>
+                    <div style="font-size: 16px; color: #10b981; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 5px;">{% if ride.vehicle_type and ride.vehicle_type.lower() == 'auto' %}AUTO {% if ride.leg_type == 'last_mile' %}DROP{% else %}PICKUP{% endif %} SCHEDULED{% elif ride.vehicle_type and ride.vehicle_type.lower() == 'bike' %}BIKE {% if ride.leg_type == 'last_mile' %}DROP{% else %}PICKUP{% endif %} SCHEDULED{% else %}CAB {% if ride.leg_type == 'last_mile' %}DROP{% else %}PICKUP{% endif %} SCHEDULED{% endif %}</div>
+                    {% if ride.driver_name %}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #cbd5e1;">
+                        <div><i class="bi bi-person-fill text-secondary me-1"></i> <strong>{{ ride.driver_name }}</strong> <span class="text-warning">★{{ ride.driver_rating or '4.5' }}</span></div>
+                        <div><i class="bi bi-telephone-fill text-secondary me-1"></i> {{ ride.driver_phone }}</div>
+                        <div style="grid-column: span 2;"><i class="bi bi-car-front text-secondary me-1"></i> {{ ride.vehicle_model or 'Sedan' }} • <strong class="text-white bg-dark px-2 py-1 rounded" style="letter-spacing: 1px;">{{ ride.vehicle_number }}</strong></div>
+                    </div>
+                    {% else %}
+                    <div style="font-size: 13px; color: #94a3b8; margin-top: 3px;">Driver details will be assigned 15 mins before departure.</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% if ride.otp and ride.leg_type != 'last_mile' %}
+            <div style="text-align: right; background: rgba(0,0,0,0.4); padding: 15px 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+                <div style="font-size: 11px; color: #cbd5e1; font-weight: bold; letter-spacing: 2px; margin-bottom: 5px;">DRIVER OTP</div>
+                <div style="display: flex; align-items: center; justify-content: flex-end;">
+                    <input type="text" id="otp-input-{{ loop.index }}" value="{{ ride.otp }}" readonly 
+                           style="background: transparent; border: none; font-size: 32px; font-weight: 900; color: white; letter-spacing: 8px; text-shadow: 0 0 15px rgba(16,185,129,0.5); width: 140px; cursor: text; outline: none; text-align: right;" 
+                           onclick="this.select();" title="OTP Code">
+                </div>
+            </div>
+            {% else %}
+            <div style="text-align: right; opacity: 0.5;">
+                <div style="font-size: 11px; color: #cbd5e1; font-weight: bold; letter-spacing: 1px;">{% if ride.leg_type == 'last_mile' %}ASSIGNED ON ARRIVAL{% else %}WAITING FOR DRIVER{% endif %}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        </div>
+        
+        <script>
+        function copyOTP(inputId, feedbackId) {
+            const inputEl = document.getElementById(inputId);
+            const textToCopy = inputEl.value;
+            
+            // Visual selection for user feedback
+            inputEl.focus();
+            inputEl.select();
+            
+            try {
+                // Try modern API first (works in HTTPS or localhost)
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textToCopy).then(showSuccess).catch(() => alert("Failed to copy"));
+                } else {
+                    fallbackCopy(); // Must be called synchronously to avoid browser block
+                }
+            } catch (err) {
+                fallbackCopy();
+            }
+
+            function fallbackCopy() {
+                // Create a temporary textarea for robust copying in all environments (HTTP included)
+                const tempTextArea = document.createElement("textarea");
+                tempTextArea.value = textToCopy;
+                // Move it off-screen
+                tempTextArea.style.position = "fixed";
+                tempTextArea.style.left = "-9999px";
+                tempTextArea.style.top = "0";
+                document.body.appendChild(tempTextArea);
+                
+                tempTextArea.focus();
+                tempTextArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        showSuccess();
+                    } else {
+                        alert("Auto-copy failed. The OTP is selected, please press Ctrl+C.");
+                    }
+                } catch (err) {
+                    alert("Auto-copy failed. The OTP is selected, please press Ctrl+C.");
+                }
+                
+                document.body.removeChild(tempTextArea);
+                // Restore focus to original input
+                inputEl.focus();
+                inputEl.select();
+            }
+
+            function showSuccess() {
+                const feedback = document.getElementById(feedbackId);
+                feedback.style.display = 'block';
+                setTimeout(() => feedback.style.display = 'none', 2000);
+            }
+        }
+        </script>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- QR Code + html2pdf libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const qrEl = document.getElementById("qrcode");
+        if (qrEl) {
+            let hostIp = "{{ lan_ip }}";
+            let port = window.location.port ? ':' + window.location.port : ':5000';
+            
+            // If the user accessed via a real domain or IP, use that instead of the python detected LAN IP,
+            // unless they used localhost (in which case LAN IP is better for mobile scanning)
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                hostIp = window.location.hostname;
+                port = window.location.port ? ':' + window.location.port : '';
+            }
+            
+            new QRCode(qrEl, {
+                text: `http://${hostIp}${port}/verify/TF-{{ booking.id }}`,
+                width: 130, height: 130,
+                colorDark: "#000000", colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    });
+
+    function downloadPDFTicket() {
+        const btn = document.getElementById('download-btn');
+        const el = document.getElementById('ticket-container');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating PDF...';
+        btn.disabled = true;
+        
+        // Enforce desktop layout width during capture to prevent column overlap
+        const originalWidth = el.style.width;
+        el.style.width = '1000px';
+
+        html2pdf().set({
+            margin: [0.4, 0.4],
+            filename: 'TravelFusion_Ticket_{{ booking.id }}.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#05091a' },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        }).from(el).save().then(() => {
+            el.style.width = originalWidth;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Downloaded!';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-file-earmark-pdf-fill me-2"></i>Download PDF Ticket';
+                btn.disabled = false;
+            }, 2500);
+        });
+    }
+</script>
+
+<style>
+/* PDF formatting */
+</style>
+
+{% endblock %}

@@ -1,0 +1,6 @@
+{
+  "bike_rate": 12,
+  "auto_rate": 18,
+  "cab_rate": 25,
+  "surge_multiplier": 1.0
+}

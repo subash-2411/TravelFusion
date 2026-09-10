@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TravelFusion AI - Launcher</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            margin-top: 5vh; 
+            background-color: #05091a; /* Matching the premium dark theme of TravelFusion */
+            color: #f8fafc; 
+            overflow-y: hidden; /* Prevent scrolling */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 90vh;
+        }
+        .container {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 25px 35px;
+            border-radius: 15px;
+            display: inline-block;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 550px;
+            transition: all 0.5s ease-in-out;
+        }
+        .loader {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .instructions {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+            border-left: 4px solid #3b82f6;
+        }
+        h3 {
+            margin-top: 0; 
+            font-size: 16px; 
+            border-bottom: 1px solid #334155; 
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        ol {
+            font-size: 14px; 
+            line-height: 1.6; 
+            margin-top: 0;
+            padding-left: 20px;
+        }
+        code {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .dyn-folder {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        
+        /* Splash Screen Animations */
+        @keyframes scaleUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #06b6d4;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="main-container">
+        <!-- Initial Loading State -->
+        <div id="wait-state">
+            <div class="loader" id="spinner"></div>
+            <h2 id="status-title" style="margin: 0 0 5px 0; font-size: 22px;">Waiting for Server...</h2>
+            <p style="color: #94a3b8; font-size: 14px; margin-top: 0;" id="status-text">Checking if your Python server is running...</p>
+            
+            <div class="instructions" id="help-box">
+                <h3 style="color: #4ade80;">🟢 Quick Start (Best Way)</h3>
+                <ol style="color: #cbd5e1; margin-bottom: 15px;">
+                    <li>Open your <span class="dyn-folder">Kutty</span> folder.</li>
+                    <li><b>Double-Click</b> <code style="background: #064e3b; color: #4ade80;">Start_App.bat</code></li>
+                </ol>
+
+                <h3 style="color: #fb923c;">🟠 Alternate Way (Using CMD)</h3>
+                <ol style="color: #cbd5e1; margin-bottom: 15px;">
+                    <li>Open your <span class="dyn-folder">Kutty</span> folder.</li>
+                    <li>Click the <b>Address Bar</b> at the top, type <code style="background: #431407; color: #fb923c;">cmd</code> and hit Enter.</li>
+                    <li>Type <code style="background: #082f49; color: #38bdf8;">python app.py</code> and hit Enter!</li>
+                </ol>
+
+                <h3 style="color: #38bdf8;">🔵 Manual Start (For Coders)</h3>
+                <ol style="color: #cbd5e1; margin-bottom: 0;">
+                    <li>Open <b>VS Code</b> Terminal.</li>
+                    <li>Type <code style="background: #082f49; color: #38bdf8;">python app.py</code> and hit <b>Enter</b>.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamically get the current folder name and apply it everywhere
+        try {
+            let path = window.location.pathname;
+            if (path.endsWith('/')) path = path.slice(0, -1);
+            let pathParts = path.split('/');
+            let folderName = pathParts[pathParts.length - 2];
+            if (folderName) {
+                folderName = decodeURI(folderName);
+                let elements = document.getElementsByClassName('dyn-folder');
+                for(let i = 0; i < elements.length; i++) {
+                    elements[i].innerText = folderName;
+                }
+            }
+        } catch (e) {}
+
+        function checkServer() {
+            // Ping the server
+            fetch('http://localhost:5000/', { mode: 'no-cors', cache: 'no-store' })
+                .then(() => {
+                    // SERVER IS UP! Trigger 3-Second Splash Screen
+                    
+                    let container = document.getElementById('main-container');
+                    container.style.background = 'transparent';
+                    container.style.border = 'none';
+                    container.style.boxShadow = 'none';
+                    
+                    container.innerHTML = `
+                        <div style="animation: scaleUp 0.8s ease-out forwards; display: flex; flex-direction: column; align-items: center;">
+                            <!-- Premium Globe & Plane Logo SVG -->
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 90px; height: 90px; margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.6));">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M2 12h20"></path>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                <path d="M16 4l4 4-4 4" stroke="#3b82f6"></path>
+                                <path d="M4 12c0-3.5 2.5-6.5 6-7.5" stroke="#3b82f6"></path>
+                            </svg>
+                            
+                            <h1 style="margin: 0; font-size: 38px; font-weight: 900; background: linear-gradient(90deg, #3b82f6, #06b6d4); -webkit-background-clip: text; color: transparent; letter-spacing: 1.5px;">TravelFusion AI</h1>
+                            <p style="color: #94a3b8; font-size: 16px; margin-top: 10px; letter-spacing: 2px; text-transform: uppercase;">Starting Your Journey</p>
+                            
+                            <!-- Bouncing dots loading indicator -->
+                            <div style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
+                                <div class="dot" style="animation-delay: 0s;"></div>
+                                <div class="dot" style="animation-delay: 0.2s;"></div>
+                                <div class="dot" style="animation-delay: 0.4s;"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Redirect exactly after 2 seconds for a smooth entry experience
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:5000/';
+                    }, 2000);
+                })
+                .catch(() => {
+                    // Keep checking every 2 seconds if server is not up
+                    setTimeout(checkServer, 2000);
+                });
+        }
+
+        checkServer();
+    </script>
+</body>
+</html>

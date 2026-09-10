@@ -1,0 +1,1683 @@
+{% extends "base.html" %}
+{% block title %}Booking & Payment | TravelFusion AI{% endblock %}
+{% block content %}
+<style>
+    /* Seating Cabin Outline Frames */
+    .cabin-frame {
+        background: rgba(15, 23, 42, 0.6);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 24px;
+        padding: 30px;
+        margin: 20px auto;
+        position: relative;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    
+    /* Bus Frame */
+    .bus-frame {
+        max-width: 420px;
+        border-radius: 40px 40px 20px 20px;
+        border-width: 3px;
+        border-color: #f59e0b;
+        padding-top: 60px;
+    }
+    .bus-windshield {
+        position: absolute;
+        top: 15px;
+        left: 10%;
+        width: 80%;
+        height: 12px;
+        background: rgba(14, 165, 233, 0.4);
+        border-radius: 4px;
+        border: 1px solid rgba(14, 165, 233, 0.6);
+    }
+    .bus-driver-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px 20px 10px;
+        border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+    }
+    .steering-wheel {
+        width: 30px;
+        height: 30px;
+        border: 4px double #94a3b8;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .steering-wheel::before {
+        content: '';
+        width: 100%;
+        height: 2px;
+        background: #94a3b8;
+        position: absolute;
+    }
+    .steering-wheel::after {
+        content: '';
+        width: 2px;
+        height: 100%;
+        background: #94a3b8;
+        position: absolute;
+    }
+    
+    /* Train Frame */
+    .train-frame {
+        max-width: 580px;
+        border-radius: 12px;
+        border-width: 3px;
+        border-color: #ef4444;
+        padding-top: 20px;
+    }
+    .train-track {
+        height: 6px;
+        background: repeating-linear-gradient(90deg, #475569 0, #475569 10px, transparent 10px, transparent 20px);
+        border-top: 2px solid #64748b;
+        margin-top: 15px;
+        width: 100%;
+    }
+    
+    /* Flight Frame */
+    .flight-frame {
+        max-width: 480px;
+        border-radius: 200px 200px 30px 30px;
+        border-width: 3px;
+        border-color: #a855f7;
+        padding-top: 100px;
+    }
+    .flight-nose {
+        position: absolute;
+        top: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70px;
+        height: 45px;
+        background: rgba(168, 85, 247, 0.2);
+        border: 2px solid rgba(168, 85, 247, 0.4);
+        border-radius: 50% 50% 10px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .flight-wing-l, .flight-wing-r {
+        position: absolute;
+        width: 70px;
+        height: 120px;
+        background: linear-gradient(to bottom, rgba(168, 85, 247, 0.3), transparent);
+        top: 40%;
+        z-index: -1;
+    }
+    .flight-wing-l {
+        left: -68px;
+        border-radius: 100px 0 0 100px;
+        transform: skewY(-25deg);
+        border-left: 2px solid rgba(168, 85, 247, 0.4);
+    }
+    .flight-wing-r {
+        right: -68px;
+        border-radius: 0 100px 100px 0;
+        transform: skewY(25deg);
+        border-right: 2px solid rgba(168, 85, 247, 0.4);
+    }
+    .flight-exit {
+        font-size: 0.65rem;
+        color: #ef4444;
+        font-weight: 700;
+        text-transform: uppercase;
+        border: 1px solid #ef4444;
+        border-radius: 4px;
+        padding: 1px 4px;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Seating Designs: Chair & Bed */
+    .seat-chair {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px 8px 12px 12px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .seat-chair::before {
+        /* Headrest */
+        content: '';
+        position: absolute;
+        top: -4px;
+        width: 60%;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+    .seat-chair::after {
+        /* Armrests */
+        content: '';
+        position: absolute;
+        width: 4px;
+        height: 60%;
+        background: rgba(255, 255, 255, 0.15);
+        top: 20%;
+        left: -3px;
+        box-shadow: 41px 0 0 rgba(255, 255, 255, 0.15);
+    }
+    
+    .seat-bed {
+        width: 36px;
+        height: 56px;
+        border-radius: 6px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: bold;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .seat-bed::before {
+        /* Pillow */
+        content: '';
+        position: absolute;
+        top: 3px;
+        width: 80%;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 3px;
+    }
+    
+    /* Seat States */
+    .seat-chair.available:hover, .seat-bed.available:hover {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.5);
+        transform: scale(1.05);
+    }
+    .seat-chair.selected, .seat-bed.selected {
+        background: var(--royal-blue) !important;
+        border-color: var(--cyan-accent) !important;
+        box-shadow: 0 0 10px var(--cyan-accent);
+        transform: scale(1.05);
+    }
+    .seat-chair.occupied, .seat-bed.occupied {
+        background: rgba(239, 68, 68, 0.15) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+        color: rgba(255, 255, 255, 0.25) !important;
+        cursor: not-allowed;
+    }
+    .seat-chair.occupied::before, .seat-chair.occupied::after, .seat-bed.occupied::before {
+        background: rgba(255,255,255,0.05) !important;
+        box-shadow: none !important;
+    }
+    
+    /* Custom Seat labels */
+    .seat-berth-label {
+        font-size: 0.55rem;
+        opacity: 0.7;
+        margin-top: 1px;
+    }
+
+    /* Coach Selector Styling */
+    .coach-tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 20px;
+        justify-content: center;
+        background: rgba(255,255,255,0.02);
+        padding: 6px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .coach-tab {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #94a3b8;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .coach-tab:hover {
+        background: rgba(255,255,255,0.05);
+        color: white;
+    }
+    .coach-tab.active {
+        background: var(--royal-blue);
+        color: white;
+        border-color: var(--cyan-accent);
+    }
+</style>
+<div class="container my-4 text-start fade-in-up">
+    <div class="row g-4">
+
+        <!-- LEFT: Booking Steps -->
+        <div class="col-lg-7">
+
+            <!-- Header -->
+            <div class="glass-card p-4 mb-4">
+                <a href="/planner" class="btn btn-glass btn-sm mb-3"><i class="bi bi-arrow-left me-1"></i> Back to Plans</a>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--royal-blue),var(--cyan-accent));display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:white;flex-shrink:0;">
+                        <i class="bi bi-ticket-perforated-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white mb-0">Confirm & Pay</h3>
+                        <p class="text-muted small mb-0">Complete passenger details and choose your payment method</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="glass-card p-3 mb-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:28px;height:28px;border-radius:50%;background:var(--royal-blue);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:white;font-weight:700;">1</div>
+                        <span class="text-white fw-600 small">Passenger Details</span>
+                    </div>
+                    <div style="flex:1;height:2px;background:rgba(255,255,255,0.08);margin:0 12px;"></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div id="step2-badge" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#64748b;font-weight:700;">2</div>
+                        <span class="text-muted fw-600 small" id="step2-label">Seat Selection</span>
+                    </div>
+                    <div style="flex:1;height:2px;background:rgba(255,255,255,0.08);margin:0 12px;"></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div id="step3-badge" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#64748b;font-weight:700;">3</div>
+                        <span class="text-muted fw-600 small" id="step3-label">Payment</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Passenger Details -->
+            <div class="glass-card p-4 mb-4" id="step-passenger">
+                <h5 class="text-white mb-1"><i class="bi bi-person-lines-fill text-accent-blue me-2"></i>Passenger Information</h5>
+                <p class="text-secondary small mb-4">Enter the traveler's details exactly as per government ID.</p>
+                    <div id="dynamic-passenger-forms" class="w-100"></div>
+                    <div class="col-12 mt-2">
+                        <button class="btn btn-glow w-100 py-3" onclick="proceedToSeatSelection()">
+                            <i class="bi bi-arrow-right-circle-fill me-2"></i>Continue to Seat Selection
+                        </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Seat Selection (hidden initially) -->
+            <div class="glass-card p-4 mb-4" id="step-seats" style="display:none;">
+                <h5 class="text-white mb-1"><i class="bi bi-clock-history text-accent-blue me-2"></i>Schedule & Seat Selection</h5>
+                <p class="text-secondary small mb-4">Select your preferred seat.</p>
+
+                <!-- Smart Coordination Insight -->
+                <div id="smart-coordination-alert" class="alert alert-glass mb-4 p-3 d-flex align-items-center gap-3" style="display:none !important;">
+                    <i class="bi bi-robot fs-3 text-cyan"></i>
+                    <div>
+                        <div class="fw-700 text-white" style="font-size:0.9rem;">AI Smart Coordination</div>
+                        <div class="text-muted" style="font-size:0.8rem;" id="smart-coordination-text"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-4 mb-4 small text-muted">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);"></div> Available
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:14px;height:14px;border-radius:3px;background:var(--royal-blue);"></div> Selected
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:14px;height:14px;border-radius:3px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);"></div> Occupied
+                    </div>
+                </div>
+
+                <div class="seat-grid mb-4" id="seating-chart"></div>
+
+                <div class="text-center mb-4">
+                    <span id="selected-seat-badge" class="badge badge-glass badge-glass-primary px-4 py-2">SELECTED SEAT: NOT ASSIGNED</span>
+                </div>
+
+                <button class="btn btn-glow w-100 py-3" onclick="proceedToPayment()">
+                    <i class="bi bi-credit-card-fill me-2"></i>Continue to Payment
+                </button>
+            </div>
+
+            <!-- STEP 3: Payment -->
+            <div class="glass-card p-4" id="step-payment" style="display:none;">
+                <h5 class="text-white mb-1"><i class="bi bi-credit-card-fill text-accent-blue me-2"></i>Secure Payment</h5>
+                <p class="text-secondary small mb-4">Please select your preferred payment method below to complete the secure checkout process.</p>
+
+                <!-- Payment Method Tabs -->
+                <div class="d-flex gap-2 mb-4 flex-wrap" id="payment-tabs">
+                    <button class="btn btn-sm pay-tab active-tab" id="tab-upi" onclick="switchPayTab('upi')">
+                        <i class="bi bi-phone-fill me-1"></i>UPI
+                    </button>
+                    <button class="btn btn-sm pay-tab" id="tab-card" onclick="switchPayTab('card')">
+                        <i class="bi bi-credit-card me-1"></i>Card
+                    </button>
+                    <button class="btn btn-sm pay-tab" id="tab-netbanking" onclick="switchPayTab('netbanking')">
+                        <i class="bi bi-bank me-1"></i>Net Banking
+                    </button>
+                    <button class="btn btn-sm pay-tab" id="tab-wallet" onclick="switchPayTab('wallet')">
+                        <i class="bi bi-wallet2 me-1"></i>Wallet
+                    </button>
+                    {% if is_local_intercity %}
+                    <button class="btn btn-sm pay-tab" id="tab-cod" onclick="switchPayTab('cod')">
+                        <i class="bi bi-cash me-1"></i>Pay Driver
+                    </button>
+                    {% endif %}
+                </div>
+
+                {% if is_local_intercity and missing_profile %}
+                <div class="alert alert-warning d-flex align-items-center gap-3 mb-4 p-3 rounded" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3);">
+                    <i class="bi bi-exclamation-triangle fs-3 text-warning"></i>
+                    <div style="flex: 1;">
+                        <h6 class="text-white mb-1">Complete Your Details</h6>
+                        <div class="row g-2 mt-2">
+                            <div class="col-6">
+                                <input type="text" id="missing-name" class="form-control form-glass form-control-sm" placeholder="Full Name" value="{{ p_name if p_name != 'Local Rider' else '' }}">
+                            </div>
+                            <div class="col-6">
+                                <input type="text" id="missing-phone" class="form-control form-glass form-control-sm" placeholder="Mobile Number" value="{{ p_phone if p_phone != 'N/A' else '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- UPI Panel -->
+                <div id="panel-upi" class="pay-panel">
+                    <div class="text-center p-4" style="background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+                        <div id="upi-qr-container" class="mx-auto mb-3" style="width:150px;height:150px;background:white;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:10px;">
+                        </div>
+                        <p class="text-white fw-700 mb-1">Scan with any UPI App</p>
+                        <p class="text-muted small mb-3">PhonePe · Google Pay · BHIM · Paytm</p>
+                        <div class="input-group mx-auto" style="max-width:280px;">
+                            <input type="text" class="form-control form-glass text-center" id="upi-id-input" placeholder="or enter UPI ID: user@upi" value="travelfusion@upi">
+                            <button class="btn btn-glow btn-sm px-3" onclick="simulateUPIPayment()">Pay</button>
+                        </div>
+                        <div id="upi-timer" class="text-muted mt-2 small" style="display:none;"><i class="bi bi-clock me-1"></i>Expires in <span id="upi-countdown">300</span>s</div>
+                    </div>
+                </div>
+
+                <!-- Card Panel -->
+                <div id="panel-card" class="pay-panel" style="display:none;">
+                    <div class="card-flip-container mx-auto mb-4" style="width:340px;height:200px;perspective:1000px;">
+                        <div id="card-visual" style="width:100%;height:100%;position:relative;transition:transform 0.6s;transform-style:preserve-3d;">
+                            <div style="position:absolute;width:100%;height:100%;border-radius:16px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);padding:20px;backface-visibility:hidden;box-shadow:0 20px 60px rgba(59,130,246,0.3);">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="text-white fw-700">TravelFusion</div>
+                                    <i class="bi bi-credit-card-2-front-fill text-white" style="font-size:1.5rem;opacity:.7;"></i>
+                                </div>
+                                <div class="text-white mt-3 fw-700" style="font-size:1.1rem;letter-spacing:.15em;font-family:monospace;" id="card-number-display">•••• •••• •••• ••••</div>
+                                <div class="d-flex justify-content-between mt-3">
+                                    <div>
+                                        <div class="text-white" style="font-size:.65rem;opacity:.7;">CARD HOLDER</div>
+                                        <div class="text-white fw-600" style="font-size:.85rem;" id="card-name-display">YOUR NAME</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-white" style="font-size:.65rem;opacity:.7;">EXPIRES</div>
+                                        <div class="text-white fw-600" style="font-size:.85rem;" id="card-expiry-display">MM/YY</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Card Number</label>
+                            <input type="text" class="form-control form-glass font-monospace" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19"
+                                oninput="formatCard(this)" onkeyup="document.getElementById('card-number-display').innerText = this.value || '•••• •••• •••• ••••'">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted small">Card Holder Name</label>
+                            <input type="text" class="form-control form-glass" id="card-name" placeholder="Full Name"
+                                oninput="document.getElementById('card-name-display').innerText = this.value.toUpperCase() || 'YOUR NAME'">
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label text-muted small">Expiry</label>
+                            <input type="text" class="form-control form-glass text-center" id="card-expiry" placeholder="MM/YY" maxlength="5"
+                                oninput="formatExpiry(this)" onkeyup="document.getElementById('card-expiry-display').innerText = this.value || 'MM/YY'">
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label text-muted small">CVV</label>
+                            <input type="password" class="form-control form-glass text-center" id="card-cvv" placeholder="•••" maxlength="3">
+                        </div>
+
+                        <!-- OTP Step (hidden initially) -->
+                        <div class="col-12" id="card-otp-step" style="display:none;">
+                            <div class="p-3 rounded" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);">
+                                <p class="text-success small mb-2"><i class="bi bi-shield-lock-fill me-1"></i>OTP sent to your registered mobile</p>
+                                <div class="d-flex gap-2">
+                                    <input type="text" class="form-control form-glass text-center fw-700" id="card-otp-input" placeholder="Enter 6-digit OTP" maxlength="6" style="letter-spacing:.2em;">
+                                    <button class="btn btn-glow px-4" onclick="verifyCardOTP()">Verify</button>
+                                </div>
+                                <p class="text-muted mt-1" style="font-size:.75rem;">Demo OTP: <strong>123456</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="col-12" id="card-pay-btn-wrap">
+                            <button class="btn btn-glow w-100 py-3" onclick="simulateCardPayment()">
+                                <i class="bi bi-lock-fill me-2"></i>Pay Securely — ₹<span id="card-amount-label"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net Banking Panel -->
+                <div id="panel-netbanking" class="pay-panel" style="display:none;">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Select Bank</label>
+                            <select class="form-select form-glass" id="netbanking-bank">
+                                <option value="">Choose your bank...</option>
+                                <option>State Bank of India</option>
+                                <option>HDFC Bank</option>
+                                <option>ICICI Bank</option>
+                                <option>Axis Bank</option>
+                                <option>Kotak Mahindra Bank</option>
+                                <option>Punjab National Bank</option>
+                                <option>Bank of Baroda</option>
+                                <option>Canara Bank</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-center p-4" style="background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+                            <i class="bi bi-bank fs-2 text-accent-blue mb-2 d-block"></i>
+                            <p class="text-muted small mb-3">You will be redirected to your bank's secure portal</p>
+                            <button class="btn btn-glow px-5 py-2" onclick="simulateNetBankingPayment()">
+                                <i class="bi bi-box-arrow-up-right me-2"></i>Proceed to Bank
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Panel -->
+                <div id="panel-wallet" class="pay-panel" style="display:none;">
+                    <div class="row g-2">
+                        {% for wallet in [('PhonePe','bi-phone-fill','#5f259f'),('Paytm','bi-p-circle-fill','#00baf2'),('Amazon Pay','bi-amazon','#ff9900'),('MobiKwik','bi-wallet2','#e91e8c')] %}
+                        <div class="col-6">
+                            <button class="btn w-100 py-3" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:white;" onclick="simulateWalletPayment('{{ wallet[0] }}')">
+                                <i class="bi {{ wallet[1] }} me-2" style="color:{{ wallet[2] }};"></i>{{ wallet[0] }}
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- COD Panel -->
+                {% if is_local_intercity %}
+                <div id="panel-cod" class="pay-panel" style="display:none;">
+                    <div class="text-center p-4" style="background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+                        <i class="bi bi-cash-coin fs-1 text-success mb-3 d-block"></i>
+                        <p class="text-white fw-700 mb-1">Pay to Driver (COD)</p>
+                        <p class="text-muted small mb-4">Pay in cash or UPI directly to the driver during the ride.</p>
+                        <button class="btn btn-success px-5 py-2" onclick="simulateCODPayment()">
+                            <i class="bi bi-check-circle me-2"></i>Confirm Booking
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Fare Summary -->
+        <div class="col-lg-5">
+            <div class="sticky-lg-top" style="top:88px;">
+
+                <!-- Route Summary -->
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="text-white mb-3"><i class="bi bi-receipt-cutoff text-accent-blue me-2"></i>Booking Summary</h5>
+                    <div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
+                        <div class="small text-muted mb-2">JOURNEY ROUTE</div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-geo-alt-fill text-success"></i>
+                            <span class="text-white" style="font-size:.9rem;">{{ session.active_src or 'Source' }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-geo-fill text-danger"></i>
+                            <span class="text-white" style="font-size:.9rem;">{{ session.active_dst or 'Destination' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Journey Segments -->
+                    <div class="mb-3">
+                        <div class="small text-muted mb-2">TRAVEL SEGMENTS</div>
+                        {% for leg in route.get('legs', []) %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary border-opacity-10">
+                            <div class="d-flex align-items-center gap-2">
+                                {% if leg.get('mode') == 'bike' %}<i class="fa-solid fa-motorcycle text-cyan"></i>
+                                {% elif leg.get('mode') in ['auto', 'multi_auto'] %}<i class="bi bi-auto-rickshaw text-success"></i>
+                                {% elif leg.get('mode') in ['cab', 'multi_cab'] %}<i class="bi bi-taxi-front-fill text-warning"></i>
+                                {% elif leg.get('mode') == 'mixed_fleet' %}<div class="d-flex"><i class="bi bi-taxi-front-fill text-warning me-1"></i><i class="bi bi-auto-rickshaw text-success"></i></div>
+                                {% elif leg.get('mode') == 'bus' %}<i class="bi bi-bus-front-fill text-primary"></i>
+                                {% elif leg.get('mode') == 'train' %}<i class="bi bi-train-front-fill text-danger"></i>
+                                {% elif leg.get('mode') == 'flight' %}<i class="bi bi-airplane-fill" style="color:#a855f7;"></i>
+                                {% endif %}
+                                <div>
+                                    <div class="text-white small fw-600">
+                                        {% if leg.get('leg_type') == 'first_mile' %}Pickup Ride ({{ leg.get('mode', '').title() }})
+                                        {% elif leg.get('leg_type') == 'long_distance' %}Main Journey ({{ leg.get('mode', '').title() }})
+                                        {% elif leg.get('leg_type') == 'last_mile' %}Drop-off Ride ({{ leg.get('mode', '').title() }})
+                                        {% else %}{{ leg.get('mode', '').title() }}{% endif %}
+                                    </div>
+                                    <div class="text-muted" style="font-size:.75rem;">{{ leg.get('distance')|round(1) }} km · {{ leg.get('duration') }} mins</div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-secondary small fw-600">₹{{ leg.get('fare') }}</span>
+                                {% if leg.get('fare_label') %}
+                                <div style="font-size: 0.65rem;" class="text-muted">{{ leg.get('fare_label') }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Fare Breakdown -->
+                    <div class="d-flex flex-column gap-2 small text-secondary mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Base Fare</span>
+                            <span class="text-white">₹{{ route.get('total_fare') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>GST (5%)</span>
+                            <span class="text-white">₹{{ round(route.get('total_fare') * 0.05, 2) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Platform Fee</span>
+                            <span class="text-white">₹45.00</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);">
+                        <h6 class="text-white mb-0">Total Payable</h6>
+                        <h4 class="text-success mb-0 fw-bold" id="total-fare-display">₹{{ round(route.get('total_fare') + route.get('total_fare') * 0.05 + 45, 2) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script id="route-data" type="application/json">
+{{ route_json }}
+</script>
+<script>
+    const missingProfile = {{ 'true' if missing_profile else 'false' }};
+    const pName = "{{ p_name }}";
+    const pPhone = "{{ p_phone }}";
+    let isLocalIntercity = {{ 'true' if is_local_intercity else 'false' }};
+    let routeData = null;
+    let optionType = '{{ option_type }}';
+    const totalFare = parseFloat("{{ route.get('total_fare') }}");
+    const gst = Math.round(totalFare * 0.05 * 100) / 100;
+    const platform = 45.00;
+    const grandTotal = Math.round((totalFare + gst + platform) * 100) / 100;
+    
+    // Extract long distance mode and duration from route safely
+    let rawRoute = {};
+    try {
+        rawRoute = JSON.parse(document.getElementById('route-data').textContent);
+    } catch(e) {
+        console.error("Failed to parse route JSON", e);
+    }
+    
+    const longLeg = (rawRoute && rawRoute.legs) ? rawRoute.legs.find(l => l.leg_type === 'long_distance') : null;
+    const firstLeg = (rawRoute && rawRoute.legs) ? rawRoute.legs.find(l => l.leg_type === 'first_mile') : null;
+    
+    let mainMode = 'bus';
+    if (rawRoute && rawRoute.legs) {
+        if (rawRoute.legs.some(l => l.mode === 'flight')) mainMode = 'flight';
+        else if (rawRoute.legs.some(l => l.mode === 'train')) mainMode = 'train';
+        else if (rawRoute.legs.some(l => l.mode === 'bus')) mainMode = 'bus';
+    } else if (rawRoute && rawRoute.mode) {
+        mainMode = rawRoute.mode;
+    }
+
+    // Explicitly make these properties of window so they are globally available regardless of scoping issues
+    window.rawRoute = rawRoute;
+    window.longLeg = longLeg;
+    window.firstLeg = firstLeg;
+    window.transitMode = longLeg ? longLeg.mode : mainMode;
+    window.fmDuration = firstLeg ? firstLeg.duration : 15;
+    
+    let assignedSeat = "";
+    let assignedSchedule = window.longLeg ? window.longLeg.departure : "Instant Dispatch";
+
+    // Update card amount labels
+    document.querySelectorAll('#card-amount-label').forEach(el => el.innerText = grandTotal);
+
+
+
+    // ==== Step Navigation ====
+    document.addEventListener("DOMContentLoaded", function() {
+        // Pre-validate seat availability on page load
+        let availableSeats = 999;
+        let status = 'Available';
+        if (window.longLeg && window.longLeg.inventory) {
+            const inv = window.longLeg.inventory;
+            status = inv.status;
+            if (inv.available_seats !== undefined) {
+                availableSeats = inv.available_seats;
+            }
+        }
+        const continueBtn = document.querySelector('#step-passenger button');
+        const isBlocked = (status === 'Sold Out' || availableSeats === 0 || status === 'Waitlist' || status.includes('WL') || window.passengerCount > availableSeats);
+        
+        if (!rawRoute.is_local && isBlocked) {
+            if (continueBtn) {
+                continueBtn.disabled = true;
+                continueBtn.innerHTML = '<i class="bi bi-x-circle-fill me-2"></i>Booking Blocked — Insufficient Seats';
+                continueBtn.className = "btn btn-danger w-100 py-3";
+            }
+            
+            // Show alert box under forms
+            const container = document.getElementById('dynamic-passenger-forms');
+            if (container) {
+                let errorMsg = 'This journey option is not bookable. ';
+                if (status === 'Sold Out' || availableSeats === 0) {
+                    errorMsg += 'It is currently Sold Out.';
+                } else if (status === 'Waitlist' || status.includes('WL')) {
+                    errorMsg += 'It is currently on Waitlist.';
+                } else {
+                    errorMsg += `Only ${availableSeats} seat(s) are available but you selected ${window.passengerCount} travelers.`;
+                }
+                container.insertAdjacentHTML('beforebegin', `
+                    <div class="alert alert-danger mb-4 d-flex align-items-center gap-3" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
+                        <i class="bi bi-exclamation-octagon-fill text-danger fs-3"></i>
+                        <div>
+                            <div class="fw-bold text-white">Booking Restrict Alert</div>
+                            <div class="text-secondary small">${errorMsg} Please return to plans and select another journey.</div>
+                        </div>
+                    </div>
+                `);
+            }
+        }
+
+        if (rawRoute.is_local) {
+            const step2Label = document.getElementById('step2-label');
+            if (step2Label) step2Label.innerText = "Driver Matching";
+            const btnContinueSeat = document.querySelector('#step-passenger button');
+            if (btnContinueSeat) btnContinueSeat.innerHTML = '<i class="bi bi-arrow-right-circle-fill me-2"></i>Continue to Payment';
+            
+            // Customize driver assignment notice
+            const driverNotice = document.querySelector('.glass-card p.text-muted');
+            if (driverNotice && driverNotice.innerText.includes('15 mins before')) {
+                driverNotice.innerText = "TravelFusion AI will instantly assign the nearest driver matching your selected ride type. Live tracking details and OTP will be visible immediately upon payment.";
+            }
+        }
+        renderPassengerForms();
+        if (missingProfile) {
+            document.querySelectorAll('.p-name').forEach(el => el.value = pName);
+            document.querySelectorAll('.p-phone').forEach(el => el.value = pPhone);
+        }
+        if (isLocalIntercity) {
+            document.getElementById('step-passenger').style.display = 'none';
+            document.getElementById('step-seats').style.display = 'none';
+            document.getElementById('step-payment').style.display = 'block';
+            
+            document.getElementById('step2-badge').style.background = 'var(--royal-blue)';
+            document.getElementById('step2-badge').style.borderColor = 'var(--royal-blue)';
+            document.getElementById('step2-badge').style.color = 'white';
+            document.getElementById('step2-badge').innerHTML = '<i class="bi bi-check-lg"></i>';
+            document.getElementById('step3-badge').style.background = 'var(--royal-blue)';
+            document.getElementById('step3-badge').style.borderColor = 'var(--royal-blue)';
+            document.getElementById('step3-badge').style.color = 'white';
+            
+            // Generate QR immediately since we skip straight to payment
+            setTimeout(() => { generateUPIQR(); }, 100);
+        }
+    });
+    
+    let sessionPassengers = parseInt('{{ session.get("active_passengers", 1) }}') || 1;
+    window.passengerCount = (typeof window.rawRoute !== 'undefined') ? 
+        parseInt(window.rawRoute.passengers || (window.rawRoute.journey_context && window.rawRoute.journey_context.passengers) || sessionPassengers) : sessionPassengers;
+        
+    function renderPassengerForms() {
+        const container = document.getElementById('dynamic-passenger-forms');
+        if (!container) return;
+        let html = '';
+        for (let i = 1; i <= window.passengerCount; i++) {
+            html += `
+            <div class="row g-3 mb-4 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
+                <h6 class="text-white w-100 mb-0">Passenger ${i} ${i===1 ? '(Primary Contact)' : ''}</h6>
+                <div class="col-md-${i===1 ? '6' : '12'}">
+                    <label class="form-label text-muted small fw-700" style="text-transform:uppercase;letter-spacing:.05em;">Full Name *</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                        <input type="text" class="form-control form-glass p-name" id="p-name-${i}" placeholder="Full Name" required>
+                    </div>
+                </div>
+                ${i === 1 ? `
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-700" style="text-transform:uppercase;letter-spacing:.05em;">Mobile Number *</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-phone-fill"></i></span>
+                        <input type="tel" class="form-control form-glass p-phone" id="p-phone-${i}" placeholder="+91 98765 43210" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-700" style="text-transform:uppercase;letter-spacing:.05em;">Email Address *</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                        <input type="email" class="form-control form-glass p-email" id="p-email-${i}" placeholder="email@example.com" required>
+                    </div>
+                </div>
+                ` : ''}
+                <div class="col-md-${i===1 ? '3' : '6'}">
+                    <label class="form-label text-muted small fw-700" style="text-transform:uppercase;letter-spacing:.05em;">Age *</label>
+                    <input type="number" class="form-control form-glass p-age" id="p-age-${i}" placeholder="Age" min="1" max="100" required>
+                </div>
+                <div class="col-md-${i===1 ? '3' : '6'}">
+                    <label class="form-label text-muted small fw-700" style="text-transform:uppercase;letter-spacing:.05em;">Gender *</label>
+                    <select class="form-select form-glass p-gender" id="p-gender-${i}" required>
+                        <option value="">Select...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    function proceedToSeatSelection() {
+        try {
+            // Seat availability validation check
+            let availableSeats = 999;
+            let status = 'Available';
+            if (window.longLeg && window.longLeg.inventory) {
+                const inv = window.longLeg.inventory;
+                status = inv.status;
+                if (inv.available_seats !== undefined) {
+                    availableSeats = inv.available_seats;
+                }
+            }
+            if (!rawRoute.is_local) {
+                if (status === 'Sold Out' || availableSeats === 0) {
+                    showNotification('Option Sold Out', 'This option is currently Sold Out. Please select another option.', 'danger');
+                    return;
+                }
+                if (status === 'Waitlist' || status.includes('WL')) {
+                    showNotification('Waitlist Booking Blocked', 'Booking for Waitlist tickets is currently blocked because all seats are occupied.', 'danger');
+                    return;
+                }
+                if (window.passengerCount > availableSeats) {
+                    showNotification('Insufficient Seats', `Only ${availableSeats} seat(s) are available but you selected ${window.passengerCount} travelers.`, 'danger');
+                    return;
+                }
+            }
+
+            const forms = document.querySelectorAll('#dynamic-passenger-forms > div');
+            let allValid = true;
+            window.bookingPassengers = [];
+            
+            for (let i = 1; i <= window.passengerCount; i++) {
+                const name = document.getElementById(`p-name-${i}`).value.trim();
+                const age = document.getElementById(`p-age-${i}`).value;
+                const gender = document.getElementById(`p-gender-${i}`).value;
+                let phone = i === 1 ? document.getElementById(`p-phone-${i}`).value.trim() : null;
+                let email = i === 1 ? document.getElementById(`p-email-${i}`).value.trim() : null;
+                
+                if (!name || !age || !gender || (i === 1 && (!phone || !email))) {
+                    allValid = false;
+                    break;
+                }
+                
+                window.bookingPassengers.push({
+                    name: name,
+                    age: parseInt(age),
+                    gender: gender,
+                    phone: phone,
+                    email: email
+                });
+            }
+
+            if (!allValid) {
+                if(typeof showNotification === 'function') {
+                    showNotification('Missing Information', 'Please fill out all passenger details before continuing.', 'warning');
+                } else {
+                    alert('Please fill out all passenger details before continuing.');
+                }
+                return;
+            }
+
+            if (typeof window.rawRoute !== 'undefined' && window.rawRoute && window.rawRoute.is_local) {
+                assignedSeat = "N/A";
+                assignedSchedule = "Instant Dispatch";
+                
+                const step2Badge = document.getElementById('step2-badge');
+                if (step2Badge) {
+                    step2Badge.style.background = 'var(--royal-blue)';
+                    step2Badge.style.color = 'white';
+                    step2Badge.style.border = 'none';
+                }
+                
+                const stepPayment = document.getElementById('step-payment');
+                if (stepPayment) {
+                    stepPayment.style.display = 'block';
+                    stepPayment.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                const step3Badge = document.getElementById('step3-badge');
+                if (step3Badge) {
+                    step3Badge.style.background = 'var(--royal-blue)';
+                    step3Badge.style.color = 'white';
+                    step3Badge.style.border = 'none';
+                }
+                generateUPIQR();
+                return;
+            }
+
+            const stepSeats = document.getElementById('step-seats');
+            if (stepSeats) {
+                stepSeats.style.display = 'block';
+                stepSeats.scrollIntoView({ behavior: 'smooth' });
+                
+                // AI Smart Coordination Logic
+                if (window.rawRoute && !window.rawRoute.is_local && window.longLeg && window.firstLeg) {
+                    try {
+                        const alertBox = document.getElementById('smart-coordination-alert');
+                        const textBox = document.getElementById('smart-coordination-text');
+                        
+                        function subtractMins(timeStr, mins) {
+                            try {
+                                let dateObj = new Date();
+                                let match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)?/);
+                                if (match) {
+                                    let hours = parseInt(match[1], 10);
+                                    let minutes = parseInt(match[2], 10);
+                                    let modifier = match[3];
+                                    if (hours === 12) hours = 0;
+                                    if (modifier && modifier.toUpperCase() === 'PM') hours += 12;
+                                    dateObj.setHours(hours, minutes, 0, 0);
+                                } else if (!isNaN(new Date(timeStr).getTime())) {
+                                    dateObj = new Date(timeStr);
+                                } else {
+                                    return timeStr;
+                                }
+                                dateObj.setMinutes(dateObj.getMinutes() - mins);
+                                return dateObj.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+                            } catch(e) { return timeStr; }
+                        }
+                        
+                        const depTime = window.longLeg.departure || "10:30 AM";
+                        const fmMode = window.firstLeg.mode.toLowerCase();
+                        const fmDuration = window.firstLeg.duration;
+                        const fmName = window.firstLeg.provider || (window.firstLeg.mode + ' ride');
+                        const transitName = window.transitMode === 'flight' ? 'airport' : (window.transitMode === 'train' ? 'railway station' : 'bus stand');
+                        
+                        // Buffer is 20 mins before departure
+                        const dropTime = subtractMins(depTime, 20);
+                        const pickupTime = subtractMins(depTime, 20 + fmDuration);
+                        
+                        let aiText = `<div class="mb-1">Your ${window.transitMode} departure is at <strong class="text-white">${depTime}</strong>. To ensure a stress-free boarding, you should reach the ${transitName} by <strong class="text-white">${dropTime}</strong> (20 mins before).</div>`;
+                        
+                        if (['cab', 'auto', 'bike'].includes(fmMode) || fmMode.includes('cab') || fmMode.includes('auto')) {
+                            aiText += `<div>Your selected ${fmName} is intelligently scheduled for pickup at <strong class="text-white">${pickupTime}</strong>. It will drop you exactly 20 minutes before departure.</div>`;
+                        } else if (fmMode === 'walk') {
+                            aiText += `<div>Since you are walking, you should start your journey at <strong class="text-white">${pickupTime}</strong> to reach the ${transitName} right on time for boarding.</div>`;
+                        } else if (fmMode.includes('personal') || fmMode.includes('own')) {
+                            aiText += `<div>If using your personal vehicle, please depart by <strong class="text-white">${pickupTime}</strong> to account for the ${fmDuration} min drive and reach perfectly on time.</div>`;
+                        } else {
+                            aiText += `<div>Your ride is scheduled for pickup at <strong class="text-white">${pickupTime}</strong> to drop you exactly 20 minutes before departure.</div>`;
+                        }
+                        
+                        textBox.innerHTML = aiText;
+                        alertBox.style.setProperty('display', 'flex', 'important');
+                    } catch(e) {
+                        console.error("Error generating smart coordination text:", e);
+                    }
+                }
+            }
+
+            const step2Badge = document.getElementById('step2-badge');
+            if (step2Badge) {
+                step2Badge.style.background = 'var(--royal-blue)';
+                step2Badge.style.color = 'white';
+                step2Badge.style.border = 'none';
+            }
+            generateSeatingChart();
+        } catch (error) {
+            console.error("Error in proceedToSeatSelection:", error);
+            const errDiv = document.createElement('div');
+            errDiv.className = 'alert alert-danger mt-3';
+            errDiv.innerHTML = '<strong>Application Error:</strong> ' + error.message;
+            const step1 = document.getElementById('step-passenger');
+            if (step1) step1.appendChild(errDiv);
+        }
+    }
+
+    function proceedToPayment() {
+        if (window.selectedSeats.length !== window.passengerCount) {
+            showNotification('Select Seats', `Please select exactly ${window.passengerCount} seat(s) before proceeding.`, 'warning');
+            return;
+        }
+        document.getElementById('step-payment').style.display = 'block';
+        document.getElementById('step-payment').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('step3-badge').style.background = 'var(--royal-blue)';
+        document.getElementById('step3-badge').style.color = 'white';
+        document.getElementById('step3-badge').style.border = 'none';
+        generateUPIQR();
+    }
+
+    // ==== Dynamic Seating Chart ====
+    window.selectedSeats = [];
+    window.activeCoach = window.activeCoach || null;
+    
+    function generateSeatingChart() {
+        try {
+            const chart = document.getElementById('seating-chart');
+            if (!chart) return;
+            
+            // Wrap seating chart in the respective frame if it doesn't exist yet, otherwise reuse it
+            let frameDiv = document.getElementById('cabin-outer-frame');
+            if (!frameDiv) {
+                frameDiv = document.createElement('div');
+                frameDiv.id = 'cabin-outer-frame';
+                chart.parentNode.insertBefore(frameDiv, chart);
+                frameDiv.appendChild(chart);
+            } else {
+                // Clear any dynamically added decorative headers/tracks/exits/tabs
+                const decorations = frameDiv.querySelectorAll('.bus-windshield, .bus-driver-section, .flight-nose, .flight-exit, .flight-wing-l, .flight-wing-r, .coach-tabs, .train-track');
+                decorations.forEach(d => d.remove());
+                const lavatories = frameDiv.querySelectorAll('.d-flex.justify-content-between.px-3.mt-4');
+                lavatories.forEach(l => l.remove());
+            }
+            
+            // Determine Seater vs Sleeper
+            let isSleeper = false;
+            if (window.transitMode === 'train') {
+                isSleeper = true;
+                const name = (window.longLeg && window.longLeg.name) ? window.longLeg.name.toLowerCase() : '';
+                const cls = (window.longLeg && window.longLeg.inventory && window.longLeg.inventory.class_name) ? window.longLeg.inventory.class_name.toLowerCase() : '';
+                if (name.includes('shatabdi') || name.includes('vande bharat') || name.includes('chair') || cls.includes('cc') || cls.includes('sitting') || cls.includes('2s')) {
+                    isSleeper = false;
+                }
+                if (!window.activeCoach) {
+                    window.activeCoach = isSleeper ? 'S1' : 'C1';
+                }
+            } else if (window.transitMode === 'bus') {
+                isSleeper = false;
+                const name = (window.longLeg && window.longLeg.name) ? window.longLeg.name.toLowerCase() : '';
+                const provider = (window.longLeg && window.longLeg.provider) ? window.longLeg.provider.toLowerCase() : '';
+                if (name.includes('sleeper') || provider.includes('sleeper')) {
+                    isSleeper = true;
+                }
+            }
+            
+            let totalVisualSeats = (window.transitMode === 'flight') ? 48 : (window.transitMode === 'train') ? 30 : 28;
+            let availableCount = totalVisualSeats;
+            
+            // Precise seat availability matching logic
+            if (typeof window.rawRoute !== 'undefined' && window.rawRoute && !window.rawRoute.is_local && typeof window.longLeg !== 'undefined' && window.longLeg && window.longLeg.inventory) {
+                let inv = window.longLeg.inventory;
+                if (inv.status === 'Sold Out' || inv.status === 'Cancelled' || inv.status.includes('WL') || inv.status === 'Waitlist') {
+                    availableCount = 0;
+                } else if (inv.available_seats !== undefined) {
+                    availableCount = Math.min(inv.available_seats, totalVisualSeats);
+                }
+            }
+            
+            let occupiedCount = Math.max(0, totalVisualSeats - availableCount);
+            
+            // Build occupied array (same seed per option to keep consistency)
+            let seatStatus = new Array(totalVisualSeats).fill(false);
+            for (let i = 0; i < occupiedCount; i++) seatStatus[i] = true;
+            
+            // Shuffle deterministically based on option name/class to keep seats in the same place
+            let seed = (window.longLeg ? window.longLeg.name : '') + (window.activeCoach || '');
+            let randomSeed = 0;
+            for (let i = 0; i < seed.length; i++) randomSeed += seed.charCodeAt(i);
+            
+            for (let i = seatStatus.length - 1; i > 0; i--) {
+                randomSeed = (randomSeed * 9301 + 49297) % 233280;
+                const j = Math.floor((randomSeed / 233280) * (i + 1));
+                [seatStatus[i], seatStatus[j]] = [seatStatus[j], seatStatus[i]];
+            }
+            
+            window.selectedSeats = []; // reset selected
+            document.getElementById('selected-seat-badge').innerText = `SELECTED SEATS: 0 / ${window.passengerCount}`;
+            document.getElementById('selected-seat-badge').className = 'badge badge-glass badge-glass-primary px-4 py-2';
+            assignedSeat = null;
+            
+            let html = '';
+            
+            if (window.transitMode === 'flight') {
+                frameDiv.className = 'cabin-frame flight-frame';
+                // Add nose & cockpit visual
+                frameDiv.insertAdjacentHTML('afterbegin', `
+                    <div class="flight-nose">
+                        <span style="font-size:0.65rem;font-weight:bold;color:rgba(255,255,255,0.4);">COCKPIT</span>
+                    </div>
+                    <div class="flight-wing-l"></div>
+                    <div class="flight-wing-r"></div>
+                    <div class="d-flex justify-content-between px-3 mb-4 text-secondary small">
+                        <span class="flight-exit"><i class="bi bi-door-open-fill me-1"></i>Exit</span>
+                        <span class="flight-exit"><i class="bi bi-door-open-fill me-1"></i>Exit</span>
+                    </div>
+                `);
+                
+                // Add tail exits
+                frameDiv.insertAdjacentHTML('beforeend', `
+                    <div class="d-flex justify-content-between px-3 mt-4 text-secondary small">
+                        <span><i class="bi bi-water me-1"></i>Lavatory</span>
+                        <span><i class="bi bi-water me-1"></i>Lavatory</span>
+                    </div>
+                `);
+                
+                chart.style.gridTemplateColumns = 'repeat(7, 1fr)';
+                let sIndex = 0;
+                for (let r = 1; r <= 8; r++) {
+                    const isBusiness = r <= 2;
+                    ['A', 'B', 'C', '', 'D', 'E', 'F'].forEach((col) => {
+                        if (col === '') {
+                            html += '<div class="seat-aisle"></div>';
+                        } else {
+                            if (isBusiness && (col === 'B' || col === 'E')) {
+                                // Business class has 2x2 spacing
+                                html += '<div style="width:38px;"></div>';
+                            } else {
+                                const seatId = `${r}${col}`;
+                                const occupied = seatStatus[sIndex++];
+                                const seatClass = 'seat-chair ' + (occupied ? 'occupied' : 'available');
+                                const onClick = occupied ? '' : `selectSeat('${seatId}')`;
+                                html += `<div class="${seatClass}" id="seat-${seatId}" onclick="${onClick}" style="${isBusiness ? 'border-color:#fbbf24; background:rgba(251,191,36,0.05); width:42px; height:42px;' : ''}">
+                                            ${seatId}
+                                            ${isBusiness ? '<span style="font-size:7px;color:#fbbf24;position:absolute;bottom:2px;">BIZ</span>' : ''}
+                                         </div>`;
+                            }
+                        }
+                    });
+                }
+            } else if (window.transitMode === 'train') {
+                frameDiv.className = 'cabin-frame train-frame';
+                
+                // Add coach selector
+                const coachOptions = isSleeper ? ['S1', 'S2', 'S3'] : ['C1', 'C2'];
+                let coachHtml = '<div class="coach-tabs">';
+                coachOptions.forEach(c => {
+                    coachHtml += `<button class="coach-tab ${window.activeCoach === c ? 'active' : ''}" onclick="window.activeCoach='${c}'; generateSeatingChart();">${c}</button>`;
+                });
+                coachHtml += '</div>';
+                
+                frameDiv.insertAdjacentHTML('afterbegin', coachHtml);
+                frameDiv.insertAdjacentHTML('beforeend', '<div class="train-track"></div>');
+                
+                chart.style.gridTemplateColumns = 'repeat(7, 1fr)';
+                let sNum = 1;
+                let sIndex = 0;
+                for (let r = 1; r <= 6; r++) {
+                    // LB, MB, UB, aisle, SL, SU
+                    [1, 2, 3, '', 4, 5].forEach((col) => {
+                        if (col === '') {
+                            html += '<div class="seat-aisle"></div>';
+                        } else {
+                            const seatId = `${window.activeCoach}-${sNum++}`;
+                            const type = col === 1 ? 'LB' : col === 2 ? 'MB' : col === 3 ? 'UB' : col === 4 ? 'SL' : 'SU';
+                            const occupied = seatStatus[sIndex++];
+                            const seatClass = (isSleeper ? 'seat-bed ' : 'seat-chair ') + (occupied ? 'occupied' : 'available');
+                            const onClick = occupied ? '' : `selectSeat('${seatId}')`;
+                            html += `<div class="${seatClass}" id="seat-${seatId}" onclick="${onClick}">
+                                        <span style="font-size:0.75rem;">${seatId.split('-')[1]}</span>
+                                        <span class="seat-berth-label">${type}</span>
+                                     </div>`;
+                        }
+                    });
+                }
+            } else {
+                // Bus Layout
+                frameDiv.className = 'cabin-frame bus-frame';
+                frameDiv.insertAdjacentHTML('afterbegin', `
+                    <div class="bus-windshield"></div>
+                    <div class="bus-driver-section">
+                        <div class="steering-wheel"></div>
+                        <span class="badge bg-secondary" style="font-size:0.6rem;">DRIVER</span>
+                    </div>
+                `);
+                
+                chart.style.gridTemplateColumns = 'repeat(5, 1fr)';
+                let sIndex = 0;
+                for (let r = 1; r <= 7; r++) {
+                    ['A', 'B', '', 'C', 'D'].forEach((col) => {
+                        if (col === '') {
+                            html += '<div class="seat-aisle"></div>';
+                        } else {
+                            const seatId = `${r}${col}`;
+                            const occupied = seatStatus[sIndex++];
+                            const seatClass = (isSleeper ? 'seat-bed ' : 'seat-chair ') + (occupied ? 'occupied' : 'available');
+                            const onClick = occupied ? '' : `selectSeat('${seatId}')`;
+                            html += `<div class="${seatClass}" id="seat-${seatId}" onclick="${onClick}">
+                                        ${seatId}
+                                     </div>`;
+                        }
+                    });
+                }
+            }
+            chart.innerHTML = html;
+        } catch (error) {
+            console.error("Error in generateSeatingChart:", error);
+        }
+    }
+
+    function selectSeat(seatName) {
+        const el = document.getElementById(`seat-${seatName}`);
+        if (!el) return;
+        
+        const idx = window.selectedSeats.indexOf(seatName);
+        if (idx > -1) {
+            window.selectedSeats.splice(idx, 1);
+            el.classList.remove('selected');
+        } else {
+            if (window.selectedSeats.length >= window.passengerCount) {
+                if(typeof showNotification === 'function') {
+                    showNotification('Limit Reached', `You can only select ${window.passengerCount} seat(s).`, 'warning');
+                } else {
+                    alert(`You can only select ${window.passengerCount} seat(s).`);
+                }
+                return;
+            }
+            window.selectedSeats.push(seatName);
+            el.classList.add('selected');
+        }
+        
+        assignedSeat = window.selectedSeats.length > 0 ? window.selectedSeats.join(', ') : null;
+        const badge = document.getElementById('selected-seat-badge');
+        badge.innerText = `SELECTED SEATS: ${window.selectedSeats.length} / ${window.passengerCount} (${assignedSeat || 'None'})`;
+        if (window.selectedSeats.length === window.passengerCount) {
+            badge.className = 'badge badge-glass badge-glass-success px-4 py-2';
+        } else {
+            badge.className = 'badge badge-glass badge-glass-primary px-4 py-2';
+        }
+    }
+
+    // ==== Payment Tabs ====
+    function switchPayTab(tab) {
+        document.querySelectorAll('.pay-panel').forEach(p => p.style.display = 'none');
+        document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active-tab'));
+        document.getElementById(`panel-${tab}`).style.display = 'block';
+        document.getElementById(`tab-${tab}`).classList.add('active-tab');
+        if (tab === 'upi') generateUPIQR();
+    }
+
+    // ==== UPI QR ====
+    function generateUPIQR() {
+        const upiUrl = `upi://pay?pa=travelfusion@ybl&pn=TravelFusion+AI&am=${grandTotal}&cu=INR&tn=Booking+${optionType}`;
+        const container = document.getElementById('upi-qr-container');
+        if (!container) return;
+        
+        container.innerHTML = ""; // Clear existing
+        setTimeout(() => {
+            new QRCode(container, {
+                text: upiUrl,
+                width: 130,
+                height: 130,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }, 50);
+        // Start countdown
+        document.getElementById('upi-timer').style.display = 'block';
+        let sec = 300;
+        const timer = setInterval(() => {
+            sec--;
+            const el = document.getElementById('upi-countdown');
+            if (el) el.innerText = sec;
+            if (sec <= 0) clearInterval(timer);
+        }, 1000);
+    }
+
+    function simulateUPIPayment() {
+        const upiId = document.getElementById('upi-id-input').value;
+        if (!upiId) { showNotification('Enter UPI ID', 'Please enter a valid UPI ID.', 'warning'); return; }
+        executePayment(`UPI (${upiId})`);
+    }
+
+    // ==== Card Payment ====
+    function formatCard(el) {
+        let v = el.value.replace(/\D/g, '').substring(0, 16);
+        el.value = v.replace(/(.{4})/g, '$1 ').trim();
+    }
+    function formatExpiry(el) {
+        let v = el.value.replace(/\D/g, '').substring(0, 4);
+        if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+        el.value = v;
+    }
+
+    function simulateCardPayment() {
+        const num = document.getElementById('card-number').value.replace(/\s/g,'');
+        const name = document.getElementById('card-name').value;
+        const expiry = document.getElementById('card-expiry').value;
+        const cvv = document.getElementById('card-cvv').value;
+        if (num.length < 16 || !name || !expiry || cvv.length < 3) {
+            showNotification('Incomplete Details', 'Please fill all card details correctly.', 'warning'); return;
+        }
+        // Show OTP step
+        document.getElementById('card-otp-step').style.display = 'block';
+        document.getElementById('card-pay-btn-wrap').style.display = 'none';
+        showNotification('OTP Sent', 'A mock OTP has been sent. Use 123456.', 'success');
+    }
+
+    function verifyCardOTP() {
+        const otp = document.getElementById('card-otp-input').value;
+        if (otp === '123456') {
+            executePayment('Credit/Debit Card');
+        } else {
+            showNotification('Invalid OTP', 'Please use the demo OTP: 123456', 'danger');
+        }
+    }
+
+    function simulateNetBankingPayment() {
+        const bank = document.getElementById('netbanking-bank').value;
+        if (!bank) { showNotification('Select Bank', 'Please select a bank first.', 'warning'); return; }
+        showNotification('Redirecting...', `Connecting to ${bank} secure portal...`, 'success');
+        setTimeout(() => executePayment(`Net Banking (${bank})`), 1500);
+    }
+
+    function simulateWalletPayment(walletName) {
+        showNotification('Processing...', `Connecting to ${walletName}...`, 'success');
+        setTimeout(() => executePayment(walletName), 1000);
+    }
+
+    function simulateCODPayment() {
+        showNotification('Processing...', 'Confirming your ride...', 'success');
+        setTimeout(() => executePayment('cod'), 1000);
+    }
+
+    // ==== Final Payment Execution ====
+    function executePayment(method) {
+        const btn = document.querySelector('#step-payment .btn-glow');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing Payment...';
+        }
+
+        const payId = `pay_TF${Math.random().toString(36).substring(2,9).toUpperCase()}`;
+        const txnId = `TXN${Math.floor(Math.random()*90000000)+10000000}`;
+
+        let passengersList = window.bookingPassengers;
+        let passengerPhone = null;
+        if (isLocalIntercity) {
+            if (missingProfile) {
+                const mName = document.getElementById('missing-name').value;
+                const mPhone = document.getElementById('missing-phone').value;
+                if (!mName || !mPhone) {
+                    showNotification('Missing Details', 'Please enter your Name and Mobile Number.', 'warning');
+                    if (btn) { btn.disabled = false; btn.innerHTML = 'Retry Payment'; }
+                    return;
+                }
+                passengersList = [{name: mName, age: 25, gender: 'Other', is_primary: true}];
+                passengerPhone = mPhone;
+            } else {
+                passengersList = [{name: pName, age: 25, gender: 'Other', is_primary: true}];
+                passengerPhone = pPhone;
+            }
+        }
+
+        const data = {
+            option_type: optionType,
+            passengers: passengersList,
+            passenger_phone: passengerPhone,
+            seat_numbers: window.selectedSeats || [],
+            razorpay_payment_id: payId,
+            payment_method: method,
+            transaction_id: txnId,
+            amount: grandTotal
+        };
+
+        fetchAPI('/api/booking/confirm', 'POST', data).then(res => {
+            if (res.success) {
+                if (isLocalIntercity && res.redirect) {
+                    showDriverSearchOverlayAndRedirect(res.redirect);
+                } else if (res.redirect) {
+                    window.location.href = res.redirect;
+                } else {
+                    playPremiumAnimation(res.booking_id, txnId);
+                }
+            } else {
+                showNotification('Error', res.error || 'Something went wrong.', 'danger');
+                if (btn) { btn.disabled = false; btn.innerHTML = 'Retry Payment'; }
+            }
+        }).catch(() => {
+            showNotification('Error', 'Payment failed. Please retry.', 'danger');
+            if (btn) { btn.disabled = false; btn.innerHTML = 'Retry Payment'; }
+        });
+    }
+
+    function showDriverSearchOverlayAndRedirect(redirectUrl) {
+        window.scrollTo(0, 0);
+        document.body.style.overflow = 'hidden';
+        
+        const searchOverlayHTML = `
+            <div id="booking-driver-search-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(15,23,42,0.98);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(15px);">
+                <div class="radar mb-4" style="position:relative;width:150px;height:150px;border-radius:50%;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(59,130,246,0.2);">
+                    <div style="position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid #3b82f6;animation:ripple 1.5s linear infinite;"></div>
+                    <div style="position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid #3b82f6;animation:ripple 1.5s linear infinite;animation-delay:0.5s;"></div>
+                    <div style="position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid #3b82f6;animation:ripple 1.5s linear infinite;animation-delay:1s;"></div>
+                    <i class="bi bi-car-front-fill" style="font-size:3rem;z-index:10;color:#3b82f6;"></i>
+                </div>
+                <h3 class="text-white mt-4 fw-bold" id="search-overlay-title">Finding Nearby Drivers...</h3>
+                <p class="text-muted small" id="search-overlay-desc">Matching you with the closest TravelFusion partner.</p>
+                <style>
+                    @keyframes ripple {
+                        0% { transform: scale(0.5); opacity: 1; }
+                        100% { transform: scale(2.5); opacity: 0; }
+                    }
+                </style>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', searchOverlayHTML);
+        
+        setTimeout(() => {
+            const titleEl = document.getElementById('search-overlay-title');
+            const descEl = document.getElementById('search-overlay-desc');
+            const radarEl = document.querySelector('#booking-driver-search-overlay .radar');
+            if (titleEl) titleEl.innerText = "Driver Assigned!";
+            if (descEl) descEl.innerText = "Redirecting to live tracking...";
+            if (radarEl) {
+                radarEl.innerHTML = '<i class="bi bi-check-circle-fill text-success" style="font-size:5rem; text-shadow:0 0 20px rgba(16,185,129,0.5);"></i>';
+                radarEl.style.borderColor = 'transparent';
+                radarEl.style.boxShadow = 'none';
+                radarEl.style.background = 'transparent';
+            }
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999999 });
+            }
+            
+            setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, 1500);
+        }, 3000);
+    }
+
+    function playPremiumAnimation(bookingId, txnId) {
+        window.scrollTo(0, 0);
+        document.body.style.overflow = 'hidden';
+        const overlay = document.getElementById('premium-processing-overlay');
+        document.body.appendChild(overlay); // Ensure it's outside all containers
+        overlay.style.display = 'flex';
+        
+        const steps = [
+            document.getElementById('proc-step-1'),
+            document.getElementById('proc-step-2'),
+            document.getElementById('proc-step-3'),
+            document.getElementById('proc-step-4')
+        ];
+        
+        // Step 1: Verifying Payment
+        setTimeout(() => {
+            steps[0].classList.remove('active'); steps[0].classList.add('done');
+            steps[0].querySelector('.step-icon').innerHTML = '<i class="bi bi-check-lg"></i>';
+            steps[1].classList.add('active');
+        }, 1000);
+        
+        // Step 2: Generating Booking ID
+        setTimeout(() => {
+            steps[1].classList.remove('active'); steps[1].classList.add('done');
+            steps[1].querySelector('.step-icon').innerHTML = '<i class="bi bi-check-lg"></i>';
+            steps[2].classList.add('active');
+        }, 2000);
+        
+        // Step 3: Generating Ticket
+        setTimeout(() => {
+            steps[2].classList.remove('active'); steps[2].classList.add('done');
+            steps[2].querySelector('.step-icon').innerHTML = '<i class="bi bi-check-lg"></i>';
+            steps[3].classList.add('active');
+        }, 3000);
+        
+        // Step 4: Sending Confirmation Email
+        setTimeout(() => {
+            steps[3].classList.remove('active'); steps[3].classList.add('done');
+            steps[3].querySelector('.step-icon').innerHTML = '<i class="bi bi-check-lg"></i>';
+            
+            // Final Success Screen
+            document.getElementById('processing-steps-container').style.display = 'none';
+            const successScreen = document.getElementById('final-success-screen');
+            
+            // Build Dynamic Transport Animation
+            const container = document.getElementById('dynamic-transport-container');
+            let animHtml = '';
+            let styleId = 'transport-anim-style';
+            let oldStyle = document.getElementById(styleId);
+            if(oldStyle) oldStyle.remove();
+            let style = document.createElement('style');
+            style.id = styleId;
+            
+            if (window.transitMode === 'flight') {
+                animHtml = `
+                    <div style="position: absolute; top: 70%; width: 100%; height: 2px; border-bottom: 3px dashed rgba(255,255,255,0.4);"></div>
+                    <div style="position: absolute; top: calc(70% - 10px); left: 10%; width: 20px; height: 20px; background: #10b981; border-radius: 50%; box-shadow: 0 0 15px #10b981;"></div>
+                    <div style="position: absolute; top: calc(70% - 35px); left: 10%; color: #10b981; font-weight: bold; font-size: 16px; transform: translateX(-50%);">Origin</div>
+                    
+                    <div style="position: absolute; top: calc(70% - 10px); right: 10%; width: 20px; height: 20px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 15px #ef4444;"></div>
+                    <div style="position: absolute; top: calc(70% - 35px); right: 10%; color: #ef4444; font-weight: bold; font-size: 16px; transform: translateX(-50%);">Destination</div>
+                    
+                    <div style="position: absolute; top: 70%; font-size: 45px; animation: flyAcross 4s infinite cubic-bezier(0.4, 0, 0.2, 1); filter: drop-shadow(0 10px 10px rgba(59,130,246,0.5)); transform-origin: bottom center;">✈️</div>
+                `;
+                style.innerHTML = `@keyframes flyAcross { 0% { left: 10%; transform: translateY(-20px) rotate(15deg) scale(0.8); opacity: 0; } 10% { opacity: 1; } 50% { transform: translateY(-150px) rotate(0deg) scale(1.2); } 90% { opacity: 1; } 100% { left: 90%; transform: translateY(-20px) rotate(-15deg) scale(0.8); opacity: 0; } }`;
+            } else if (window.transitMode === 'train') {
+                animHtml = `
+                    <div style="position: absolute; top: 70%; width: 100%; height: 16px; background: repeating-linear-gradient(90deg, #334155 0, #334155 15px, transparent 15px, transparent 30px); border-top: 3px solid #94a3b8; border-bottom: 3px solid #94a3b8; transform: translateY(-50%);"></div>
+                    <div style="position: absolute; top: calc(70% - 10px); left: 10%; width: 20px; height: 20px; background: #10b981; border-radius: 50%; box-shadow: 0 0 15px #10b981;"></div>
+                    <div style="position: absolute; top: calc(70% - 35px); left: 10%; color: #10b981; font-weight: bold; font-size: 16px; transform: translateX(-50%);">Origin</div>
+                    
+                    <div style="position: absolute; top: calc(70% - 10px); right: 10%; width: 20px; height: 20px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 15px #ef4444;"></div>
+                    <div style="position: absolute; top: calc(70% - 35px); right: 10%; color: #ef4444; font-weight: bold; font-size: 16px; transform: translateX(-50%);">Destination</div>
+                    
+                    <div style="position: absolute; top: calc(70% - 40px); font-size: 45px; animation: driveAcross 4s infinite linear;">🚆</div>
+                `;
+                style.innerHTML = `@keyframes driveAcross { 0% { left: 10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 90%; opacity: 0; } }`;
+            } else {
+                animHtml = `
+                    <div style="position: absolute; top: calc(70% - 15px); width: 100%; height: 30px; background: #334155; border-top: 2px solid #475569; border-bottom: 2px solid #475569;">
+                        <div style="position: absolute; top: 13px; width: 100%; height: 4px; background: repeating-linear-gradient(90deg, #fcd34d 0, #fcd34d 30px, transparent 30px, transparent 60px);"></div>
+                    </div>
+                    <div style="position: absolute; top: calc(70% - 10px); left: 10%; width: 20px; height: 20px; background: #10b981; border-radius: 50%; box-shadow: 0 0 15px #10b981; z-index: 5;"></div>
+                    <div style="position: absolute; top: calc(70% - 40px); left: 10%; color: #10b981; font-weight: bold; font-size: 16px; transform: translateX(-50%); z-index: 5;">Origin</div>
+                    
+                    <div style="position: absolute; top: calc(70% - 10px); right: 10%; width: 20px; height: 20px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 15px #ef4444; z-index: 5;"></div>
+                    <div style="position: absolute; top: calc(70% - 40px); right: 10%; color: #ef4444; font-weight: bold; font-size: 16px; transform: translateX(-50%); z-index: 5;">Destination</div>
+                    
+                    <div style="position: absolute; top: calc(70% - 50px); font-size: 45px; animation: driveAcross 5s infinite linear; z-index: 10;">🚌</div>
+                `;
+                style.innerHTML = `@keyframes driveAcross { 0% { left: 10%; opacity: 0; transform: translateY(0); } 10% { opacity: 1; transform: translateY(-2px); } 50% { transform: translateY(0); } 90% { opacity: 1; transform: translateY(-2px); } 100% { left: 90%; opacity: 0; transform: translateY(0); } }`;
+            }
+            container.innerHTML = animHtml;
+            document.head.appendChild(style);
+            
+            successScreen.style.display = 'flex';
+            
+            document.getElementById('final-booking-id').innerText = 'TF-BK-' + String(bookingId).padStart(5, '0');
+            document.getElementById('final-txn-id').innerText = txnId;
+            document.getElementById('btn-view-ticket').href = `/ticket/${bookingId}`;
+            
+            // Confetti
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 }, zIndex: 9999999 });
+            }
+            
+            // Mild Success Sound (Futuristic Chime)
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+                oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); // A6
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } catch (e) { console.log("Audio not supported"); }
+            
+        }, 4000);
+    }
+
+    // Card formatting
+    function formatCard(el) {
+        let v = el.value.replace(/\D/g, '').substring(0, 16);
+        el.value = v.replace(/(.{4})/g, '$1 ').trim();
+    }
+    function formatExpiry(el) {
+        let v = el.value.replace(/\D/g, '').substring(0, 4);
+        if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+        el.value = v;
+    }
+</script>
+
+<style>
+@keyframes pulse-ring {
+    0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 30px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+@keyframes slide-in-bottom {
+    0% { transform: translateY(50px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes float-up-down {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* Full Screen Processing Overlay */
+#premium-processing-overlay {
+    position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important;
+    background: rgba(15, 23, 42, 0.98) !important; z-index: 999999 !important;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(15px);
+}
+.processing-step {
+    display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+    opacity: 0.4; transition: opacity 0.5s, transform 0.5s;
+    transform: translateY(20px);
+}
+.processing-step.active { opacity: 1; transform: translateY(0); }
+.processing-step.done { opacity: 0.8; transform: translateY(0); color: #10b981 !important; }
+.step-icon {
+    width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.1); font-size: 1.2rem;
+}
+.seat.occupied { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); pointer-events: none; text-decoration: line-through; }
+.seat.available { background: rgba(255,255,255,0.05); color: white; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+.seat.available:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+.seat.selected { background: #3b82f6 !important; color: white !important; border: 2px solid #60a5fa !important; box-shadow: 0 0 15px rgba(59,130,246,0.6) !important; }
+.processing-step.active .step-icon { background: var(--royal-blue); color: white; box-shadow: 0 0 15px var(--royal-blue); }
+.processing-step.done .step-icon { background: #10b981; color: white; box-shadow: 0 0 15px #10b981; }
+
+.pay-tab {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #94a3b8;
+    border-radius: 8px;
+    padding: .45rem 1rem;
+    font-size: .85rem;
+    transition: all 0.2s;
+}
+.pay-tab:hover, .pay-tab.active-tab {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.4);
+    color: #60a5fa;
+}
+</style>
+
+<!-- Confetti JS for Success Screen -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<!-- Premium Processing Overlay -->
+<div id="premium-processing-overlay">
+    <div id="processing-steps-container" style="width: 350px;">
+        <h4 class="text-white text-center mb-5 fw-bold">Processing Your Booking...</h4>
+        
+        <div class="processing-step active text-white" id="proc-step-1">
+            <div class="step-icon"><div class="spinner-border spinner-border-sm"></div></div>
+            <div class="fw-600 fs-5">Verifying Payment</div>
+        </div>
+        
+        <div class="processing-step text-white" id="proc-step-2">
+            <div class="step-icon"><i class="bi bi-receipt"></i></div>
+            <div class="fw-600 fs-5">Generating Booking ID</div>
+        </div>
+        
+        <div class="processing-step text-white" id="proc-step-3">
+            <div class="step-icon"><i class="bi bi-file-earmark-pdf"></i></div>
+            <div class="fw-600 fs-5">Generating Ticket</div>
+        </div>
+        
+        <div class="processing-step text-white" id="proc-step-4">
+            <div class="step-icon"><i class="bi bi-envelope"></i></div>
+            <div class="fw-600 fs-5">Sending Confirmation Email</div>
+        </div>
+    </div>
+    
+    <div id="final-success-screen" style="display: none; width: 100%; height: 100%; position: absolute; inset: 0; align-items: center; justify-content: center; z-index: 10;">
+        <!-- Background Animation Elements -->
+        <div style="position: absolute; inset: 0; overflow: hidden; z-index: 1;">
+            <!-- Subtle Travel Elements Background -->
+            <div style="position: absolute; top: 15%; left: 15%; font-size: 15vh; color: rgba(59,130,246,0.06); animation: float-up-down 6s ease-in-out infinite;">
+                <i class="bi bi-globe-americas"></i>
+            </div>
+            <div style="position: absolute; bottom: 25%; right: 15%; font-size: 12vh; color: rgba(16,185,129,0.06); animation: float-up-down 8s ease-in-out infinite reverse;">
+                <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div style="position: absolute; top: 20%; right: 25%; font-size: 10vh; color: rgba(245,158,11,0.06); animation: float-up-down 5s ease-in-out infinite 1s;">
+                <i class="bi bi-compass"></i>
+            </div>
+            <div style="position: absolute; bottom: 35%; left: 20%; font-size: 18vh; color: rgba(236,72,153,0.04); animation: float-up-down 9s ease-in-out infinite 2s;">
+                <i class="bi bi-map-fill"></i>
+            </div>
+            <!-- Dynamic Transport Animation Container -->
+            <div id="dynamic-transport-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; opacity: 0.8; pointer-events: none;"></div>
+        </div>
+
+        <!-- Success Card -->
+        <div style="max-width: 450px; width: 90%; z-index: 10; text-align: center; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px 30px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); animation: slide-in-bottom 0.6s cubic-bezier(0.25, 1, 0.5, 1);">
+            <div class="mb-4">
+                <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; color: white; margin: 0 auto; box-shadow: 0 0 30px rgba(16,185,129,0.4); animation: pulse-ring 2s infinite;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+            </div>
+            <h2 class="text-white fw-bold mb-2">Booking Confirmed!</h2>
+            <p class="text-secondary mb-4">Your journey has been successfully booked.</p>
+            
+            <div class="glass-card p-4 text-start mb-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;">
+                <div class="d-flex justify-content-between mb-3 border-bottom border-secondary pb-2">
+                    <span class="text-muted">Booking ID</span>
+                    <span class="text-white fw-bold fs-5" id="final-booking-id">--</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 border-bottom border-secondary pb-2">
+                    <span class="text-muted">Transaction ID</span>
+                    <span class="text-white fw-bold" id="final-txn-id" style="font-family: monospace;">--</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="text-muted">Status</span>
+                    <span class="badge bg-success px-3 py-2 text-uppercase letter-spacing-1">Confirmed</span>
+                </div>
+            </div>
+            
+            <a href="#" id="btn-view-ticket" class="btn btn-glow w-100 py-3 mb-3 fw-bold fs-5 text-uppercase">View E-Ticket</a>
+            <a href="/dashboard" class="btn btn-glass w-100 py-2 text-white">Go to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
