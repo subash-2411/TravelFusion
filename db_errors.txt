@@ -695,3 +695,12 @@ Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserPr
 Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
 Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
 Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
+Execute Error: duplicate column name: emergency_type | Query: ALTER TABLE EmergencyAlerts ADD COLUMN emergency_type VARCHAR(50)
+Execute Error: duplicate column name: message | Query: ALTER TABLE EmergencyAlerts ADD COLUMN message TEXT
+Execute Error: duplicate column name: leg_type | Query: ALTER TABLE RideBookings ADD COLUMN leg_type VARCHAR(50)
+Execute Error: duplicate column name: route_json | Query: ALTER TABLE Bookings ADD COLUMN route_json TEXT
+Execute Error: duplicate column name: refund_date | Query: ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL
+Execute Error: duplicate column name: preferred_mode | Query: ALTER TABLE UserProfiles ADD COLUMN preferred_mode VARCHAR(50) DEFAULT 'Train'
+Execute Error: duplicate column name: avatar_url | Query: ALTER TABLE UserProfiles ADD COLUMN avatar_url VARCHAR(255) DEFAULT '/static/images/default-avatar.png'
+Execute Error: duplicate column name: rating | Query: ALTER TABLE RideBookings ADD COLUMN rating INT
+Execute Error: duplicate column name: feedback | Query: ALTER TABLE RideBookings ADD COLUMN feedback TEXT
