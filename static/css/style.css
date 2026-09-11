@@ -919,10 +919,11 @@ body > * { position: relative; z-index: 1; }
    LOGIN SPLIT-SCREEN
    ============================================= */
 .login-wrapper {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-}
+      display: flex;
+      min-height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+  }
 .login-brand-side {
     flex: 0 0 42%;
     background: linear-gradient(145deg, #040816 0%, #091232 50%, #0c1840 100%);
