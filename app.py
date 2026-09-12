@@ -5,6 +5,7 @@ import datetime
 import json
 import hashlib
 import socket
+import threading
 import database
 import config
 from notification_service import NotificationService
@@ -93,6 +94,11 @@ except Exception:
 
 try:
     database.execute_query("ALTER TABLE Cancellations ADD COLUMN refund_date TIMESTAMP NULL")
+except Exception:
+    pass
+
+try:
+    database.execute_query("ALTER TABLE Payments ADD COLUMN method VARCHAR(50)")
 except Exception:
     pass
 
@@ -1876,322 +1882,349 @@ def route_booking(option_type):
 
 @app.route('/api/booking/confirm', methods=['POST'])
 def confirm_booking():
-    if 'user_id' not in session:
-        return jsonify({"success": False, "error": "Unauthorized"})
+    import traceback
+    try:
+        if 'user_id' not in session:
+            return jsonify({"success": False, "error": "Unauthorized session. Please log in again."}), 401
+            
+        uid = session['user_id']
+        data = request.json or {}
+        option_type = data.get('option_type')
         
-    uid = session['user_id']
-    data = request.json
-    option_type = data.get('option_type')
-    
-    routes = session.get('active_routes')
-    if not routes or option_type not in routes:
-        routes_keys = list(routes.keys()) if routes else None
-        return jsonify({"success": False, "error": f"Active route configuration lost. option={option_type}, routes={routes_keys}. Please restart your search from the planner."})
-        
-    route_details = routes[option_type]
-    
-    active_date = session.get('active_date', '')
-    if not active_date:
-        active_date = datetime.date.today().isoformat()
-        
-    # 1. Insert TravelPlans
-    plan_id = database.insert_query(
-        "INSERT INTO TravelPlans (user_id, source, destination, travel_date, budget) VALUES (%s, %s, %s, %s, %s)",
-        (uid, session.get('active_src', 'Source'), session.get('active_dst', 'Destination'), active_date, route_details['total_fare'])
-    )
-    
-    if not plan_id:
-        return jsonify({"success": False, "error": "Failed to create travel plan in database."})
-    
-    # 2. Extract Passenger Details
-    passengers = data.get('passengers', [])
-    if not passengers:
-        # Fallback for single passenger
-        passenger = data.get('passenger', {})
-        if passenger:
-            passengers = [passenger]
-        else:
-            passengers = [{'name': 'N/A', 'age': 0, 'gender': 'N/A', 'phone': 'N/A', 'email': 'N/A'}]
-
-    # Primary passenger details for main Bookings table
-    primary_p = passengers[0]
-    p_name = primary_p.get('name', 'N/A')
-    p_age = primary_p.get('age', 0)
-    p_gender = primary_p.get('gender', 'N/A')
-    p_phone = primary_p.get('phone', 'N/A')
-    p_email = primary_p.get('email', 'N/A')
-
-    # 3. Insert Bookings with primary passenger info
-    route_json_str = json.dumps(route_details.get('legs', []))
-    booking_id = database.insert_query(
-        "INSERT INTO Bookings (travel_plan_id, user_id, total_fare, passenger_name, passenger_age, passenger_gender, passenger_phone, passenger_email, status, route_json) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'confirmed', %s)",
-        (plan_id, uid, route_details['total_fare'], p_name, p_age, p_gender, p_phone, p_email, route_json_str)
-    )
-    
-    if not booking_id:
-        return jsonify({"success": False, "error": "Failed to create booking in database."})
-    
-    # 3a. Insert into BookingPassengers
-    for pax in passengers:
-        database.insert_query(
-            "INSERT INTO BookingPassengers (booking_id, passenger_name, passenger_age, passenger_gender, seat_number) VALUES (%s, %s, %s, %s, %s)",
-            (booking_id, pax.get('name', 'N/A'), pax.get('age', 0), pax.get('gender', 'N/A'), pax.get('seat_number', None))
+        # 1. Retrieve route details with resilient fallback
+        route_details = None
+        routes = session.get('active_routes')
+        if routes and option_type in routes:
+            route_details = routes[option_type]
+        elif session.get('booking_route'):
+            route_details = session.get('booking_route')
+        elif data.get('route_details'):
+            route_details = data.get('route_details')
+            
+        if not route_details:
+            routes_keys = list(routes.keys()) if routes else None
+            return jsonify({
+                "success": False, 
+                "error": f"Active route configuration lost (option={option_type}). Please refresh and try again."
+            })
+            
+        active_date = session.get('active_date', '')
+        if not active_date:
+            active_date = datetime.date.today().isoformat()
+            
+        src_val = session.get('active_src') or route_details.get('source') or 'Source'
+        dst_val = session.get('active_dst') or route_details.get('destination') or 'Destination'
+        total_fare_val = route_details.get('total_fare', data.get('amount', 0))
+            
+        # 1. Insert TravelPlans
+        plan_id = database.insert_query(
+            "INSERT INTO TravelPlans (user_id, source, destination, travel_date, budget) VALUES (%s, %s, %s, %s, %s)",
+            (uid, src_val, dst_val, active_date, total_fare_val)
         )
-
-    # 4. Insert Payment and Transaction
-    razorpay_payment_id = data.get('razorpay_payment_id', f'pay_{random.randint(100000, 999999)}')
-    amount = data.get('amount', route_details['total_fare'])
-    payment_method = data.get('payment_method', 'Razorpay')
-    
-    payment_status = 'pending' if payment_method == 'cod' else 'success'
-    
-    payment_id = database.insert_query(
-        "INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (%s, %s, %s, %s, %s)",
-        (booking_id, razorpay_payment_id, amount, payment_method, payment_status)
-    )
-    
-    database.execute_query(
-        "INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (%s, %s, %s, %s)",
-        (payment_id, f"TXN{random.randint(10000000, 99999999)}", payment_method, payment_status)
-    )
-
-    # Helper to parse "Jun 30, 08:30 AM" from frontend AI route
-    def parse_leg_time(time_str, default_offset_hours):
-        if not time_str:
-            return (datetime.datetime.now() + datetime.timedelta(hours=default_offset_hours)).isoformat()
-        try:
-            now = datetime.datetime.now()
-            dt = datetime.datetime.strptime(time_str, "%b %d, %I:%M %p")
-            dt = dt.replace(year=now.year)
-            if dt < now - datetime.timedelta(days=30):
-                dt = dt.replace(year=now.year + 1)
-            return dt.isoformat()
-        except:
-            return (datetime.datetime.now() + datetime.timedelta(hours=default_offset_hours)).isoformat()
-
-    # 3. Create sub-bookings for legs
-    for index, leg in enumerate(route_details['legs']):
-        mode = leg['mode']
-        fare = leg['fare']
         
-        # Sub-booking assignments
-        if mode == 'bus':
-            seat = data.get('seat_number', f"{random.randint(1, 10)}{random.choice(['A','B','C','D'])}")
-            if data.get('seat_numbers'):
-                seat = ",".join(data.get('seat_numbers'))[:10]
-            database.execute_query(
-                "INSERT INTO BusBookings (booking_id, bus_number, operator_name, seat_number, departure_time, arrival_time, fare) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                (booking_id, f"KA-51-F-{random.randint(1000, 9999)}", leg['provider'], seat, 
-                 parse_leg_time(leg.get('departure'), 2),
-                 parse_leg_time(leg.get('arrival'), 6), fare)
+        if not plan_id:
+            return jsonify({"success": False, "error": "Failed to create travel plan in database."})
+        
+        # 2. Extract Passenger Details
+        passengers = data.get('passengers', [])
+        if not passengers:
+            passenger = data.get('passenger', {})
+            if passenger:
+                passengers = [passenger]
+            else:
+                user_info = database.fetch_one("SELECT * FROM Users WHERE id = %s", (uid,))
+                passengers = [{
+                    'name': user_info.get('username', 'Traveler') if user_info else 'Traveler',
+                    'age': 25,
+                    'gender': 'Other',
+                    'phone': user_info.get('phone', 'N/A') if user_info else 'N/A',
+                    'email': user_info.get('email', 'N/A') if user_info else 'N/A'
+                }]
+
+        # Primary passenger details for main Bookings table
+        primary_p = passengers[0]
+        p_name = primary_p.get('name', 'Traveler')
+        p_age = primary_p.get('age', 25)
+        p_gender = primary_p.get('gender', 'Other')
+        p_phone = primary_p.get('phone') or data.get('passenger_phone', 'N/A')
+        p_email = primary_p.get('email', 'N/A')
+
+        # 3. Insert Bookings with primary passenger info
+        route_json_str = json.dumps(route_details.get('legs', []))
+        booking_id = database.insert_query(
+            "INSERT INTO Bookings (travel_plan_id, user_id, total_fare, passenger_name, passenger_age, passenger_gender, passenger_phone, passenger_email, status, route_json) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'confirmed', %s)",
+            (plan_id, uid, total_fare_val, p_name, p_age, p_gender, p_phone, p_email, route_json_str)
+        )
+        
+        if not booking_id:
+            return jsonify({"success": False, "error": "Failed to create booking in database."})
+        
+        # 3a. Insert into BookingPassengers
+        for pax in passengers:
+            database.insert_query(
+                "INSERT INTO BookingPassengers (booking_id, passenger_name, passenger_age, passenger_gender, seat_number) VALUES (%s, %s, %s, %s, %s)",
+                (booking_id, pax.get('name', 'N/A'), pax.get('age', 0), pax.get('gender', 'N/A'), pax.get('seat_number', None))
             )
-        elif mode == 'train':
-            seat = data.get('seat_number', f"{random.randint(1, 72)}")
-            if data.get('seat_numbers'):
-                seat = ",".join(data.get('seat_numbers'))[:10]
-            coach = f"S{random.randint(1, 8)}"
+
+        # 4. Insert Payment and Transaction
+        razorpay_payment_id = data.get('razorpay_payment_id', f'pay_{random.randint(100000, 999999)}')
+        amount = data.get('amount', total_fare_val)
+        payment_method = data.get('payment_method', 'Razorpay')
+        
+        payment_status = 'pending' if payment_method == 'cod' else 'success'
+        
+        # Ensure column exists & insert
+        payment_id = database.insert_query(
+            "INSERT INTO Payments (booking_id, razorpay_order_id, amount, method, status) VALUES (%s, %s, %s, %s, %s)",
+            (booking_id, razorpay_payment_id, amount, payment_method, payment_status)
+        )
+        
+        if payment_id:
             database.execute_query(
-                "INSERT INTO TrainBookings (booking_id, train_number, train_name, coach_number, seat_number, departure_time, arrival_time, fare) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                (booking_id, f"{random.randint(10000, 29999)}", leg['provider'], coach, seat,
-                 parse_leg_time(leg.get('departure'), 1),
-                 parse_leg_time(leg.get('arrival'), 8), fare)
+                "INSERT INTO Transactions (payment_id, transaction_id, method, status) VALUES (%s, %s, %s, %s)",
+                (payment_id, f"TXN{random.randint(10000000, 99999999)}", payment_method, payment_status)
             )
-        elif mode == 'flight':
-            seat = data.get('seat_number', f"{random.randint(10, 30)}{random.choice(['A','B','C','F'])}")
-            if data.get('seat_numbers'):
-                seat = ",".join(data.get('seat_numbers'))[:10]
-            gate = f"G{random.randint(1, 15)}"
-            database.execute_query(
-                "INSERT INTO FlightBookings (booking_id, flight_number, airline_name, seat_number, gate, departure_time, arrival_time, fare) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                (booking_id, f"AI-{random.randint(100, 999)}", leg['provider'], seat, gate,
-                 parse_leg_time(leg.get('departure'), 3),
-                 parse_leg_time(leg.get('arrival'), 5), fare)
-            )
-        elif mode in ('cab', 'auto', 'bike', 'multi_cab', 'multi_auto', 'mixed_fleet'):
-            vehicles_needed = 1
-            v_types = [mode]
-            if mode == 'multi_cab':
-                vehicles_needed = (len(passengers) + 3) // 4
-                v_types = ['cab'] * vehicles_needed
-            elif mode == 'multi_auto':
-                vehicles_needed = (len(passengers) + 2) // 3
-                v_types = ['auto'] * vehicles_needed
-            elif mode == 'mixed_fleet':
-                num_cabs = len(passengers) // 4
-                remainder = len(passengers) % 4
-                num_autos = (remainder + 2) // 3 if remainder > 0 else 0
-                vehicles_needed = num_cabs + num_autos
-                v_types = ['cab'] * num_cabs + ['auto'] * num_autos
-                
-            for cab_idx in range(vehicles_needed):
-                v_type = v_types[cab_idx]
-                
-                is_last_mile = leg.get('leg_type') == 'last_mile' or (index == len(route_details['legs']) - 1 and len(route_details['legs']) > 1)
-                driver_id = None
-                driver = None
-                otp = None
-                status = 'pending'
-                
-                if not is_last_mile:
-                    # Assign an approved online driver of that vehicle type WHO IS NOT BUSY
-                    driver = database.fetch_one(
-                        "SELECT d.* FROM Drivers d JOIN Vehicles v ON d.id = v.driver_id WHERE d.status='approved' AND d.is_online=1 AND v.vehicle_type=%s AND d.id NOT IN (SELECT driver_id FROM RideBookings WHERE status IN ('accepted', 'active') AND driver_id IS NOT NULL) ORDER BY RANDOM() LIMIT 1",
-                        (v_type,)
-                    )
+
+        # Helper to parse "Jun 30, 08:30 AM" from frontend AI route
+        def parse_leg_time(time_str, default_offset_hours):
+            if not time_str:
+                return (datetime.datetime.now() + datetime.timedelta(hours=default_offset_hours)).isoformat()
+            try:
+                now = datetime.datetime.now()
+                dt = datetime.datetime.strptime(time_str, "%b %d, %I:%M %p")
+                dt = dt.replace(year=now.year)
+                if dt < now - datetime.timedelta(days=30):
+                    dt = dt.replace(year=now.year + 1)
+                return dt.isoformat()
+            except:
+                return (datetime.datetime.now() + datetime.timedelta(hours=default_offset_hours)).isoformat()
+
+        # 3. Create sub-bookings for legs
+        for index, leg in enumerate(route_details.get('legs', [])):
+            mode = leg.get('mode', 'transit')
+            fare = leg.get('fare', 0)
+            
+            # Sub-booking assignments
+            if mode == 'bus':
+                seat = data.get('seat_number', f"{random.randint(1, 10)}{random.choice(['A','B','C','D'])}")
+                if data.get('seat_numbers'):
+                    seat = ",".join(data.get('seat_numbers'))[:10]
+                database.execute_query(
+                    "INSERT INTO BusBookings (booking_id, bus_number, operator_name, seat_number, departure_time, arrival_time, fare) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (booking_id, f"KA-51-F-{random.randint(1000, 9999)}", leg.get('provider', 'TravelBus'), seat, 
+                     parse_leg_time(leg.get('departure'), 2),
+                     parse_leg_time(leg.get('arrival'), 6), fare)
+                )
+            elif mode == 'train':
+                seat = data.get('seat_number', f"{random.randint(1, 72)}")
+                if data.get('seat_numbers'):
+                    seat = ",".join(data.get('seat_numbers'))[:10]
+                coach = f"S{random.randint(1, 8)}"
+                database.execute_query(
+                    "INSERT INTO TrainBookings (booking_id, train_number, train_name, coach_number, seat_number, departure_time, arrival_time, fare) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (booking_id, f"{random.randint(10000, 29999)}", leg.get('provider', 'Express Rail'), coach, seat,
+                     parse_leg_time(leg.get('departure'), 1),
+                     parse_leg_time(leg.get('arrival'), 8), fare)
+                )
+            elif mode == 'flight':
+                seat = data.get('seat_number', f"{random.randint(10, 30)}{random.choice(['A','B','C','F'])}")
+                if data.get('seat_numbers'):
+                    seat = ",".join(data.get('seat_numbers'))[:10]
+                gate = f"G{random.randint(1, 15)}"
+                database.execute_query(
+                    "INSERT INTO FlightBookings (booking_id, flight_number, airline_name, seat_number, gate, departure_time, arrival_time, fare) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (booking_id, f"AI-{random.randint(100, 999)}", leg.get('provider', 'Air Express'), seat, gate,
+                     parse_leg_time(leg.get('departure'), 3),
+                     parse_leg_time(leg.get('arrival'), 5), fare)
+                )
+            elif mode in ('cab', 'auto', 'bike', 'multi_cab', 'multi_auto', 'mixed_fleet'):
+                vehicles_needed = 1
+                v_types = [mode]
+                if mode == 'multi_cab':
+                    vehicles_needed = (len(passengers) + 3) // 4
+                    v_types = ['cab'] * vehicles_needed
+                elif mode == 'multi_auto':
+                    vehicles_needed = (len(passengers) + 2) // 3
+                    v_types = ['auto'] * vehicles_needed
+                elif mode == 'mixed_fleet':
+                    num_cabs = len(passengers) // 4
+                    remainder = len(passengers) % 4
+                    num_autos = (remainder + 2) // 3 if remainder > 0 else 0
+                    vehicles_needed = num_cabs + num_autos
+                    v_types = ['cab'] * num_cabs + ['auto'] * num_autos
                     
-                    if not driver:
-                        # Fallback to offline approved driver WHO IS NOT BUSY
+                for cab_idx in range(vehicles_needed):
+                    v_type = v_types[cab_idx]
+                    
+                    is_last_mile = leg.get('leg_type') == 'last_mile' or (index == len(route_details['legs']) - 1 and len(route_details['legs']) > 1)
+                    driver_id = None
+                    driver = None
+                    otp = None
+                    status = 'pending'
+                    
+                    if not is_last_mile:
                         driver = database.fetch_one(
-                            "SELECT d.* FROM Drivers d JOIN Vehicles v ON d.id = v.driver_id WHERE d.status='approved' AND v.vehicle_type=%s AND d.id NOT IN (SELECT driver_id FROM RideBookings WHERE status IN ('accepted', 'active') AND driver_id IS NOT NULL) ORDER BY RANDOM() LIMIT 1",
+                            "SELECT d.* FROM Drivers d JOIN Vehicles v ON d.id = v.driver_id WHERE d.status='approved' AND d.is_online=1 AND v.vehicle_type=%s AND d.id NOT IN (SELECT driver_id FROM RideBookings WHERE status IN ('accepted', 'active') AND driver_id IS NOT NULL) ORDER BY RANDOM() LIMIT 1",
                             (v_type,)
                         )
                         
                         if not driver:
-                            # Absolute fallback if all drivers are busy (for testing/demo) - assign ANY approved driver of that type
                             driver = database.fetch_one(
-                                "SELECT d.* FROM Drivers d JOIN Vehicles v ON d.id = v.driver_id WHERE d.status='approved' AND v.vehicle_type=%s ORDER BY RANDOM() LIMIT 1",
+                                "SELECT d.* FROM Drivers d JOIN Vehicles v ON d.id = v.driver_id WHERE d.status='approved' AND v.vehicle_type=%s AND d.id NOT IN (SELECT driver_id FROM RideBookings WHERE status IN ('accepted', 'active') AND driver_id IS NOT NULL) ORDER BY RANDOM() LIMIT 1",
                                 (v_type,)
                             )
                             
-                        if driver:
-                            database.execute_query("UPDATE Drivers SET is_online=1 WHERE id=%s", (driver['id'],))
+                            if not driver:
+                                driver = database.fetch_one(
+                                    "SELECT d.* FROM Drivers d JOIN Vehicles v ON d.id = v.driver_id WHERE d.status='approved' AND v.vehicle_type=%s ORDER BY RANDOM() LIMIT 1",
+                                    (v_type,)
+                                )
+                                
+                            if driver:
+                                database.execute_query("UPDATE Drivers SET is_online=1 WHERE id=%s", (driver['id'],))
+                        
+                        driver_id = driver['id'] if driver else None
+                        otp = f"{random.randint(1000, 9999)}"
+                        status = 'accepted'
+                    else:
+                        otp = f"{random.randint(1000, 9999)}"
                     
-                    driver_id = driver['id'] if driver else None
-                    otp = f"{random.randint(1000, 9999)}"
-                    status = 'accepted'
-                else:
-                    otp = f"{random.randint(1000, 9999)}"
-                
-                leg_fare = fare / vehicles_needed if vehicles_needed > 1 else fare
-                
-                database.execute_query(
-                    "INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status, leg_type) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (booking_id, driver_id, v_type, leg_fare, otp, status, leg.get('leg_type', 'first_mile'))
-                )
-
-                
-                if driver and not is_last_mile:
-                    start_lat = leg.get('start_coords', [13.0, 80.0])[0]
-                    start_lng = leg.get('start_coords', [13.0, 80.0])[1]
-                    # Offset driver location slightly from pickup point
-                    d_lat = start_lat - 0.005 + (cab_idx * 0.001)
-                    d_lng = start_lng - 0.005 + (cab_idx * 0.001)
+                    leg_fare = fare / vehicles_needed if vehicles_needed > 1 else fare
                     
-                    # Create ride tracking entry
                     database.execute_query(
-                        "INSERT INTO RideTracking (booking_id, driver_id, current_leg, status, driver_location_lat, driver_location_lng, otp) VALUES (%s, %s, %s, 'driver_assigned', %s, %s, %s)",
-                        (booking_id, driver_id, leg['leg_type'], d_lat, d_lng, otp)
+                        "INSERT INTO RideBookings (booking_id, driver_id, vehicle_type, fare, otp, status, leg_type) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                        (booking_id, driver_id, v_type, leg_fare, otp, status, leg.get('leg_type', 'first_mile'))
                     )
+
+                    if driver and not is_last_mile:
+                        start_lat = leg.get('start_coords', [13.0, 80.0])[0]
+                        start_lng = leg.get('start_coords', [13.0, 80.0])[1]
+                        d_lat = start_lat - 0.005 + (cab_idx * 0.001)
+                        d_lng = start_lng - 0.005 + (cab_idx * 0.001)
+                        
+                        database.execute_query(
+                            "INSERT INTO RideTracking (booking_id, driver_id, current_leg, status, driver_location_lat, driver_location_lng, otp) VALUES (%s, %s, %s, 'driver_assigned', %s, %s, %s)",
+                            (booking_id, driver_id, leg.get('leg_type', 'first_mile'), d_lat, d_lng, otp)
+                        )
+                
+        # 4. Insert TripTracking default row
+        legs_list = route_details.get('legs', [])
+        first_leg = legs_list[0] if legs_list else {}
+        coords = first_leg.get('start_coords', [13.0, 80.0])
+        lat, lng = coords[0], coords[1]
+        
+        trip_status = 'boarding'
+        if first_leg.get('mode') in ('walk', 'personal_drop', 'personal_pickup'):
+            trip_status = 'self_transit'
             
-    # 4. Insert TripTracking default row
-    first_leg = route_details['legs'][0]
-    coords = first_leg.get('start_coords', [13.0, 80.0])
-    lat, lng = coords[0], coords[1]
-    
-    trip_status = 'boarding'
-    if first_leg['mode'] in ('walk', 'personal_drop', 'personal_pickup'):
-        trip_status = 'self_transit'
-        
-    is_multi_leg = len(route_details.get('legs', [])) > 1
-    tracking_leg = 'first_mile' if is_multi_leg else 'local'
+        is_multi_leg = len(legs_list) > 1
+        tracking_leg = 'first_mile' if is_multi_leg else 'local'
 
-    
-    # Safely parse duration to integer minutes
-    raw_duration = route_details.get('duration', 15) if option_type == 'custom' else route_details.get('total_duration', 15)
-    tracking_duration = 120
-    if isinstance(raw_duration, (int, float)):
-        tracking_duration = int(raw_duration)
-    elif isinstance(raw_duration, str):
-        # Extract first number found
-        import re
-        nums = re.findall(r'\d+', raw_duration)
-        if nums:
-            tracking_duration = int(nums[0])
-            if 'hr' in raw_duration.lower() or 'hour' in raw_duration.lower():
-                tracking_duration = tracking_duration * 60
-                if len(nums) > 1:
-                    tracking_duration += int(nums[1])
-        
-    database.execute_query(
-        "INSERT INTO TripTracking (booking_id, current_latitude, current_longitude, current_leg, eta_minutes, status) VALUES (%s, %s, %s, %s, %s, %s)",
-        (booking_id, lat, lng, tracking_leg, tracking_duration, trip_status)
-    )
-    
-    is_local_intercity = route_details.get('is_local') or route_details.get('is_intercity')
-    
-    if is_local_intercity:
-        # Skip ticket and email for Local/Intercity
+        raw_duration = route_details.get('duration', 15) if option_type == 'custom' else route_details.get('total_duration', 15)
+        tracking_duration = 120
+        if isinstance(raw_duration, (int, float)):
+            tracking_duration = int(raw_duration)
+        elif isinstance(raw_duration, str):
+            import re
+            nums = re.findall(r'\d+', raw_duration)
+            if nums:
+                tracking_duration = int(nums[0])
+                if 'hr' in raw_duration.lower() or 'hour' in raw_duration.lower():
+                    tracking_duration = tracking_duration * 60
+                    if len(nums) > 1:
+                        tracking_duration += int(nums[1])
+            
         database.execute_query(
-            "INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (%s, %s, %s, 'booking')",
-            (uid, "Booking Confirmed!", f"Your ride from {session.get('active_src')} to {session.get('active_dst')} is booked. View Live Tracking for details.")
+            "INSERT INTO TripTracking (booking_id, current_latitude, current_longitude, current_leg, eta_minutes, status) VALUES (%s, %s, %s, %s, %s, %s)",
+            (booking_id, lat, lng, tracking_leg, tracking_duration, trip_status)
         )
-        return jsonify({
-            "success": True, 
-            "booking_id": booking_id,
-            "redirect": f"/tracking/{booking_id}?search=1",
-            "email_sent": False
-        })
-    else:
-        # 5. Generate Ticket record
-        database.execute_query(
-            "INSERT INTO Tickets (booking_id, ticket_file_path, qr_code_path) VALUES (%s, %s, %s)",
-            (booking_id, f"/ticket/{booking_id}", f"/ticket/{booking_id}/qr")
-        )
-
-        # 6. Send Email Confirmation via NotificationService
-        main_leg = next((l for l in route_details['legs'] if l['mode'] in ('flight', 'train', 'bus')), route_details['legs'][0] if route_details['legs'] else None)
-        mode = main_leg['mode'] if main_leg else 'flight'
-        operator = main_leg.get('provider', 'TravelFusion Select') if main_leg else 'TravelFusion Select'
         
-        seat, dep_time, gate = "Assigned", "TBD", "TBD"
-        if mode == 'flight':
-            fb = database.fetch_one("SELECT * FROM FlightBookings WHERE booking_id = %s", (booking_id,))
-            if fb: seat, dep_time, gate = fb['seat_number'], fb['departure_time'], fb['gate']
-        elif mode == 'train':
-            tb = database.fetch_one("SELECT * FROM TrainBookings WHERE booking_id = %s", (booking_id,))
-            if tb: seat, dep_time, gate = f"{tb['coach_number']}/{tb['seat_number']}", tb['departure_time'], "PF-1"
-        elif mode == 'bus':
-            bb = database.fetch_one("SELECT * FROM BusBookings WHERE booking_id = %s", (booking_id,))
-            if bb: seat, dep_time, gate = bb['seat_number'], bb['departure_time'], "Platform 1"
+        is_local_intercity = route_details.get('is_local') or route_details.get('is_intercity')
+        
+        if is_local_intercity:
+            database.execute_query(
+                "INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (%s, %s, %s, 'booking')",
+                (uid, "Booking Confirmed!", f"Your ride from {src_val} to {dst_val} is booked. View Live Tracking for details.")
+            )
+            return jsonify({
+                "success": True, 
+                "booking_id": booking_id,
+                "redirect": f"/tracking/{booking_id}?search=1",
+                "email_sent": False
+            })
         else:
-            gate = "Pickup"
-            active_date = session.get('active_date')
-            if active_date:
-                try:
-                    dt = datetime.datetime.strptime(active_date, "%Y-%m-%d").replace(hour=9, minute=0)
-                    dep_time = dt.isoformat()
-                except: pass
-        
-        try:
-            dt_obj = datetime.datetime.fromisoformat(dep_time)
-            formatted_time = dt_obj.strftime("%I:%M %p, %b %d")
-        except:
-            formatted_time = str(dep_time)
+            # 5. Generate Ticket record
+            database.execute_query(
+                "INSERT INTO Tickets (booking_id, ticket_file_path, qr_code_path) VALUES (%s, %s, %s)",
+                (booking_id, f"/ticket/{booking_id}", f"/ticket/{booking_id}/qr")
+            )
 
-        ticket_details = {
-            "passengers": passengers,
-            "passenger_name": p_name,
-            "source": session.get('active_src', 'Source'),
-            "destination": session.get('active_dst', 'Destination'),
-            "date": formatted_time,
-            "fare": amount,
-            "mode": mode,
-            "operator": operator,
-            "seat": seat,
-            "gate": gate
-        }
-        email_result = NotificationService.send_email_ticket(booking_id, p_email, ticket_details)
-        
-        database.execute_query(
-            "INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (%s, %s, %s, 'booking')",
-            (uid, "Booking Confirmed!", f"Your automated travel plan from {session.get('active_src')} to {session.get('active_dst')} is successfully booked. View your ticket.")
-        )
-        
-        return jsonify({
-            "success": True, 
-            "booking_id": booking_id,
-            "email_sent": email_result.get('success', False)
-        })
+            # 6. Send Email Confirmation in background thread so SMTP never delays response or causes HTTP 502
+            main_leg = next((l for l in legs_list if l.get('mode') in ('flight', 'train', 'bus')), legs_list[0] if legs_list else None)
+            mode = main_leg.get('mode', 'flight') if main_leg else 'flight'
+            operator = main_leg.get('provider', 'TravelFusion Select') if main_leg else 'TravelFusion Select'
+            
+            seat, dep_time, gate = "Assigned", "TBD", "TBD"
+            if mode == 'flight':
+                fb = database.fetch_one("SELECT * FROM FlightBookings WHERE booking_id = %s", (booking_id,))
+                if fb: seat, dep_time, gate = fb['seat_number'], fb['departure_time'], fb['gate']
+            elif mode == 'train':
+                tb = database.fetch_one("SELECT * FROM TrainBookings WHERE booking_id = %s", (booking_id,))
+                if tb: seat, dep_time, gate = f"{tb['coach_number']}/{tb['seat_number']}", tb['departure_time'], "PF-1"
+            elif mode == 'bus':
+                bb = database.fetch_one("SELECT * FROM BusBookings WHERE booking_id = %s", (booking_id,))
+                if bb: seat, dep_time, gate = bb['seat_number'], bb['departure_time'], "Platform 1"
+            else:
+                gate = "Pickup"
+                active_date = session.get('active_date')
+                if active_date:
+                    try:
+                        dt = datetime.datetime.strptime(active_date, "%Y-%m-%d").replace(hour=9, minute=0)
+                        dep_time = dt.isoformat()
+                    except: pass
+            
+            try:
+                dt_obj = datetime.datetime.fromisoformat(dep_time)
+                formatted_time = dt_obj.strftime("%I:%M %p, %b %d")
+            except:
+                formatted_time = str(dep_time)
+
+            ticket_details = {
+                "passengers": passengers,
+                "passenger_name": p_name,
+                "source": src_val,
+                "destination": dst_val,
+                "date": formatted_time,
+                "fare": amount,
+                "mode": mode,
+                "operator": operator,
+                "seat": seat,
+                "gate": gate
+            }
+
+            # Asynchronously send email to avoid SMTP gateway timeout
+            def _async_send_email():
+                try:
+                    NotificationService.send_email_ticket(booking_id, p_email, ticket_details)
+                except Exception as mail_err:
+                    print(f"Async email sending error: {mail_err}")
+
+            threading.Thread(target=_async_send_email, daemon=True).start()
+            
+            database.execute_query(
+                "INSERT INTO Notifications (user_id, title, message, notification_type) VALUES (%s, %s, %s, 'booking')",
+                (uid, "Booking Confirmed!", f"Your automated travel plan from {src_val} to {dst_val} is successfully booked. View your ticket.")
+            )
+            
+            return jsonify({
+                "success": True, 
+                "booking_id": booking_id,
+                "email_sent": True
+            })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": f"Server processing error: {str(e)}"}), 200
 
 @app.route('/booking/cancel/<int:booking_id>', methods=['POST'])
 def cancel_booking(booking_id):

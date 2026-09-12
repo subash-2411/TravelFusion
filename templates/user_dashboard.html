@@ -65,16 +65,19 @@
         <div class="col-lg-4 d-flex flex-column gap-4">
             <!-- Live Weather Widget -->
             <div class="stat-card flex-grow-1 d-flex flex-column justify-content-center position-relative overflow-hidden" style="border-radius: 20px; background: linear-gradient(135deg, rgba(14,165,233,0.15) 0%, rgba(2,132,199,0.05) 100%); border: 1px solid rgba(14,165,233,0.3);">
-                <div style="position:absolute; right:-15px; bottom:-10px; font-size: 7rem; opacity: 0.1; color: #0ea5e9; pointer-events: none;"><i class="bi bi-cloud-sun-fill"></i></div>
+                <div style="position:absolute; right:-15px; bottom:-10px; font-size: 7rem; opacity: 0.1; color: #0ea5e9; pointer-events: none;"><i class="bi bi-cloud-sun-fill" id="weather-bg-icon"></i></div>
                 <div class="d-flex justify-content-between align-items-center mb-2 content-z">
-                    <div class="stat-icon mb-0 shadow-sm" style="width: 42px; height: 42px; font-size: 1.2rem; background: rgba(14,165,233,0.2); color: #0ea5e9;"><i class="bi bi-brightness-high-fill"></i></div>
+                    <div class="stat-icon mb-0 shadow-sm" style="width: 42px; height: 42px; font-size: 1.2rem; background: rgba(14,165,233,0.2); color: #0ea5e9;"><i class="bi bi-brightness-high-fill" id="weather-main-icon"></i></div>
                     <div class="stat-label mb-0 text-white fw-bold" id="live-time">--:--</div>
                 </div>
                 <div class="content-z mt-1">
-                    <h3 class="stat-value text-white mb-0" style="font-size: 2.2rem;" id="weather-display">
-                        <span id="weather-temp">32°C</span> <span style="font-size: 1rem; color: rgba(255,255,255,0.7); font-weight: normal; font-family: sans-serif;" id="weather-cond">Partly Cloudy</span>
+                    <h3 class="stat-value text-white mb-0 d-flex align-items-baseline gap-2 flex-wrap" style="font-size: 2.2rem;" id="weather-display">
+                        <span id="weather-temp">--°C</span>
+                        <span style="font-size: 1.15rem; color: #7dd3fc; font-weight: 700; font-family: sans-serif; letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(14,165,233,0.5);" id="weather-cond">Loading...</span>
                     </h3>
-                    <div class="small fw-bold mt-2" style="color: #7dd3fc;"><i class="bi bi-geo-alt-fill me-1"></i>Current Location</div>
+                    <div class="small fw-bold mt-2 text-truncate" style="color: #38bdf8; font-size: 0.95rem;" id="weather-location">
+                        <i class="bi bi-geo-alt-fill me-1"></i><span id="weather-location-text">Detecting location...</span>
+                    </div>
                     <p class="text-white-50 mt-1 mb-0" style="font-size: 0.78rem; line-height: 1.4;" id="live-date">--</p>
                 </div>
             </div>
@@ -830,35 +833,87 @@ document.addEventListener('DOMContentLoaded', () => {
         dateInput.value = today;
     }
 
-    // Live weather fetch
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
+    // Live weather fetch with reverse geocoding & IP fallback
+    function updateLiveWeather() {
+        const tempEl = document.getElementById('weather-temp');
+        const condEl = document.getElementById('weather-cond');
+        const locEl = document.getElementById('weather-location-text');
+        const mainIconEl = document.getElementById('weather-main-icon');
+        const bgIconEl = document.getElementById('weather-bg-icon');
+
+        function getWeatherDetails(wc) {
+            if (wc === 0) return { text: 'Clear Sky', icon: 'bi-sun-fill' };
+            if (wc === 1) return { text: 'Mainly Clear', icon: 'bi-cloud-sun-fill' };
+            if (wc === 2) return { text: 'Partly Cloudy', icon: 'bi-cloud-sun-fill' };
+            if (wc === 3) return { text: 'Overcast', icon: 'bi-clouds-fill' };
+            if ([45, 48].includes(wc)) return { text: 'Foggy', icon: 'bi-cloud-haze-fill' };
+            if ([51, 53, 55].includes(wc)) return { text: 'Light Drizzle', icon: 'bi-cloud-drizzle-fill' };
+            if ([61, 63, 65, 80, 81, 82].includes(wc)) return { text: 'Rainy', icon: 'bi-cloud-rain-fill' };
+            if ([95, 96, 99].includes(wc)) return { text: 'Thunderstorm', icon: 'bi-cloud-lightning-rain-fill' };
+            if ([71, 73, 75].includes(wc)) return { text: 'Snowy', icon: 'bi-snowflake' };
+            return { text: 'Partly Cloudy', icon: 'bi-cloud-sun-fill' };
+        }
+
+        function applyWeather(lat, lng, fallbackName) {
             fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-            .then(r => r.json())
-            .then(d => {
-                if (d.current_weather) {
-                    const cw = d.current_weather;
-                    const temp = Math.round(cw.temperature);
-                    const wc = cw.weathercode;
-                    let cond = 'Clear';
-                    if ([2,3].includes(wc)) cond = 'Partly Cloudy';
-                    else if ([51,53,55,61,63,65,80,81,82].includes(wc)) cond = 'Rainy';
-                    else if ([95,96,99].includes(wc)) cond = 'Heavy Rain';
-                    else if ([71,73,75].includes(wc)) cond = 'Snowy';
-                    document.getElementById('weather-temp').innerText = `${temp}°C`;
-                    document.getElementById('weather-cond').innerText = cond;
-                }
-            }).catch(() => {});
-        }, () => {
-            document.getElementById('weather-temp').innerText = '32°C';
-            document.getElementById('weather-cond').innerText = 'Partly Cloudy';
-        }, { timeout: 3000, maximumAge: 300000 });
-    } else {
-        document.getElementById('weather-temp').innerText = '32°C';
-        document.getElementById('weather-cond').innerText = 'Partly Cloudy';
+                .then(r => r.json())
+                .then(d => {
+                    if (d.current_weather) {
+                        const cw = d.current_weather;
+                        const temp = Math.round(cw.temperature);
+                        const info = getWeatherDetails(cw.weathercode);
+                        if (tempEl) tempEl.innerText = `${temp}°C`;
+                        if (condEl) condEl.innerText = info.text;
+                        if (mainIconEl) mainIconEl.className = `bi ${info.icon}`;
+                        if (bgIconEl) bgIconEl.className = `bi ${info.icon}`;
+                    }
+                }).catch(e => console.warn('Weather fetch error:', e));
+
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`)
+                .then(r => r.json())
+                .then(geo => {
+                    let locName = geo.locality || geo.city || geo.principalSubdivision || geo.countryName || fallbackName;
+                    if (geo.locality && geo.city && geo.locality !== geo.city) {
+                        locName = `${geo.locality}, ${geo.city}`;
+                    }
+                    if (locEl) locEl.innerText = locName;
+                })
+                .catch(() => {
+                    if (locEl && fallbackName) locEl.innerText = fallbackName;
+                });
+        }
+
+        function fallbackToIP() {
+            fetch('https://ipapi.co/json/')
+                .then(r => r.json())
+                .then(ip => {
+                    if (ip && ip.latitude && ip.longitude) {
+                        const locName = ip.city ? `${ip.city}, ${ip.region_code || ip.country_name}` : 'Current Location';
+                        applyWeather(ip.latitude, ip.longitude, locName);
+                    } else {
+                        applyWeather(13.0827, 80.2707, 'Chennai');
+                    }
+                })
+                .catch(() => {
+                    applyWeather(13.0827, 80.2707, 'Chennai');
+                });
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    applyWeather(pos.coords.latitude, pos.coords.longitude, 'Current Location');
+                },
+                err => {
+                    fallbackToIP();
+                },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
+            );
+        } else {
+            fallbackToIP();
+        }
     }
+    updateLiveWeather();
 
     // Sync reward points across sections
     const pts = document.getElementById('reward-pts-main');
