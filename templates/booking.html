@@ -331,7 +331,7 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-center gap-4 mb-4 small text-muted">
+                <div class="d-flex justify-content-center align-items-center gap-2 gap-sm-4 flex-wrap mb-4 small text-muted">
                     <div class="d-flex align-items-center gap-2">
                         <div style="width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);"></div> Available
                     </div>
@@ -1644,6 +1644,19 @@
 }
 
 @media (max-width: 576px) {
+    .cabin-frame {
+        padding: 15px 6px !important;
+        margin: 10px auto !important;
+        max-width: 100% !important;
+        border-radius: 20px !important;
+    }
+    .bus-frame {
+        max-width: 100% !important;
+        padding-top: 45px !important;
+    }
+    .seat-chair, .seat-bed {
+        font-size: 0.78rem !important;
+    }
     #payment-tabs {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
