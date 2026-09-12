@@ -72,7 +72,7 @@
                 </div>
                 <div class="content-z mt-1">
                     <h3 class="stat-value text-white mb-0" style="font-size: 2.2rem;" id="weather-display">
-                        <span id="weather-temp">--°C</span> <span style="font-size: 1rem; color: rgba(255,255,255,0.7); font-weight: normal; font-family: sans-serif;" id="weather-cond">Loading...</span>
+                        <span id="weather-temp">32°C</span> <span style="font-size: 1rem; color: rgba(255,255,255,0.7); font-weight: normal; font-family: sans-serif;" id="weather-cond">Partly Cloudy</span>
                     </h3>
                     <div class="small fw-bold mt-2" style="color: #7dd3fc;"><i class="bi bi-geo-alt-fill me-1"></i>Current Location</div>
                     <p class="text-white-50 mt-1 mb-0" style="font-size: 0.78rem; line-height: 1.4;" id="live-date">--</p>
@@ -815,7 +815,7 @@ function updateLiveTime() {
     const now = new Date();
     const timeEl = document.getElementById('live-time');
     const dateEl = document.getElementById('live-date');
-    if (timeEl) timeEl.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    if (timeEl) timeEl.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
     if (dateEl) dateEl.innerText = now.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
 }
 setInterval(updateLiveTime, 1000);
@@ -852,11 +852,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).catch(() => {});
         }, () => {
-            document.getElementById('weather-temp').innerText = '31°C';
+            document.getElementById('weather-temp').innerText = '32°C';
             document.getElementById('weather-cond').innerText = 'Partly Cloudy';
-        });
+        }, { timeout: 3000, maximumAge: 300000 });
     } else {
-        document.getElementById('weather-temp').innerText = '31°C';
+        document.getElementById('weather-temp').innerText = '32°C';
         document.getElementById('weather-cond').innerText = 'Partly Cloudy';
     }
 
