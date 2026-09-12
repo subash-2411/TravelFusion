@@ -626,26 +626,24 @@
                 else if (currentMode === 'bus') destName = routeData.journey_context.source_transit_names['bus'];
             }
             
-            if (routeData.is_local || (routeData.is_intercity && intercityMode === 'door')) {
-                const driverETA = Math.floor(Math.random() * 4) + 2;
-                subtitle = `${opt.distance} km • ~${opt.duration} mins travel time • Driver Arrival: ~${driverETA} mins`;
-            } else {
-                subtitle = `Distance to ${destName}: ${opt.distance} km • ~${opt.duration} mins`;
-            }
+            const mainText = (routeData.is_local || (routeData.is_intercity && intercityMode === 'door'))
+                ? `${opt.distance} km • ~${opt.duration} mins`
+                : `To ${destName}: ${opt.distance} km • ~${opt.duration} mins`;
+            
             html += `
-            <div class="option-card p-3 d-flex justify-content-between align-items-center" id="fm-opt-${idx}" onclick="selectFirstMile(${idx})">
-                <div class="d-flex align-items-center gap-2 gap-md-3" style="flex: 1; min-width: 0; margin-right: 10px;">
-                    <div style="width:40px;height:40px;border-radius:50%;background:${mc.color}20;display:flex;align-items:center;justify-content:center;color:${mc.color}; flex-shrink: 0;">
+            <div class="option-card p-3 mb-2.5 d-flex justify-content-between align-items-center gap-2" id="fm-opt-${idx}" onclick="selectFirstMile(${idx})">
+                <div class="d-flex align-items-center gap-2.5" style="min-width: 0; flex: 1;">
+                    <div style="width:40px;height:40px;border-radius:50%;background:${mc.color}22;display:flex;align-items:center;justify-content:center;color:${mc.color}; flex-shrink: 0;">
                         <i class="${mc.icon.startsWith('bi-') ? 'bi ' : ''}${mc.icon} fs-5"></i>
                     </div>
                     <div style="min-width: 0; flex: 1;">
-                        <h6 class="text-white mb-0 text-truncate">${opt.name}</h6>
-                        <small class="text-secondary" style="white-space: normal;">${subtitle}</small>
+                        <h6 class="text-white fw-bold mb-0" style="font-size: 0.95rem; line-height: 1.2;">${opt.name}</h6>
+                        <small class="text-secondary d-block mt-0.5" style="font-size: 0.75rem; line-height: 1.3; overflow-wrap: anywhere; word-break: normal;">${mainText}</small>
                     </div>
                 </div>
-                <div class="text-end" style="flex-shrink: 0;">
-                    <div class="text-success fw-bold fs-5">₹${opt.fare}</div>
-                    ${opt.fare_label ? `<small class="text-secondary d-block" style="font-size:0.65rem;">${opt.fare_label}</small>` : ''}
+                <div class="text-end ms-1" style="flex-shrink: 0;">
+                    <div class="text-success fw-bold fs-5" style="line-height: 1.1;">₹${opt.fare}</div>
+                    ${opt.fare_label ? `<small class="text-secondary d-block mt-0.5" style="font-size:0.68rem; white-space: nowrap;">${opt.fare_label}</small>` : ''}
                 </div>
             </div>`;
         });
@@ -684,20 +682,22 @@
                 else if (currentMode === 'bus') srcName = routeData.journey_context.dest_transit_names['bus'];
             }
             
+            const lmText = `${srcName} to Destination: ${opt.distance} km • ~${opt.duration} mins`;
+            
             html += `
-            <div class="option-card p-3 d-flex justify-content-between align-items-center" id="lm-opt-${idx}" onclick="selectLastMile(${idx})">
-                <div class="d-flex align-items-center gap-3">
-                    <div style="width:40px;height:40px;border-radius:50%;background:${mc.color}20;display:flex;align-items:center;justify-content:center;color:${mc.color};">
+            <div class="option-card p-3 mb-2.5 d-flex justify-content-between align-items-center gap-2" id="lm-opt-${idx}" onclick="selectLastMile(${idx})">
+                <div class="d-flex align-items-center gap-2.5" style="min-width: 0; flex: 1;">
+                    <div style="width:40px;height:40px;border-radius:50%;background:${mc.color}22;display:flex;align-items:center;justify-content:center;color:${mc.color}; flex-shrink: 0;">
                         <i class="${mc.icon.startsWith('bi-') ? 'bi ' : ''}${mc.icon} fs-5"></i>
                     </div>
-                    <div>
-                        <h6 class="text-white mb-0">${opt.name}</h6>
-                        <small class="text-secondary">${srcName} to Destination: ${opt.distance} km • ~${opt.duration} mins</small>
+                    <div style="min-width: 0; flex: 1;">
+                        <h6 class="text-white fw-bold mb-0" style="font-size: 0.95rem; line-height: 1.2;">${opt.name}</h6>
+                        <small class="text-secondary d-block mt-0.5" style="font-size: 0.75rem; line-height: 1.3; overflow-wrap: anywhere; word-break: normal;">${lmText}</small>
                     </div>
                 </div>
-                <div class="text-end">
-                    <div class="text-success fw-bold fs-5">₹${opt.fare}</div>
-                    ${opt.fare_label ? `<small class="text-secondary d-block" style="font-size:0.65rem;">${opt.fare_label}</small>` : ''}
+                <div class="text-end ms-1" style="flex-shrink: 0;">
+                    <div class="text-success fw-bold fs-5" style="line-height: 1.1;">₹${opt.fare}</div>
+                    ${opt.fare_label ? `<small class="text-secondary d-block mt-0.5" style="font-size:0.68rem; white-space: nowrap;">${opt.fare_label}</small>` : ''}
                 </div>
             </div>`;
         });
@@ -815,46 +815,62 @@
                 const cardHtml = `
                 <div class="option-card p-3 mb-3 d-flex flex-column ${opt.available ? '' : 'opacity-50'}" id="ld-opt-${idx}" onclick="selectLongDistance(${idx}, ${opt.available})">
                     ${alertHtml}
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="d-flex align-items-center gap-3">
-                            <div style="width:40px;height:40px;border-radius:50%;background:${opt.available ? mc.color : '#64748b'}20;display:flex;align-items:center;justify-content:center;color:${opt.available ? mc.color : '#64748b'};">
+                    <!-- Card Top Header: Provider Name + Price -->
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                        <div class="d-flex align-items-start gap-2 gap-sm-3" style="min-width: 0; flex: 1;">
+                            <div style="width:40px;height:40px;border-radius:50%;background:${opt.available ? mc.color : '#64748b'}20;display:flex;align-items:center;justify-content:center;color:${opt.available ? mc.color : '#64748b'}; flex-shrink: 0; margin-top: 2px;">
                                 <i class="bi ${mc.icon} fs-5"></i>
                             </div>
-                            <div>
-                                <h6 class="text-white mb-0" style="font-size: 1rem;">${opt.name} ${tagsHtml}</h6>
-                                <div class="text-muted" style="font-size: 0.75rem;">
+                            <div style="min-width: 0; flex: 1;">
+                                <div class="text-white fw-bold leading-tight" style="font-size: 1rem; word-break: break-word;">
+                                    ${opt.name}
+                                </div>
+                                <div class="text-muted mt-1" style="font-size: 0.78rem; word-break: break-word;">
                                     ${opt.provider} • <span class="fw-bold text-light">${opt.inventory ? opt.inventory.class_name : ''}</span>
                                 </div>
+                                ${tagsHtml ? `<div class="mt-1 d-flex flex-wrap gap-1">${tagsHtml}</div>` : ''}
                             </div>
                         </div>
-                        <div class="text-end">
-                            <div class="${opt.available ? 'text-success' : 'text-danger'} fw-bold fs-4">₹${opt.fare}</div>
-                            ${opt.fare_label ? `<small class="text-secondary d-block" style="font-size:0.7rem;">${opt.fare_label}</small>` : ''}
+                        <div class="text-end ms-2" style="flex-shrink: 0;">
+                            <div class="${opt.available ? 'text-success' : 'text-danger'} fw-bold fs-4" style="line-height: 1.1;">₹${opt.fare}</div>
+                            ${opt.fare_label ? `<small class="text-secondary d-block mt-1" style="font-size:0.7rem;">${opt.fare_label}</small>` : ''}
                         </div>
                     </div>
                     
-                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.03);">
-                        <div class="d-flex gap-4">
-                            <div>
-                                <div class="text-white fw-bold fs-6">${opt.departure}</div>
-                                <div class="text-secondary" style="font-size: 0.65rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${srcName}"><i class="bi bi-geo-alt me-1"></i>${srcName}</div>
-                            </div>
-                            <div class="d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-muted" style="font-size: 0.65rem;">${Math.floor(opt.duration/60)}h ${opt.duration%60}m</div>
-                                <div style="width: 40px; height: 1px; background: #475569; position: relative;">
-                                    <i class="bi ${mc.icon} text-secondary" style="position: absolute; top: -7px; left: 14px; font-size: 0.7rem;"></i>
+                    <!-- Card Bottom Details: Departure / Duration / Arrival / Availability -->
+                    <div class="p-2.5 rounded border border-secondary border-opacity-10" style="background: rgba(255,255,255,0.03);">
+                        <div class="row g-2 align-items-center">
+                            <!-- Departure -->
+                            <div class="col-5 col-sm-4">
+                                <div class="text-white fw-bold" style="font-size: 0.88rem; line-height: 1.2;">${opt.departure}</div>
+                                <div class="text-secondary mt-1" style="font-size: 0.72rem; word-break: break-word;" title="${srcName}">
+                                    <i class="bi bi-geo-alt text-primary me-0.5"></i>${srcName}
                                 </div>
                             </div>
-                            <div class="text-end">
-                                <div class="text-white fw-bold fs-6">${opt.arrival}</div>
-                                <div class="text-secondary" style="font-size: 0.65rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${destName}"><i class="bi bi-geo-alt me-1"></i>${destName}</div>
+                            
+                            <!-- Timeline / Duration -->
+                            <div class="col-2 col-sm-4 text-center px-0">
+                                <div class="text-muted fw-500 mb-1" style="font-size: 0.68rem;">${Math.floor(opt.duration/60)}h ${opt.duration%60}m</div>
+                                <div style="width: 100%; max-width: 60px; height: 1px; background: rgba(255,255,255,0.2); margin: 0 auto; position: relative;">
+                                    <i class="bi ${mc.icon} text-secondary" style="position: absolute; top: -7px; left: 50%; transform: translateX(-50%); font-size: 0.65rem; background: #0f172a; padding: 0 2px;"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Arrival -->
+                            <div class="col-5 col-sm-4 text-end">
+                                <div class="text-white fw-bold" style="font-size: 0.88rem; line-height: 1.2;">${opt.arrival}</div>
+                                <div class="text-secondary mt-1" style="font-size: 0.72rem; word-break: break-word;" title="${destName}">
+                                    <i class="bi bi-geo-alt text-danger me-0.5"></i>${destName}
+                                </div>
                             </div>
                         </div>
-                        <div class="text-end ms-2 border-start border-secondary ps-2">
-                            <div class="badge border" ${tooltipAttr} style="color: ${statusColor}; border-color: ${statusColor} !important; background: ${statusColor}10; font-size: 0.75rem;">
+
+                        <!-- Availability & Schedule Status Footer -->
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-secondary border-opacity-10">
+                            <div class="badge border" ${tooltipAttr} style="color: ${statusColor}; border-color: ${statusColor} !important; background: ${statusColor}15; font-size: 0.75rem; padding: 4px 8px;">
                                 ${statusText}
                             </div>
-                            ${opt.schedule ? `<div class="text-muted mt-1" style="font-size: 0.65rem;">${opt.schedule}</div>` : ''}
+                            ${opt.schedule ? `<div class="text-muted small ms-2" style="font-size: 0.7rem;">${opt.schedule}</div>` : ''}
                         </div>
                     </div>
                 </div>`;
@@ -1362,18 +1378,46 @@
 .option-card {
     cursor: pointer;
     transition: all 0.25s ease;
-    border: 1px solid rgba(255,255,255,0.05);
-    background: rgba(0,0,0,0.2);
-    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 14px;
 }
 .option-card:hover {
     border-color: rgba(59,130,246,0.4);
-    background: rgba(255,255,255,0.02);
+    background: rgba(30, 41, 59, 0.7);
 }
 .option-card.selected {
     border-color: rgba(16,185,129,0.6) !important;
-    background: rgba(16,185,129,0.05) !important;
-    box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 4px 20px rgba(16,185,129,0.1) !important;
+    background: rgba(16,185,129,0.08) !important;
+    box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 4px 20px rgba(16,185,129,0.15) !important;
+}
+
+/* Force clean word wrapping across all viewports */
+.option-card * {
+    word-break: normal !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+}
+
+/* Mobile Specific Optimizations */
+@media (max-width: 576px) {
+    .glass-card {
+        padding: 0.85rem !important;
+    }
+    .option-card {
+        padding: 0.75rem !important;
+    }
+    .option-card h6 {
+        font-size: 0.92rem !important;
+        line-height: 1.3 !important;
+        white-space: normal !important;
+    }
+    .option-card small {
+        font-size: 0.74rem !important;
+        line-height: 1.35 !important;
+        white-space: normal !important;
+    }
 }
 </style>
 {% endblock %}
