@@ -211,7 +211,7 @@
     <!-- Main -->
     <main class="app-main">
         <header class="app-topbar">
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2 gap-md-3">
                 <button class="btn-icon d-lg-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
                 <div>
                     <div class="topbar-title">Welcome back, <span class="notranslate" translate="no">{{ session.user_name }}</span>! <span style="font-size: 1.3rem; margin-left: 4px;">{{ session.status_emoji or '👋' }}</span></div>
@@ -226,7 +226,7 @@
                     /* Make the widget fill the container and become invisible */
                     #google_translate_element select { cursor: pointer; }
                 </style>
-                <div class="dropdown d-none d-md-flex align-items-center">
+                <div class="dropdown d-flex align-items-center">
                     <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: rgba(255,255,255,0.05); width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; padding: 0;">
                         <i class="bi bi-translate text-accent-blue" style="font-size: 1.1rem;"></i>
                     </button>
@@ -249,7 +249,7 @@
                     </ul>
                 </div>
                 <div id="google_translate_element" style="display: none;"></div>
-                <div class="dropdown" style="margin-left: 1.25rem;">
+                <div class="dropdown ms-1 ms-md-4">
                     <div class="dropdown-toggle" data-bs-toggle="dropdown" style="cursor: pointer; display: flex; align-items: center; gap: 6px; color: white; background: transparent !important; border: none !important; padding: 0; outline: none; border-radius: 30px;">
                         {% if session.avatar_url and session.avatar_url != '/static/images/default-avatar.png' %}
                             <img class="user-avatar-top" src="{{ session.avatar_url }}" style="height: 36px; width: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #06b6d4; box-shadow: 0 4px 12px rgba(37,99,235,0.3);" onerror="this.outerHTML='<div class=\'avatar notranslate\' style=\'height:36px; width:36px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #06b6d4); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem; color:white;\'>{{ session.user_name[0] if session.user_name else 'U' }}</div>'">
@@ -446,8 +446,8 @@
             <div class="col-md-2">
                 <div class="text-muted fw-bold small mb-3 text-uppercase" style="letter-spacing:.08em;">Partners</div>
                 <ul class="list-unstyled" style="line-height:2.2;">
-                    <li><a href="/login/driver" class="text-muted text-decoration-none small">Driver Program</a></li>
-                    <li><a href="/login/admin" class="text-muted text-decoration-none small">Admin Console</a></li>
+                    <li><a href="/driver-login" class="text-muted text-decoration-none small">Driver Program</a></li>
+                    <li><a href="/admin-login" class="text-muted text-decoration-none small">Admin Console</a></li>
                 </ul>
             </div>
             <div class="col-md-4">

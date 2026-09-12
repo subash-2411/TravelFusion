@@ -1523,3 +1523,39 @@ body.theme-light .divider, body.theme-professional .divider {
     border-color: var(--border-color);
 }
 
+
+/* Google Button Responsive Wrapper */
+.google-btn-wrapper { width: 320px; max-width: 100%; margin: 0 auto; display: flex; justify-content: center; }
+@media (max-width: 450px) { .google-btn-wrapper { transform: scale(0.9); transform-origin: top center; margin-bottom: -5px; } }
+
+/* Mobile App Feel Adjustments */
+@media (max-width: 576px) {
+    .hero-headline { font-size: clamp(2rem, 8vw, 2.5rem) !important; line-height: 1.2 !important; margin-bottom: 0.8rem; }
+    .hero-subtext { font-size: 0.95rem !important; line-height: 1.5 !important; }
+    .hero-badge { font-size: 0.75rem; padding: 0.4rem 0.8rem; }
+    .navbar-brand { flex: 0 0 auto !important; max-width: calc(100% - 60px); }
+    .navbar-toggler { margin-left: auto !important; }
+    .hero-visual-card { padding: 1.5rem !important; }
+}
+
+/* Dashboard Mobile Fixes */
+@media (max-width: 768px) {
+    .app-topbar { padding: 0 1rem; }
+    .topbar-subtitle { display: none; }
+    .topbar-title { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    .glass-card { padding: 1.25rem !important; }
+    .stat-card { padding: 1.25rem; }
+    .map-container { height: 300px !important; min-height: 300px !important; }
+    .planner-card form .btn { padding: 0.8rem !important; font-size: 1rem !important; }
+    #dashboardRoot { overflow-x: hidden; width: 100%; max-width: 100vw; }
+}
+
+@media (max-width: 400px) {
+    .topbar-title { max-width: 110px !important; }
+    #travel_date, #passengers { padding-left: 30px !important; padding-right: 2px !important; font-size: 0.8rem !important; }
+    .input-group-text { padding-right: 5px !important; }
+    .app-topbar { padding: 0 0.5rem !important; }
+}
+
+body, html { overflow-x: hidden !important; max-width: 100vw; }
+
