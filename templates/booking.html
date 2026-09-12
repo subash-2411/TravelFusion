@@ -399,33 +399,66 @@
 
                 <!-- UPI Panel -->
                 <div id="panel-upi" class="pay-panel">
-                    <div class="text-center p-4" style="background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+                    <div class="text-center p-3 p-sm-4" style="background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.08);">
+                        
+                        <!-- 1-Tap UPI for Mobile Browsers -->
+                        <div class="mb-3 d-block d-md-none">
+                            <p class="text-white fw-bold mb-2 small text-uppercase" style="letter-spacing: 0.5px;">⚡ Instant 1-Tap UPI Apps</p>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <button type="button" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="background:rgba(103, 58, 183, 0.15); border:1px solid rgba(103, 58, 183, 0.4); color:#c4b5fd; border-radius:10px; font-weight:600; font-size:0.85rem;" onclick="payWithUpiApp('phonepe')">
+                                        <i class="bi bi-phone-fill text-purple"></i> PhonePe
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="background:rgba(66, 133, 244, 0.15); border:1px solid rgba(66, 133, 244, 0.4); color:#93c5fd; border-radius:10px; font-weight:600; font-size:0.85rem;" onclick="payWithUpiApp('gpay')">
+                                        <i class="bi bi-google text-primary"></i> Google Pay
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="background:rgba(0, 186, 242, 0.15); border:1px solid rgba(0, 186, 242, 0.4); color:#7dd3fc; border-radius:10px; font-weight:600; font-size:0.85rem;" onclick="payWithUpiApp('paytm')">
+                                        <i class="bi bi-p-circle-fill text-info"></i> Paytm
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="background:rgba(16, 185, 129, 0.15); border:1px solid rgba(16, 185, 129, 0.4); color:#6ee7b7; border-radius:10px; font-weight:600; font-size:0.85rem;" onclick="payWithUpiApp('bhim')">
+                                        <i class="bi bi-wallet-fill text-success"></i> BHIM UPI
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="position-relative my-3">
+                                <hr style="border-color: rgba(255,255,255,0.1);">
+                                <span class="position-absolute top-50 start-50 translate-middle px-2 small text-muted" style="background:#0f172a;">OR SCAN QR</span>
+                            </div>
+                        </div>
+
                         <div id="upi-qr-container" class="mx-auto mb-3" style="width:150px;height:150px;background:white;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:10px;">
                         </div>
                         <p class="text-white fw-700 mb-1">Scan with any UPI App</p>
                         <p class="text-muted small mb-3">PhonePe · Google Pay · BHIM · Paytm</p>
-                        <div class="input-group mx-auto" style="max-width:280px;">
-                            <input type="text" class="form-control form-glass text-center" id="upi-id-input" placeholder="or enter UPI ID: user@upi" value="travelfusion@upi">
-                            <button class="btn btn-glow btn-sm px-3" onclick="simulateUPIPayment()">Pay</button>
+                        
+                        <div class="input-group mx-auto mb-3" style="max-width:320px; width: 100%;">
+                            <input type="text" class="form-control form-glass text-center text-white" id="upi-id-input" placeholder="user@upi" value="travelfusion@upi" style="font-size:0.9rem;">
+                            <button class="btn btn-glow px-4" onclick="simulateUPIPayment()">Pay Now</button>
                         </div>
-                        <div id="upi-timer" class="text-muted mt-2 small" style="display:none;"><i class="bi bi-clock me-1"></i>Expires in <span id="upi-countdown">300</span>s</div>
+                        <div id="upi-timer" class="d-inline-flex align-items-center gap-1 badge rounded-pill px-3 py-2 shadow-sm" style="display:none; font-size:0.85rem; background: rgba(15,23,42,0.95); border: 1px solid rgba(56,189,248,0.4); color: #7dd3fc;"><i class="bi bi-clock-history text-warning me-1"></i>Expires in <span id="upi-countdown" class="fw-bold text-white ms-1 me-1">300</span>s</div>
                     </div>
                 </div>
 
                 <!-- Card Panel -->
                 <div id="panel-card" class="pay-panel" style="display:none;">
-                    <div class="card-flip-container mx-auto mb-4" style="width:340px;height:200px;perspective:1000px;">
+                    <div class="card-flip-container mx-auto mb-4" style="max-width:340px; width:100%; height:195px; perspective:1000px;">
                         <div id="card-visual" style="width:100%;height:100%;position:relative;transition:transform 0.6s;transform-style:preserve-3d;">
-                            <div style="position:absolute;width:100%;height:100%;border-radius:16px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);padding:20px;backface-visibility:hidden;box-shadow:0 20px 60px rgba(59,130,246,0.3);">
+                            <div class="p-3 p-sm-4 d-flex flex-column justify-content-between" style="position:absolute;width:100%;height:100%;border-radius:16px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);backface-visibility:hidden;box-shadow:0 20px 60px rgba(59,130,246,0.3);box-sizing:border-box;">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div class="text-white fw-700">TravelFusion</div>
                                     <i class="bi bi-credit-card-2-front-fill text-white" style="font-size:1.5rem;opacity:.7;"></i>
                                 </div>
-                                <div class="text-white mt-3 fw-700" style="font-size:1.1rem;letter-spacing:.15em;font-family:monospace;" id="card-number-display">•••• •••• •••• ••••</div>
-                                <div class="d-flex justify-content-between mt-3">
+                                <div class="text-white my-2 fw-700 text-truncate" style="font-size:clamp(0.9rem, 4.5vw, 1.1rem);letter-spacing:.12em;font-family:monospace;" id="card-number-display">•••• •••• •••• ••••</div>
+                                <div class="d-flex justify-content-between align-items-end mt-1">
                                     <div>
                                         <div class="text-white" style="font-size:.65rem;opacity:.7;">CARD HOLDER</div>
-                                        <div class="text-white fw-600" style="font-size:.85rem;" id="card-name-display">YOUR NAME</div>
+                                        <div class="text-white fw-600 text-truncate" style="font-size:.85rem; max-width: 150px;" id="card-name-display">YOUR NAME</div>
                                     </div>
                                     <div>
                                         <div class="text-white" style="font-size:.65rem;opacity:.7;">EXPIRES</div>
@@ -1302,9 +1335,30 @@
         setTimeout(() => executePayment('cod'), 1000);
     }
 
+    // ==== 1-Tap UPI for Mobile ====
+    function payWithUpiApp(app) {
+        showNotification('Launching UPI App', `Redirecting to ${app.toUpperCase()}...`, 'info');
+        const upiUrl = `upi://pay?pa=travelfusion@ybl&pn=TravelFusion+AI&am=${grandTotal}&cu=INR&tn=Booking+${optionType}`;
+        
+        // Attempt to trigger UPI intent for mobile devices
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+            window.location.href = upiUrl;
+            // Provide automatic simulation prompt in case user returns from UPI app
+            setTimeout(() => {
+                executePayment(`UPI (${app.toUpperCase()})`);
+            }, 2500);
+        } else {
+            // Desktop simulation
+            setTimeout(() => {
+                executePayment(`UPI (${app.toUpperCase()})`);
+            }, 800);
+        }
+    }
+
     // ==== Final Payment Execution ====
     function executePayment(method) {
-        const btn = document.querySelector('#step-payment .btn-glow');
+        const btn = document.querySelector('#step-payment .btn-glow') || document.querySelector('#panel-upi button');
         if (btn) {
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing Payment...';
@@ -1313,12 +1367,13 @@
         const payId = `pay_TF${Math.random().toString(36).substring(2,9).toUpperCase()}`;
         const txnId = `TXN${Math.floor(Math.random()*90000000)+10000000}`;
 
-        let passengersList = window.bookingPassengers;
+        let passengersList = window.bookingPassengers || [];
         let passengerPhone = null;
+
         if (isLocalIntercity) {
             if (missingProfile) {
-                const mName = document.getElementById('missing-name').value;
-                const mPhone = document.getElementById('missing-phone').value;
+                const mName = (document.getElementById('missing-name') && document.getElementById('missing-name').value.trim()) || '';
+                const mPhone = (document.getElementById('missing-phone') && document.getElementById('missing-phone').value.trim()) || '';
                 if (!mName || !mPhone) {
                     showNotification('Missing Details', 'Please enter your Name and Mobile Number.', 'warning');
                     if (btn) { btn.disabled = false; btn.innerHTML = 'Retry Payment'; }
@@ -1330,17 +1385,35 @@
                 passengersList = [{name: pName, age: 25, gender: 'Other', is_primary: true}];
                 passengerPhone = pPhone;
             }
+        } else {
+            // For standard long-distance / multimodal routes, ensure passengersList is never empty
+            if (!passengersList || passengersList.length === 0) {
+                const p1Name = (document.getElementById('p-name-1') && document.getElementById('p-name-1').value.trim()) || pName || 'Traveler';
+                const p1Age = (document.getElementById('p-age-1') && parseInt(document.getElementById('p-age-1').value)) || 25;
+                const p1Gender = (document.getElementById('p-gender-1') && document.getElementById('p-gender-1').value) || 'Male';
+                const p1Phone = (document.getElementById('p-phone-1') && document.getElementById('p-phone-1').value.trim()) || pPhone || '9876543210';
+                const p1Email = (document.getElementById('p-email-1') && document.getElementById('p-email-1').value.trim()) || 'traveler@example.com';
+                passengersList = [{
+                    name: p1Name,
+                    age: p1Age,
+                    gender: p1Gender,
+                    phone: p1Phone,
+                    email: p1Email
+                }];
+                passengerPhone = p1Phone;
+            }
         }
 
         const data = {
             option_type: optionType,
             passengers: passengersList,
             passenger_phone: passengerPhone,
-            seat_numbers: window.selectedSeats || [],
+            seat_numbers: (window.selectedSeats && window.selectedSeats.length > 0) ? window.selectedSeats : ['12A'],
             razorpay_payment_id: payId,
             payment_method: method,
             transaction_id: txnId,
-            amount: grandTotal
+            amount: grandTotal,
+            route_details: window.rawRoute || null
         };
 
         fetchAPI('/api/booking/confirm', 'POST', data).then(res => {
@@ -1353,10 +1426,11 @@
                     playPremiumAnimation(res.booking_id, txnId);
                 }
             } else {
-                showNotification('Error', res.error || 'Something went wrong.', 'danger');
+                showNotification('Error', res.error || 'Payment failed. Please retry.', 'danger');
                 if (btn) { btn.disabled = false; btn.innerHTML = 'Retry Payment'; }
             }
-        }).catch(() => {
+        }).catch(err => {
+            console.error('Payment confirm failed:', err);
             showNotification('Error', 'Payment failed. Please retry.', 'danger');
             if (btn) { btn.disabled = false; btn.innerHTML = 'Retry Payment'; }
         });
@@ -1599,6 +1673,38 @@
     background: rgba(59,130,246,0.15);
     border-color: rgba(59,130,246,0.4);
     color: #60a5fa;
+}
+
+@media (max-width: 576px) {
+    #payment-tabs {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+    }
+    .pay-tab {
+        padding: 0.5rem 0.5rem !important;
+        text-align: center !important;
+        font-size: 0.8rem !important;
+        width: 100% !important;
+    }
+    .pay-panel {
+        padding: 0 !important;
+    }
+    .card-flip-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 180px !important;
+    }
+    #card-number-display {
+        font-size: 0.92rem !important;
+        letter-spacing: 0.08em !important;
+    }
+    #step-payment .btn-glow, #step-payment .btn {
+        min-height: 48px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
 }
 </style>
 
