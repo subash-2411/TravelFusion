@@ -7,10 +7,12 @@
         background: rgba(15, 23, 42, 0.6);
         border: 2px solid rgba(255, 255, 255, 0.15);
         border-radius: 24px;
-        padding: 30px;
+        padding: 20px;
         margin: 20px auto;
         position: relative;
         box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        max-width: 100%;
+        overflow-x: auto;
     }
     
     /* Bus Frame */
@@ -284,21 +286,21 @@
             </div>
 
             <!-- Progress Indicator -->
-            <div class="glass-card p-3 mb-4">
+            <div class="glass-card p-3 mb-4 overflow-hidden">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">
                         <div style="width:28px;height:28px;border-radius:50%;background:var(--royal-blue);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:white;font-weight:700;">1</div>
-                        <span class="text-white fw-600 small">Passenger Details</span>
+                        <span class="text-white fw-600 small d-none d-sm-inline">Passenger Details</span>
                     </div>
                     <div style="flex:1;height:2px;background:rgba(255,255,255,0.08);margin:0 12px;"></div>
                     <div class="d-flex align-items-center gap-2">
                         <div id="step2-badge" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#64748b;font-weight:700;">2</div>
-                        <span class="text-muted fw-600 small" id="step2-label">Seat Selection</span>
+                        <span class="text-muted fw-600 small d-none d-sm-inline" id="step2-label">Seat Selection</span>
                     </div>
                     <div style="flex:1;height:2px;background:rgba(255,255,255,0.08);margin:0 12px;"></div>
                     <div class="d-flex align-items-center gap-2">
                         <div id="step3-badge" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#64748b;font-weight:700;">3</div>
-                        <span class="text-muted fw-600 small" id="step3-label">Payment</span>
+                        <span class="text-muted fw-600 small d-none d-sm-inline" id="step3-label">Payment</span>
                     </div>
                 </div>
             </div>

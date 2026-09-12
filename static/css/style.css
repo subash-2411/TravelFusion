@@ -1552,10 +1552,12 @@ body.theme-light .divider, body.theme-professional .divider {
 
 @media (max-width: 400px) {
     .topbar-title { max-width: 110px !important; }
-    #travel_date, #passengers { padding-left: 30px !important; padding-right: 2px !important; font-size: 0.8rem !important; }
     .input-group-text { padding-right: 5px !important; }
     .app-topbar { padding: 0 0.5rem !important; }
 }
 
 body, html { overflow-x: hidden !important; max-width: 100vw; }
+
+
+.app-main, .app-wrapper { overflow-x: hidden !important; width: 100%; max-width: 100vw; }
 

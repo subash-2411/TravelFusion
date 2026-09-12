@@ -214,7 +214,7 @@
             <div class="d-flex align-items-center gap-2 gap-md-3">
                 <button class="btn-icon d-lg-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
                 <div>
-                    <div class="topbar-title">Welcome back, <span class="notranslate" translate="no">{{ session.user_name }}</span>! <span style="font-size: 1.3rem; margin-left: 4px;">{{ session.status_emoji or '👋' }}</span></div>
+                    <div class="topbar-title"><span class="d-none d-sm-inline">Welcome back, </span><span class="d-inline d-sm-none">Hi, </span><span class="notranslate" translate="no">{{ session.user_name }}</span><span class="d-none d-sm-inline">!</span> <span style="font-size: 1.3rem; margin-left: 4px;">{{ session.status_emoji or '👋' }}</span></div>
                     <div class="topbar-subtitle">TravelFusion AI – {{ session.member_tier or 'Silver' }} Traveler ({{ session.preferred_mode or 'Train' }} Mode)</div>
                 </div>
             </div>
